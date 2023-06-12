@@ -32,6 +32,15 @@ class ChartFrame {
         this.$chartFrame.insertAdjacentHTML("beforeend", html)
     }
 
+    setTimeframe(timeframe) {
+        this.timeframe = timeframe
+        this.displayChart()
+    }
+
+    setTicker(ticker) {
+        this.ticker = ticker
+    }
+
     async displayChart() {
         await this.datafeed.loadData(this.ticker)
         let data = this.datafeed.getData(this.ticker, this.timeframe)

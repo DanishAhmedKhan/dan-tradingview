@@ -47,6 +47,9 @@ class ChartMain {
         `
 
         this.$chartMain.innerHTML = html
+
+        this.addTickerListener()
+        this.addTimeframeListener()
     }
 
     addChartFrame() {
@@ -58,25 +61,28 @@ class ChartMain {
         )
         chartFrame.displayChart()
         this.chartFrames.push(chartFrame)
+        this.activeChartFrame = chartFrame
     }
 
     getTimeframeHtml() {
-        return Timeframe.ALL_TIMEFRAME.reduce((acc, tf) => {
-            let v = tf.getTimeframeString()
+        return Timeframe.ALL_TIMEFRAME.reduce((acc, timeframe) => {
+            let timeframeStr = timeframe.getTimeframeString()
+            let frame = timeframe.getFrame()
+            let value = timeframe.getValue()
             return (acc += `
-                <div class="timeframe_item" data-value="${v}">
-                    ${v}
+                <div class="timeframe_item" data-frame="${frame}" data-value="${value}">
+                    ${timeframeStr}
                 </div>
             `)
         }, "")
     }
 
     getTickerHtml() {
-        return Ticker.ALL_TICKERS.reduce((acc, tk) => {
-            let selected = tk === Ticker.DEFAULT_TICKER ? "selected" : ""
+        return Ticker.ALL_TICKERS.reduce((acc, tickerStr) => {
+            let selected = tickerStr === Ticker.DEFAULT_TICKER ? "selected" : ""
             return (acc += `
-                <option class="ticker_item" ${selected} data-value="${tk}">
-                    ${tk}
+                <option class="ticker_item" ${selected} data-value="${tickerStr}">
+                    ${tickerStr}
                 </option>
             `)
         }, "")
@@ -87,8 +93,8 @@ class ChartMain {
             (acc, v) => {
                 let val = v.value
                 return (acc += `
-                <div class="chart_frame_item" data-value="${val}">${val}</div>
-            `)
+                    <div class="chart_frame_item" data-value="${val}">${val}</div>
+                `)
             },
             ""
         )
@@ -103,20 +109,22 @@ class ChartMain {
     }
 
     addTimeframeListener() {
-        let $timeframe = this.$chartFrame.querySelectorAll(
+        let $timeframe = this.$chartMain.querySelectorAll(
             ".header .timeframe_item"
         )
 
         $timeframe.forEach(($tf) => {
             $tf.addEventListener("click", (e) => {
-                let tf = $tk.getAttribute("data-value")
-                this.timeframe.setTimeframe(tf)
+                let frame = $tf.getAttribute("data-frame")
+                let value = $tf.getAttribute("data-value")
+                let timeframe = new Timeframe(frame, value)
+                this.activeChartFrame.setTimeframe(timeframe)
             })
         })
     }
 
     addTickerListener() {
-        let $ticker = this.$chartFrame.querySelectorAll(".header .ticker_item")
+        let $ticker = this.$chartMain.querySelectorAll(".header .ticker_item")
 
         $ticker.forEach(($tk) => {
             $tk.addEventListener("click", (e) => {

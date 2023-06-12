@@ -41,7 +41,6 @@ class Datafeed {
 
     async initFilename(ticker) {
         let filepath = this.BASE_FILEPATH + `${ticker}/dates.csv`
-        console.log(filepath)
         let file = await fetch(filepath)
         let text = await file.text()
         this.dateFilename = text.split("\n")
@@ -93,8 +92,6 @@ class Datafeed {
             await this.loadDataTimeframe(ticker, Timeframe.DAY, dayValues)
             this.fileCount.D++
         }
-
-        console.log(this.data)
     }
 
     async loadDataTimeframe(ticker, unit, values) {
@@ -104,13 +101,17 @@ class Datafeed {
         let tempData = {}
         let dataCount = {}
         let dataThreshold = {}
+        let timeIntervalCycle
 
-        values.forEach((v) => {
-            let timeframe = unit + v
+        if (unit === Timeframe.MINUTE) timeIntervalCycle = 60
+        if (unit === Timeframe.HOUR) timeIntervalCycle = 24
+
+        values.forEach((val) => {
+            let timeframe = unit + val
             data[timeframe] = []
             tempData[timeframe] = []
             dataCount[timeframe] = 0
-            dataThreshold[timeframe] = v - 1
+            dataThreshold[timeframe] = val
         })
 
         let filename = this.getFilename(unit)
@@ -164,25 +165,25 @@ class Datafeed {
                 },
             }
 
-            let val
-            if (unit === Timeframe.MINUTE) val = m
-            else if (unit === Timeframe.HOUR) val = h
+            let timeValue
+            if (unit === Timeframe.MINUTE) timeValue = m
+            else if (unit === Timeframe.HOUR) timeValue = h
 
             data[unit + values[0]].push(candleData)
 
             values.slice(1).forEach((v) => {
                 let tf = unit + v
-                tempData[tf].push(candleData)
+
                 if (
-                    val - dataCount[tf] >= dataThreshold[tf] ||
-                    val < dataCount[tf]
+                    timeValue % dataThreshold[tf] === 0 &&
+                    tempData[tf].length > 0
                 ) {
                     let combineData = this.combineCandleData(tempData[tf])
                     data[tf].push(combineData)
-                    dataCount[tf] = dataCount[tf] + dataThreshold[tf] + 1
-                    if (dataCount[tf] >= 24) dataCount[tf] = 0
                     tempData[tf] = []
                 }
+
+                tempData[tf].push(candleData)
             })
         }
 

@@ -17,7 +17,6 @@ class Timeframe {
         new Timeframe(Timeframe.HOUR, 4),
         new Timeframe(Timeframe.HOUR, 6),
         new Timeframe(Timeframe.DAY, 1),
-        new Timeframe(Timeframe.DAY, 3),
     ]
 
     frame
