@@ -1,4 +1,5 @@
 class ChartMain {
+    // TODO: Implement multi chart frame
     chartFrames
     activeChartFrame
     frameCount
@@ -124,13 +125,15 @@ class ChartMain {
     }
 
     addTickerListener() {
-        let $ticker = this.$chartMain.querySelectorAll(".header .ticker_item")
+        let $tickerSelect = this.$chartMain.querySelector(
+            ".header .header_ticker_select select"
+        )
 
-        $ticker.forEach(($tk) => {
-            $tk.addEventListener("click", (e) => {
-                let tk = $tk.getAttribute("data-value")
-                this.ticker.setTicker(tk)
-            })
+        $tickerSelect.addEventListener("input", (e) => {
+            let $option = $tickerSelect.options[$tickerSelect.selectedIndex]
+            let tickerStr = $option.getAttribute("data-value")
+            let ticker = new Ticker(tickerStr)
+            this.activeChartFrame.setTicker(ticker)
         })
     }
 }

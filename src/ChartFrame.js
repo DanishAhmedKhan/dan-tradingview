@@ -28,7 +28,6 @@ class ChartFrame {
             <div class="chart_frame_wrapper" data-frame-index="${frameIndex}">
             </div>
         `
-
         this.$chartFrame.insertAdjacentHTML("beforeend", html)
     }
 
@@ -38,7 +37,9 @@ class ChartFrame {
     }
 
     setTicker(ticker) {
+        // TODO: Changing tikcer gives error; fix it
         this.ticker = ticker
+        this.displayChart()
     }
 
     async displayChart() {

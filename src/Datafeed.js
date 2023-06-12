@@ -99,7 +99,6 @@ class Datafeed {
 
         let data = {}
         let tempData = {}
-        let dataCount = {}
         let dataThreshold = {}
         let timeIntervalCycle
 
@@ -110,12 +109,11 @@ class Datafeed {
             let timeframe = unit + val
             data[timeframe] = []
             tempData[timeframe] = []
-            dataCount[timeframe] = 0
             dataThreshold[timeframe] = val
         })
 
         let filename = this.getFilename(unit)
-        let filepath = `../data/${tk}/${unit}/${filename}`
+        let filepath = this.BASE_FILEPATH + `${tk}/${unit}/${filename}`
 
         let fileData = await fetch(filepath)
         let dataText = await fileData.text()
@@ -183,6 +181,7 @@ class Datafeed {
                     tempData[tf] = []
                 }
 
+                // TODO: combine the last tempData after iteration is complete
                 tempData[tf].push(candleData)
             })
         }

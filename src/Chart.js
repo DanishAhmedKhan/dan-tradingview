@@ -24,7 +24,22 @@ class Chart {
     initChart() {
         this.chartWidth = 1500
         this.chartHeight = 880
-        this.chartGridColor = "#eee"
+        this.chartGridColor = "#eeeeee"
+
+        let theme = "theme1"
+        let themeOption
+
+        // TODO: Implement tempelate style select
+        if (theme === "theme1") {
+            themeOption = {
+                upColor: "#ffffff",
+                downColor: "#000000",
+                borderUpColor: "#000000",
+                borderDownColor: "#000000",
+                wickUpColor: "#000000",
+                wickDownColor: "#000000",
+            }
+        }
 
         this.chartOption = {
             autoSize: true,
@@ -43,12 +58,12 @@ class Chart {
                 vertLine: {
                     width: 1,
                     color: "#9B7DFF",
-                    labelBackgroundColor: "#9B7DFF",
+                    labelBackgroundColor: "#000",
                 },
                 horzLine: {
                     width: 1,
                     color: "#9B7DFF",
-                    labelBackgroundColor: "#9B7DFF",
+                    labelBackgroundColor: "#000",
                 },
             },
         }
@@ -60,6 +75,12 @@ class Chart {
         this.candleSeries = this.chart.addCandlestickSeries()
 
         this.candleSeriesOption = {
+            upColor: themeOption.upColor,
+            downColor: themeOption.downColor,
+            borderUpColor: themeOption.borderUpColor,
+            borderDownColor: themeOption.borderDownColor,
+            wickUpColor: themeOption.wickUpColor,
+            wickDownColor: themeOption.wickDownColor,
             priceFormat: {
                 type: "price",
                 precision: 5,
