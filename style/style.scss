@@ -1,0 +1,69 @@
+.body_wrapper {
+
+    .chart_main_wrapper {
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+
+            .header_left {
+                display: flex;
+                align-items: center;
+
+                .header_ticker_select {
+                    margin-right: 20px;
+
+                    select {
+                        border: 1px solid black;
+                        border-radius: 0px;
+                        outline: none;
+                        padding: 10px;
+                    }
+                }
+
+                .header_timeframe_select {
+                    display: flex;
+
+                    .timeframe_item {
+                        width: 30px;
+                        border: 1px solid black;
+                        padding: 10px;
+                        text-align: center;
+                        cursor: pointer;
+                        margin-right: 10px;
+
+                        &:last-child {
+                            margin-right: 0px;
+                        }
+                    }
+                }
+            }
+
+            .header_right {
+                display: flex;
+                align-items: center;
+
+                .header_chart_frame_select {
+                    display: flex;
+
+                    .chart_frame_item {
+                        width: 30px;
+                        border: 1px solid black;
+                        padding: 10px;
+                        text-align: center;
+                        cursor: pointer;
+                        margin-right: 10px;
+
+                        &:last-child {
+                            margin-right: 0px;
+                        }
+                    }
+                }
+            }
+        }
+
+        .chart_main_frames {}
+    }
+
+}

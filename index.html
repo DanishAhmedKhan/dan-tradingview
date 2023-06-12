@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>FXCM</title>
+        <link rel="stylesheet" href="./style/style.css" />
+    </head>
+    <body>
+        <div class="body_wrapper"></div>
+
+        <!-- <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script> -->
+
+        <script src="./lib/lightweight-charts.js"></script>
+
+        <script src="./src/Timeframe.js"></script>
+        <script src="./src/Ticker.js"></script>
+        <script src="./src/Datafeed.js"></script>
+        <script src="./src/Chart.js"></script>
+        <script src="./src/ChartFrame.js"></script>
+        <script src="./src/ChartMain.js"></script>
+        <script>
+            let chartMain = new ChartMain("body_wrapper")
+        </script>
+    </body>
+</html>
