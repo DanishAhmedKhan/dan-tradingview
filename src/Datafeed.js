@@ -57,7 +57,13 @@ class Datafeed {
 
     async loadData(ticker) {
         let tk = ticker.getTicker()
-        if (!this.data[tk]) this.data[tk] = {}
+        if (!this.data[tk]) {
+            this.data[tk] = {}
+            Timeframe.ALL_TIMEFRAME.forEach((tf) => {
+                let timeframeStr = tf.getTimeframeString()
+                this.data[tk][timeframeStr] = []
+            })
+        }
 
         if (!this.dateFilename) {
             await this.initFilename(tk)
@@ -82,7 +88,7 @@ class Datafeed {
             await this.loadDataTimeframe(ticker, Timeframe.MINUTE, minuteValues)
             this.fileCount.M++
         }
-        for (let i = 0; i < 1; i++) {
+        for (let i = 0; i < 5; i++) {
             if (this.fileCount.H < this.dateFilename.length) {
                 await this.loadDataTimeframe(ticker, Timeframe.HOUR, hourValues)
                 this.fileCount.H++
@@ -92,6 +98,8 @@ class Datafeed {
             await this.loadDataTimeframe(ticker, Timeframe.DAY, dayValues)
             this.fileCount.D++
         }
+
+        console.log(this.data)
     }
 
     async loadDataTimeframe(ticker, unit, values) {

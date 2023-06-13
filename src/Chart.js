@@ -5,11 +5,15 @@ class Chart {
     candleSeries
     candleSeriesOption
 
+    chartFrame
+
     chartWidth
     chartHeight
     chartGridColor
 
-    constructor($chart) {
+    constructor($chart, chartFrame) {
+        this.chartFrame = chartFrame
+
         if ($chart instanceof HTMLElement) this.$chart = $chart
         else {
             let $div = document.createElement("div")
@@ -89,13 +93,37 @@ class Chart {
         }
 
         this.candleSeries.applyOptions(this.candleSeriesOption)
+        this.addChartScrollListener()
     }
 
     setCandleSeriesOption(option) {
         this.candleSeries.applyOptions(option)
     }
 
-    displayData(data) {
+    resetChartScale() {
+        this.chart.priceScale("right").applyOptions({
+            autoScale: true,
+        })
+    }
+
+    addDataToCandleSeries(data) {
         this.candleSeries.setData(data)
+    }
+
+    addChartScrollListener() {
+        const LOAD_THRESHOLD = 500
+        const onVisibleLogicalRangeChanged = (newVisibleLogicalRange) => {
+            const barsInfo = this.candleSeries.barsInLogicalRange(
+                newVisibleLogicalRange
+            )
+            if (barsInfo != null && barsInfo.barsBefore < LOAD_THRESHOLD) {
+                console.log("loadoing data...")
+                this.chartFrame.displayChart()
+            }
+        }
+
+        this.chart
+            .timeScale()
+            .subscribeVisibleLogicalRangeChange(onVisibleLogicalRangeChanged)
     }
 }

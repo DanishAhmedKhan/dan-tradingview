@@ -1,26 +1,26 @@
 class Ticker {
     static ALL_TICKERS = [
-        "AUDCAD",
-        "AUDCHF",
-        "AUDJPY",
-        "AUDNZD",
-        "CADCHF",
-        "EURAUD",
-        "EURCHF",
-        "EURGBP",
-        "EURJPY",
+        // "AUDCAD",
+        // "AUDCHF",
+        // "AUDJPY",
+        // "AUDNZD",
+        // "CADCHF",
+        // "EURAUD",
+        // "EURCHF",
+        // "EURGBP",
+        // "EURJPY",
         "EURUSD",
-        "GBPCHF",
-        "GBPJPY",
-        "GBPNZD",
+        // "GBPCHF",
+        // "GBPJPY",
+        // "GBPNZD",
         "GBPUSD",
-        "NZDCAD",
-        "NZDCHF",
-        "NZDJPY",
-        "NZDUSD",
-        "USDCAD",
-        "USDCHF",
-        "USDJPY",
+        // "NZDCAD",
+        // "NZDCHF",
+        // "NZDJPY",
+        // "NZDUSD",
+        // "USDCAD",
+        // "USDCHF",
+        // "USDJPY",
     ]
 
     static DEFAULT_TICKER = "EURUSD"
@@ -28,11 +28,14 @@ class Ticker {
     ticker
 
     constructor(ticker) {
-        this.ticker = ticker ? this.ticker : Ticker.DEFAULT_TICKER
+        this.ticker =
+            ticker && this.isValidTicker(ticker)
+                ? ticker
+                : Ticker.DEFAULT_TICKER
     }
 
-    isValidTicker(ticker) {
-        return ALL_TICKERS.includes(ticker)
+    isValidTicker(tickerStr) {
+        return Ticker.ALL_TICKERS.includes(tickerStr)
     }
 
     getTicker() {

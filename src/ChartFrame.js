@@ -5,6 +5,9 @@ class ChartFrame {
     chart
 
     $chartFrame
+    frameIndex
+
+    dataLoaded = false
 
     constructor(elm, datafeed, frameIndex) {
         this.addChart(elm, frameIndex)
@@ -12,13 +15,30 @@ class ChartFrame {
         this.ticker = new Ticker()
         this.timeframe = new Timeframe()
         this.datafeed = datafeed
+        this.frameIndex = frameIndex
 
         let $chart = this.$chartFrame.querySelector(".chart_frame_wrapper")
-        this.chart = new Chart($chart)
+        this.chart = new Chart($chart, this)
+    }
+
+    getFrameIndex() {
+        return this.frameIndex
+    }
+
+    setFrameIndex(frameIndex) {
+        this.frameIndex = frameIndex
+    }
+
+    getdataLoaded() {
+        return this.dataLoaded
+    }
+
+    setDataLoaded(dataLoaded) {
+        this.dataLoaded = dataLoaded
     }
 
     addChart(elm, frameIndex) {
-        if (elm instanceof String) {
+        if (typeof elm === "string") {
             this.$chartFrame = document.querySelector("." + elm)
         } else {
             this.$chartFrame = elm
@@ -37,7 +57,6 @@ class ChartFrame {
     }
 
     setTicker(ticker) {
-        // TODO: Changing tikcer gives error; fix it
         this.ticker = ticker
         this.displayChart()
     }
@@ -45,6 +64,13 @@ class ChartFrame {
     async displayChart() {
         await this.datafeed.loadData(this.ticker)
         let data = this.datafeed.getData(this.ticker, this.timeframe)
-        this.chart.displayData(data)
+        this.chart.resetChartScale()
+        this.chart.addDataToCandleSeries(data)
+    }
+
+    static getChartFrame(chartframes, index) {
+        chartframes.forEach((cf) => {
+            if (cf.getFrameIndex() === index) return cf
+        })
     }
 }
