@@ -111,13 +111,14 @@ class Chart {
     }
 
     addChartScrollListener() {
-        const LOAD_THRESHOLD = 500
+        const LOAD_THRESHOLD = 300
         const onVisibleLogicalRangeChanged = (newVisibleLogicalRange) => {
             const barsInfo = this.candleSeries.barsInLogicalRange(
                 newVisibleLogicalRange
             )
             if (barsInfo != null && barsInfo.barsBefore < LOAD_THRESHOLD) {
                 console.log("loadoing data...")
+                this.chartFrame.setDataLoaded(false)
                 this.chartFrame.displayChart()
             }
         }

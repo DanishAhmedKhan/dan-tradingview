@@ -8,7 +8,7 @@ class Datafeed {
 
     constructor() {
         this.data = {}
-        this.fileCount = { M: 0, H: 0, D: 0 }
+        this.fileCount = {}
     }
 
     getData() {
@@ -50,13 +50,18 @@ class Datafeed {
         this.dateFilename.reverse()
     }
 
-    getFilename(unit) {
+    getFilename(ticker, unit) {
         if (unit === "D") return "ALL.csv"
-        return `${this.dateFilename[this.fileCount[unit]]}.csv`
+        return `${this.dateFilename[this.fileCount[ticker][unit]]}.csv`
     }
 
     async loadData(ticker) {
         let tk = ticker.getTicker()
+
+        if (!this.fileCount[tk]) {
+            this.fileCount[tk] = { M: 0, H: 0, D: 0 }
+        }
+
         if (!this.data[tk]) {
             this.data[tk] = {}
             Timeframe.ALL_TIMEFRAME.forEach((tf) => {
@@ -84,19 +89,19 @@ class Datafeed {
             else if (frame === Timeframe.DAY) dayValues.push(value)
         })
 
-        if (this.fileCount.M < this.dateFilename.length) {
+        if (this.fileCount[tk].M < this.dateFilename.length) {
             await this.loadDataTimeframe(ticker, Timeframe.MINUTE, minuteValues)
-            this.fileCount.M++
+            this.fileCount[tk].M++
         }
         for (let i = 0; i < 5; i++) {
-            if (this.fileCount.H < this.dateFilename.length) {
+            if (this.fileCount[tk].H < this.dateFilename.length) {
                 await this.loadDataTimeframe(ticker, Timeframe.HOUR, hourValues)
-                this.fileCount.H++
+                this.fileCount[tk].H++
             }
         }
-        if (this.fileCount.D === 0) {
+        if (this.fileCount[tk].D === 0) {
             await this.loadDataTimeframe(ticker, Timeframe.DAY, dayValues)
-            this.fileCount.D++
+            this.fileCount[tk].D++
         }
 
         console.log(this.data)
@@ -120,7 +125,7 @@ class Datafeed {
             dataThreshold[timeframe] = val
         })
 
-        let filename = this.getFilename(unit)
+        let filename = this.getFilename(tk, unit)
         let filepath = this.BASE_FILEPATH + `${tk}/${unit}/${filename}`
 
         let fileData = await fetch(filepath)

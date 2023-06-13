@@ -7,7 +7,7 @@ url = 'https://candledata.fxcorporate.com/'
 url_suffix = '.csv.gz'
 storage_options = {'User-Agent': 'Mozilla/5.0'}
 
-tickers = ['EURUSD', 'GBPUSD']
+tickers = ['USDJPY']
 # AUDCAD,AUDCHF,AUDJPY, AUDNZD,CADCHF,EURAUD,EURCHF,EURGBP
 # EURJPY,EURUSD,GBPCHF,GBPJPY,GBPNZD,GBPUSD,GBPCHF,GBPJPY
 # GBPNZD,NZDCAD,NZDCHF.NZDJPY,NZDUSD,USDCAD,USDCHF,USDJPY

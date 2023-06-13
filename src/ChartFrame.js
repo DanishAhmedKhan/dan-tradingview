@@ -62,7 +62,11 @@ class ChartFrame {
     }
 
     async displayChart() {
-        await this.datafeed.loadData(this.ticker)
+        if (!this.dataLoaded) {
+            await this.datafeed.loadData(this.ticker)
+            this.dataLoaded = true
+        }
+
         let data = this.datafeed.getData(this.ticker, this.timeframe)
         this.chart.resetChartScale()
         this.chart.addDataToCandleSeries(data)

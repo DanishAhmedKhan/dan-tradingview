@@ -20,7 +20,7 @@ class Ticker {
         // "NZDUSD",
         // "USDCAD",
         // "USDCHF",
-        // "USDJPY",
+        "USDJPY",
     ]
 
     static DEFAULT_TICKER = "EURUSD"

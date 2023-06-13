@@ -133,6 +133,7 @@ class ChartMain {
             let $option = $tickerSelect.options[$tickerSelect.selectedIndex]
             let tickerStr = $option.getAttribute("data-value")
             let ticker = new Ticker(tickerStr)
+            this.activeChartFrame.setDataLoaded(false)
             this.activeChartFrame.setTicker(ticker)
         })
     }
