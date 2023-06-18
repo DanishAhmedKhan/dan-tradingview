@@ -51,7 +51,9 @@ class Datafeed {
     }
 
     getFilename(ticker, unit) {
-        if (unit === "D") return "ALL.csv"
+        if (unit === Timeframe.DAY) return "ALL.csv"
+        if (unit === Timeframe.MINUTE)
+            console.log("index", this.fileCount[ticker][unit])
         return `${this.dateFilename[this.fileCount[ticker][unit]]}.csv`
     }
 
@@ -89,11 +91,17 @@ class Datafeed {
             else if (frame === Timeframe.DAY) dayValues.push(value)
         })
 
-        if (this.fileCount[tk].M < this.dateFilename.length) {
-            await this.loadDataTimeframe(ticker, Timeframe.MINUTE, minuteValues)
-            this.fileCount[tk].M++
+        for (let i = 1; i <= 2; i++) {
+            if (this.fileCount[tk].M < this.dateFilename.length) {
+                await this.loadDataTimeframe(
+                    ticker,
+                    Timeframe.MINUTE,
+                    minuteValues
+                )
+                this.fileCount[tk].M++
+            }
         }
-        for (let i = 0; i < 5; i++) {
+        for (let i = 1; i <= 5; i++) {
             if (this.fileCount[tk].H < this.dateFilename.length) {
                 await this.loadDataTimeframe(ticker, Timeframe.HOUR, hourValues)
                 this.fileCount[tk].H++
@@ -126,6 +134,7 @@ class Datafeed {
         })
 
         let filename = this.getFilename(tk, unit)
+        if (unit === Timeframe.MINUTE) console.log("filename", filename, unit)
         let filepath = this.BASE_FILEPATH + `${tk}/${unit}/${filename}`
 
         let fileData = await fetch(filepath)

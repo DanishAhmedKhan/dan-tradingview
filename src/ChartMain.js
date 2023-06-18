@@ -110,12 +110,17 @@ class ChartMain {
     }
 
     addTimeframeListener() {
-        let $timeframe = this.$chartMain.querySelectorAll(
+        let $timeframeItem = this.$chartMain.querySelectorAll(
             ".header .timeframe_item"
         )
 
-        $timeframe.forEach(($tf) => {
+        $timeframeItem.forEach(($tf) => {
             $tf.addEventListener("click", (e) => {
+                $timeframeItem.forEach(($t) =>
+                    $t.classList.remove("timeframe_item_selected")
+                )
+                $tf.classList.add("timeframe_item_selected")
+
                 let frame = $tf.getAttribute("data-frame")
                 let value = $tf.getAttribute("data-value")
                 let timeframe = new Timeframe(frame, value)

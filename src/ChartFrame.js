@@ -7,7 +7,7 @@ class ChartFrame {
     $chartFrame
     frameIndex
 
-    dataLoaded = false
+    isDataLoaded = false
 
     constructor(elm, datafeed, frameIndex) {
         this.addChart(elm, frameIndex)
@@ -29,12 +29,12 @@ class ChartFrame {
         this.frameIndex = frameIndex
     }
 
-    getdataLoaded() {
-        return this.dataLoaded
+    getIsDataLoaded() {
+        return this.isDataLoaded
     }
 
-    setDataLoaded(dataLoaded) {
-        this.dataLoaded = dataLoaded
+    setIsDataLoaded(isDataLoaded) {
+        this.isDataLoaded = isDataLoaded
     }
 
     addChart(elm, frameIndex) {
@@ -62,13 +62,13 @@ class ChartFrame {
     }
 
     async displayChart() {
-        if (!this.dataLoaded) {
+        if (!this.isDataLoaded) {
             await this.datafeed.loadData(this.ticker)
-            this.dataLoaded = true
+            this.isDataLoaded = true
         }
 
         let data = this.datafeed.getData(this.ticker, this.timeframe)
-        this.chart.resetChartScale()
+        // this.chart.resetChartScale()
         this.chart.addDataToCandleSeries(data)
     }
 

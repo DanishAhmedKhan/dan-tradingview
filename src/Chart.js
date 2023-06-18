@@ -117,9 +117,10 @@ class Chart {
                 newVisibleLogicalRange
             )
             if (barsInfo != null && barsInfo.barsBefore < LOAD_THRESHOLD) {
-                console.log("loadoing data...")
-                this.chartFrame.setDataLoaded(false)
-                this.chartFrame.displayChart()
+                if (this.chartFrame.getIsDataLoaded()) {
+                    this.chartFrame.setIsDataLoaded(false)
+                    this.chartFrame.displayChart()
+                }
             }
         }
 
