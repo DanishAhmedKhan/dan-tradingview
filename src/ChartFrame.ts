@@ -1,7 +1,15 @@
 import { Ticker } from './Ticker'
-import { Timeframe } from './Timeframe'
+import { Timeframe, TimeframeUnit } from './Timeframe'
 import { Datafeed } from './Datafeed'
 import { Chart } from './Chart'
+
+type ChartFrameData = {
+    ticker: string,
+    timeframe: {
+        unit: string,
+        value: number,
+    }
+}
 
 class ChartFrame {
     
@@ -12,10 +20,11 @@ class ChartFrame {
 
     private $chartFrame: HTMLDivElement
     private frameIndex: number
+    private chartFrameData: ChartFrameData
 
     private isDataLoaded: boolean
 
-    constructor(elm: HTMLDivElement | string, ticker: Ticker, timeframe: Timeframe, datafeed: Datafeed, frameIndex: number) {
+    constructor(elm: HTMLDivElement | string, datafeed: Datafeed, frameIndex: number) {
         if (typeof elm === "string") {
             this.$chartFrame = document.querySelector("." + elm)!
         } else {
@@ -28,15 +37,39 @@ class ChartFrame {
         `
         this.$chartFrame.insertAdjacentHTML("beforeend", html)
 
-        this.ticker = ticker
-        this.timeframe = timeframe
         this.datafeed = datafeed
         this.frameIndex = frameIndex
+
+        this.chartFrameData = this.getChartFrameData()
+        if (this.chartFrameData) {
+            this.ticker = new Ticker(this.chartFrameData.ticker)
+            this.timeframe = new Timeframe(
+                <TimeframeUnit>this.chartFrameData.timeframe.unit, 
+                this.chartFrameData.timeframe.value
+            )
+        } else {
+            this.ticker = Ticker.DEFAULT_TICKER
+            this.timeframe = Timeframe.DEFAULT_TIMEFRAME
+            this.chartFrameData = {
+                ticker: this.ticker.getTicker(),
+                timeframe: this.timeframe.getTimeframe(),
+            }
+        }
 
         this.isDataLoaded = false
 
         let $chart: HTMLDivElement = this.$chartFrame.querySelector(".chart_frame_wrapper")!
         this.chart = new Chart($chart, this)
+    }
+
+    private getChartFrameData(): ChartFrameData {
+        let key = 'data-chart-frame' + this.frameIndex
+        return JSON.parse(localStorage.getItem(key)!)
+    }
+
+    private saveChartFrameData(): void {
+        let key = 'data-chart-frame' + this.frameIndex
+        localStorage.setItem(key, JSON.stringify(this.chartFrameData))
     }
 
     public getFrameIndex(): number {
@@ -45,6 +78,7 @@ class ChartFrame {
 
     public setFrameIndex(frameIndex: number): void {
         this.frameIndex = frameIndex
+        this.saveChartFrameData()
     }
 
     public getIsDataLoaded(): boolean {
@@ -55,14 +89,31 @@ class ChartFrame {
         this.isDataLoaded = isDataLoaded
     }
 
+    public getTimeframe(): Timeframe {
+        return this.timeframe
+    }
+
+    public getTicker(): Ticker {
+        return this.ticker
+    }
+
     public setTimeframe(timeframe: Timeframe): void {
+        console.log(timeframe.getTimeframe(), this.chartFrameData)
+        this.chartFrameData.timeframe = timeframe.getTimeframe()
+        this.saveChartFrameData()
+
+        let shouldDisplayChart: boolean = this.timeframe.getTimeframeString() !== timeframe.getTimeframeString()
         this.timeframe = timeframe
-        this.displayChart()
+        if (shouldDisplayChart) this.displayChart()
     }
 
     public setTicker(ticker: Ticker): void {
+        this.chartFrameData.ticker = ticker.getTicker()
+        this.saveChartFrameData()
+
+        let shouldDisplayChart: boolean = this.ticker.getTicker() !== ticker.getTicker()
         this.ticker = ticker
-        this.displayChart()
+        if (shouldDisplayChart) this.displayChart()
     }
 
     public async displayChart() {

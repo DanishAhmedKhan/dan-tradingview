@@ -33,6 +33,7 @@
   margin-right: 0px;
 }
 .body_wrapper .chart_main_wrapper .header .header_left .header_timeframe_select .timeframe_item.timeframe_item_selected {
+  font-weight: bold;
   background-color: #eee;
   border-color: #000;
 }

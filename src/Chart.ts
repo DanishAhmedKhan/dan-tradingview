@@ -6,7 +6,6 @@ declare global {
     }
 }
 
-
 enum ChartTheme {
     THEME_1,
     LIGHT,

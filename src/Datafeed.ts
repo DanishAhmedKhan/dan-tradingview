@@ -63,7 +63,6 @@ class Datafeed {
     public getTickerTimeframeData(ticker: Ticker, timeframe: Timeframe): Array<Data> {
         let tk = ticker.getTicker()
         let tf = timeframe.getTimeframeString()
-        console.log(this.data)
         if (this.data.hasOwnProperty(tk) && this.data[tk].hasOwnProperty(tf))
             return this.data[tk][tf]
 
