@@ -66,12 +66,13 @@ class ChartMain {
     }
 
     getTimeframeHtml() {
-        return Timeframe.ALL_TIMEFRAME.reduce((acc, timeframe) => {
+        return Timeframe.ALL_TIMEFRAME.reduce((acc, timeframe, index) => {
+            let selectedClass = index === 0 ? "timeframe_item_selected" : ""
             let timeframeStr = timeframe.getTimeframeString()
             let frame = timeframe.getFrame()
             let value = timeframe.getValue()
             return (acc += `
-                <div class="timeframe_item" data-frame="${frame}" data-value="${value}">
+                <div class="timeframe_item ${selectedClass}" data-frame="${frame}" data-value="${value}">
                     ${timeframeStr}
                 </div>
             `)

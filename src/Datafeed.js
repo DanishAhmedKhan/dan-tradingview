@@ -52,8 +52,6 @@ class Datafeed {
 
     getFilename(ticker, unit) {
         if (unit === Timeframe.DAY) return "ALL.csv"
-        if (unit === Timeframe.MINUTE)
-            console.log("index", this.fileCount[ticker][unit])
         return `${this.dateFilename[this.fileCount[ticker][unit]]}.csv`
     }
 
@@ -111,8 +109,6 @@ class Datafeed {
             await this.loadDataTimeframe(ticker, Timeframe.DAY, dayValues)
             this.fileCount[tk].D++
         }
-
-        console.log(this.data)
     }
 
     async loadDataTimeframe(ticker, unit, values) {
@@ -134,7 +130,6 @@ class Datafeed {
         })
 
         let filename = this.getFilename(tk, unit)
-        if (unit === Timeframe.MINUTE) console.log("filename", filename, unit)
         let filepath = this.BASE_FILEPATH + `${tk}/${unit}/${filename}`
 
         let fileData = await fetch(filepath)
