@@ -1,5 +1,5 @@
 class Ticker {
-    static ALL_TICKERS = [
+    public static readonly ALL_TICKERS: Array<string> = [
         // "AUDCAD",
         // "AUDCHF",
         // "AUDJPY",
@@ -23,30 +23,33 @@ class Ticker {
         "USDJPY",
     ]
 
-    static DEFAULT_TICKER = "EURUSD"
+    public static readonly DEFAULT_TICKER_STRING = "EURUSD"
+    public static readonly DEFAULT_TICKER: Ticker = new Ticker(this.DEFAULT_TICKER_STRING)
 
-    ticker
+    private ticker
 
-    constructor(ticker) {
+    constructor(ticker: string) {
         this.ticker =
             ticker && this.isValidTicker(ticker)
                 ? ticker
-                : Ticker.DEFAULT_TICKER
+                : Ticker.DEFAULT_TICKER.getTicker()
     }
 
-    isValidTicker(tickerStr) {
-        return Ticker.ALL_TICKERS.includes(tickerStr)
+    public isValidTicker(ticker: string): boolean {
+        return Ticker.ALL_TICKERS.includes(ticker)
     }
 
-    getTicker() {
+    public getTicker(): string {
         return this.ticker
     }
 
-    setTicker(ticker) {
+    public setTicker(ticker: string): void {
         if (this.isValidTicker(ticker)) {
             this.ticker = ticker
         } else {
-            console.log("Invalid ticker")
+            throw Error("Invalid ticker")
         }
     }
 }
+
+export { Ticker }

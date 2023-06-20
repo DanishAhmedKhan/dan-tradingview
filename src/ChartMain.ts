@@ -1,29 +1,44 @@
+import { Ticker } from './Ticker'
+import { Timeframe, TimeframeUnit } from './Timeframe'
+import { Datafeed } from './Datafeed'
+import { ChartFrame } from './ChartFrame'
+
 class ChartMain {
     // TODO: Implement multi chart frame
-    chartFrames
-    activeChartFrame
-    frameCount
+    private chartFrames: Array<ChartFrame>
+    private activeChartFrame: ChartFrame
+    private frameCount: number
 
-    datafeed
+    private datafeed: Datafeed
 
-    $chartMain
+    private $chartMain: HTMLDivElement
 
-    constructor(elm) {
+    constructor(elm: HTMLDivElement) {
         this.chartFrames = []
         this.datafeed = new Datafeed()
         this.frameCount = 0
 
-        this.addChartMain(elm)
-        this.addChartFrame()
-    }
-
-    addChartMain(elm) {
         if (typeof elm === "string") {
-            this.$chartMain = document.querySelector("." + elm)
+            this.$chartMain = document.querySelector("." + elm)!
         } else {
             this.$chartMain = elm
         }
+        this.addChartMain()
 
+        let $chartFrame: HTMLDivElement = this.$chartMain.querySelector(".chart_main_frames")!
+        let chartFrame = new ChartFrame(
+            $chartFrame,
+            Ticker.DEFAULT_TICKER,
+            Timeframe.DEFAULT_TIMEFRAME,
+            this.datafeed,
+            this.frameCount++
+        )
+        chartFrame.displayChart()
+        this.chartFrames.push(chartFrame)
+        this.activeChartFrame = chartFrame
+    }
+
+    private addChartMain() {
         let html = `
             <div class="chart_main_wrapper">
                 <div class="header">
@@ -53,35 +68,23 @@ class ChartMain {
         this.addTimeframeListener()
     }
 
-    addChartFrame() {
-        let $chartFrame = this.$chartMain.querySelector(".chart_main_frames")
-        let chartFrame = new ChartFrame(
-            $chartFrame,
-            this.datafeed,
-            this.frameCount++
-        )
-        chartFrame.displayChart()
-        this.chartFrames.push(chartFrame)
-        this.activeChartFrame = chartFrame
-    }
-
-    getTimeframeHtml() {
+    private getTimeframeHtml(): string {
         return Timeframe.ALL_TIMEFRAME.reduce((acc, timeframe, index) => {
             let selectedClass = index === 0 ? "timeframe_item_selected" : ""
             let timeframeStr = timeframe.getTimeframeString()
-            let frame = timeframe.getFrame()
+            let unit = timeframe.getUnit()
             let value = timeframe.getValue()
             return (acc += `
-                <div class="timeframe_item ${selectedClass}" data-frame="${frame}" data-value="${value}">
+                <div class="timeframe_item ${selectedClass}" data-unit="${unit}" data-value="${value}">
                     ${timeframeStr}
                 </div>
             `)
         }, "")
     }
 
-    getTickerHtml() {
+    private getTickerHtml(): string {
         return Ticker.ALL_TICKERS.reduce((acc, tickerStr) => {
-            let selected = tickerStr === Ticker.DEFAULT_TICKER ? "selected" : ""
+            let selected = tickerStr === Ticker.DEFAULT_TICKER.getTicker() ? "selected" : ""
             return (acc += `
                 <option class="ticker_item" ${selected} data-value="${tickerStr}">
                     ${tickerStr}
@@ -90,7 +93,7 @@ class ChartMain {
         }, "")
     }
 
-    getChartFrameSelectHtml() {
+    private getChartFrameSelectHtml(): string {
         return [{ value: 1 }, { value: 2 }, { value: 3 }, { value: 4 }].reduce(
             (acc, v) => {
                 let val = v.value
@@ -102,7 +105,7 @@ class ChartMain {
         )
     }
 
-    addChartFrameListener() {
+    private addChartFrameListener(): void {
         let $cahrtFrame = document.querySelectorAll(".chart_frame_item")
 
         $cahrtFrame.forEach(($cf) => {
@@ -110,7 +113,7 @@ class ChartMain {
         })
     }
 
-    addTimeframeListener() {
+    private addTimeframeListener(): void {
         let $timeframeItem = this.$chartMain.querySelectorAll(
             ".header .timeframe_item"
         )
@@ -122,25 +125,30 @@ class ChartMain {
                 )
                 $tf.classList.add("timeframe_item_selected")
 
-                let frame = $tf.getAttribute("data-frame")
-                let value = $tf.getAttribute("data-value")
-                let timeframe = new Timeframe(frame, value)
+                let unit: string = $tf.getAttribute("data-unit")!
+                let value: string = $tf.getAttribute("data-value")!
+                let timeframe = new Timeframe(
+                    TimeframeUnit[unit as keyof typeof TimeframeUnit], 
+                    Number(value)
+                )
                 this.activeChartFrame.setTimeframe(timeframe)
             })
         })
     }
 
-    addTickerListener() {
-        let $tickerSelect = this.$chartMain.querySelector(
+    private addTickerListener(): void {
+        let $tickerSelect: HTMLSelectElement = this.$chartMain.querySelector(
             ".header .header_ticker_select select"
-        )
+        )!
 
         $tickerSelect.addEventListener("input", (e) => {
             let $option = $tickerSelect.options[$tickerSelect.selectedIndex]
-            let tickerStr = $option.getAttribute("data-value")
+            let tickerStr: string = $option.getAttribute("data-value")!
             let ticker = new Ticker(tickerStr)
-            this.activeChartFrame.setDataLoaded(false)
+            this.activeChartFrame.setIsDataLoaded(false)
             this.activeChartFrame.setTicker(ticker)
         })
     }
 }
+
+export default ChartMain

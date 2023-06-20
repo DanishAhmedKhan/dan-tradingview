@@ -1,41 +1,71 @@
+import { ChartFrame } from './ChartFrame'
+
+declare global {
+    interface Window {
+        LightweightCharts: any;
+    }
+}
+
+
+enum ChartTheme {
+    THEME_1,
+    LIGHT,
+    DARK
+}
+
+type ChartThemeOption = {
+    upColor: string,
+    downColor: string,
+    borderUpColor: string,
+    borderDownColor: string,
+    wickUpColor: string,
+    wickDownColor: string,
+}
+
 class Chart {
-    $chart
-    chart
-    chartOption
-    candleSeries
-    candleSeriesOption
+    private $chart: HTMLDivElement
+    private chart
+    private chartOption
+    private candleSeries
+    private candleSeriesOption
 
-    chartFrame
+    private chartFrame: ChartFrame
 
-    chartWidth
-    chartHeight
-    chartGridColor
+    private chartWidth: number
+    private chartHeight: number
+    private chartGridColor: string
 
-    constructor($chart, chartFrame) {
+    constructor($chart: HTMLDivElement, chartFrame: ChartFrame) {
         this.chartFrame = chartFrame
 
-        if ($chart instanceof HTMLElement) this.$chart = $chart
+        if ($chart instanceof HTMLDivElement) this.$chart = $chart
         else {
             let $div = document.createElement("div")
             $div.classList.add("chart")
             $div.style.cssText = "width: 1500px; height: 900px;"
             document.body.appendChild($div)
-            $chart = document.querySelector(".chart")
+            this.$chart = document.querySelector(".chart")!
         }
-        this.initChart()
-    }
 
-    initChart() {
         this.chartWidth = 1500
         this.chartHeight = 880
         this.chartGridColor = "#eeeeee"
 
-        let theme = "theme1"
-        let themeOption
+        let theme: ChartTheme = ChartTheme.THEME_1
+        let themeOption: ChartThemeOption
 
         // TODO: Implement tempelate style select
-        if (theme === "theme1") {
+        if (theme === ChartTheme.THEME_1) {
             themeOption = {
+                upColor: "#ffffff",
+                downColor: "#000000",
+                borderUpColor: "#000000",
+                borderDownColor: "#000000",
+                wickUpColor: "#000000",
+                wickDownColor: "#000000",
+            }
+        } else {
+             themeOption = {
                 upColor: "#ffffff",
                 downColor: "#000000",
                 borderUpColor: "#000000",
@@ -58,7 +88,7 @@ class Chart {
                 secondsVisible: true,
             },
             crosshair: {
-                mode: LightweightCharts.CrosshairMode.Normal,
+                mode: window.LightweightCharts.CrosshairMode.Normal,
                 vertLine: {
                     width: 1,
                     color: "#9B7DFF",
@@ -72,7 +102,7 @@ class Chart {
             },
         }
 
-        this.chart = LightweightCharts.createChart(
+        this.chart = window.LightweightCharts.createChart(
             this.$chart,
             this.chartOption
         )
@@ -96,23 +126,23 @@ class Chart {
         this.addChartScrollListener()
     }
 
-    setCandleSeriesOption(option) {
+    public setCandleSeriesOption(option: object) {
         this.candleSeries.applyOptions(option)
     }
 
-    resetChartScale() {
+    public resetChartScale() {
         this.chart.priceScale("right").applyOptions({
             autoScale: true,
         })
     }
 
-    addDataToCandleSeries(data) {
+    public addDataToCandleSeries(data: any) {
         this.candleSeries.setData(data)
     }
 
-    addChartScrollListener() {
+    private addChartScrollListener() {
         const LOAD_THRESHOLD = 300
-        const onVisibleLogicalRangeChanged = (newVisibleLogicalRange) => {
+        const onVisibleLogicalRangeChanged = (newVisibleLogicalRange: any) => {
             const barsInfo = this.candleSeries.barsInLogicalRange(
                 newVisibleLogicalRange
             )
@@ -129,3 +159,5 @@ class Chart {
             .subscribeVisibleLogicalRangeChange(onVisibleLogicalRangeChanged)
     }
 }
+
+export { Chart }

@@ -1,45 +1,76 @@
-class Datafeed {
-    BASE_FILEPATH = "../data/"
-    CSV_SEPARATOR = ","
+import { Ticker } from './Ticker'
+import { Timeframe, TimeframeUnit } from './Timeframe'
 
-    data
-    dateFilename
-    fileCount
+type Data = {
+    time: number,
+    open: number,
+    high: number,
+    low: number,
+    close: number,
+    meta: {
+        datetime: string,
+        month: number,
+        day: number,
+        year: number,
+        hour: number,
+        minute: number,
+        second: number,
+    },
+}
+
+type TickerData = {
+    [key: string]: Array<Data>,
+}
+
+type AllData = {
+    [key: string]: TickerData
+}
+
+type FileCount = {
+    [key: string]: {
+        M: number,
+        H: number,
+        D: number,
+    }
+}
+
+class Datafeed {
+
+    private readonly BASE_FILEPATH: string = "../data/"
+    private readonly CSV_SEPARATOR: string = ","
+
+    private data: AllData
+    private fileCount: FileCount
+    private dateFilename: Array<string>
 
     constructor() {
         this.data = {}
         this.fileCount = {}
+        this.dateFilename = []
     }
 
-    getData() {
+    public getAllData(): AllData {
         return this.data
     }
 
-    getData(ticker) {
-        if (!ticker instanceof Ticker)
-            return console.log("ticker is not of type Ticker")
-
+    public getTickerData(ticker: Ticker): TickerData {
         let tk = ticker.getTicker()
-        if (this.data.hasOwnProperty(tk)) return this.data[ticker.getTicker()]
+        if (this.data.hasOwnProperty(tk)) return this.data[tk]
 
-        console.log("Data with given ticker not found")
+        throw Error("Data with given ticker not found")
     }
 
-    getData(ticker, timeframe) {
-        if (!ticker instanceof Ticker)
-            return console.log("ticker is not of type Ticker")
-        if (!timeframe instanceof Timeframe)
-            return console.log("timeframe is not of type Timeframe")
-
+    public getTickerTimeframeData(ticker: Ticker, timeframe: Timeframe): Array<Data> {
         let tk = ticker.getTicker()
         let tf = timeframe.getTimeframeString()
+        console.log(this.data)
         if (this.data.hasOwnProperty(tk) && this.data[tk].hasOwnProperty(tf))
             return this.data[tk][tf]
 
-        console.log("Data with given ticker and timeframe not found")
+        throw Error("Data with given ticker and timeframe not found")
     }
 
-    async initFilename(ticker) {
+    private async initFilename(ticker: string) {
         let filepath = this.BASE_FILEPATH + `${ticker}/dates.csv`
         let file = await fetch(filepath)
         let text = await file.text()
@@ -50,12 +81,12 @@ class Datafeed {
         this.dateFilename.reverse()
     }
 
-    getFilename(ticker, unit) {
-        if (unit === Timeframe.DAY) return "ALL.csv"
+    private getFilename(ticker: string, unit: TimeframeUnit): string {
+        if (unit === TimeframeUnit.DAY) return "ALL.csv"
         return `${this.dateFilename[this.fileCount[ticker][unit]]}.csv`
     }
 
-    async loadData(ticker) {
+    async loadData(ticker: Ticker) {
         let tk = ticker.getTicker()
 
         if (!this.fileCount[tk]) {
@@ -70,30 +101,30 @@ class Datafeed {
             })
         }
 
-        if (!this.dateFilename) {
+        if (this.dateFilename.length === 0) {
             await this.initFilename(tk)
             Timeframe.ALL_TIMEFRAME.forEach(
                 (tf) => (this.data[tk][tf.getTimeframeString()] = [])
             )
         }
 
-        let minuteValues = []
-        let hourValues = []
-        let dayValues = []
+        let minuteValues: Array<number> = []
+        let hourValues: Array<number> = []
+        let dayValues: Array<number> = []
 
         Timeframe.ALL_TIMEFRAME.forEach((tf) => {
             let value = tf.getValue()
-            let frame = tf.getFrame()
-            if (frame === Timeframe.MINUTE) minuteValues.push(value)
-            else if (frame === Timeframe.HOUR) hourValues.push(value)
-            else if (frame === Timeframe.DAY) dayValues.push(value)
+            let frame = tf.getUnit()
+            if (frame === TimeframeUnit.MINUTE) minuteValues.push(value)
+            else if (frame === TimeframeUnit.HOUR) hourValues.push(value)
+            else if (frame === TimeframeUnit.DAY) dayValues.push(value)
         })
 
         for (let i = 1; i <= 2; i++) {
             if (this.fileCount[tk].M < this.dateFilename.length) {
                 await this.loadDataTimeframe(
                     ticker,
-                    Timeframe.MINUTE,
+                    TimeframeUnit.MINUTE,
                     minuteValues
                 )
                 this.fileCount[tk].M++
@@ -101,29 +132,29 @@ class Datafeed {
         }
         for (let i = 1; i <= 5; i++) {
             if (this.fileCount[tk].H < this.dateFilename.length) {
-                await this.loadDataTimeframe(ticker, Timeframe.HOUR, hourValues)
+                await this.loadDataTimeframe(ticker, TimeframeUnit.HOUR, hourValues)
                 this.fileCount[tk].H++
             }
         }
         if (this.fileCount[tk].D === 0) {
-            await this.loadDataTimeframe(ticker, Timeframe.DAY, dayValues)
+            await this.loadDataTimeframe(ticker, TimeframeUnit.DAY, dayValues)
             this.fileCount[tk].D++
         }
     }
 
-    async loadDataTimeframe(ticker, unit, values) {
+    async loadDataTimeframe(ticker: Ticker, unit: TimeframeUnit, values: Array<number>) {
         let tk = ticker.getTicker()
 
-        let data = {}
-        let tempData = {}
-        let dataThreshold = {}
+        let data: TickerData = {}
+        let tempData: TickerData = {}
+        let dataThreshold: { [key: string]: number } = {}
         let timeIntervalCycle
 
-        if (unit === Timeframe.MINUTE) timeIntervalCycle = 60
-        if (unit === Timeframe.HOUR) timeIntervalCycle = 24
+        if (unit === TimeframeUnit.MINUTE) timeIntervalCycle = 60
+        if (unit === TimeframeUnit.HOUR) timeIntervalCycle = 24
 
         values.forEach((val) => {
-            let timeframe = unit + val
+            let timeframe: string = unit + val
             data[timeframe] = []
             tempData[timeframe] = []
             dataThreshold[timeframe] = val
@@ -152,18 +183,18 @@ class Datafeed {
 
             i1 = date.indexOf("-")
             i2 = date.lastIndexOf("-")
-            let yy = date.substring(0, i1)
-            let mm = date.substring(i1 + 1, i2)
-            let dd = date.substring(i2 + 1)
+            let yy: number = Number(date.substring(0, i1))
+            let mm: number = Number(date.substring(i1 + 1, i2))
+            let dd: number = Number(date.substring(i2 + 1))
 
             i1 = time.indexOf(":")
             i2 = time.indexOf(":", i1 + 1)
             i3 = time.indexOf(".")
-            let h = time.substring(0, i1)
-            let m = time.substring(i1 + 1, i2)
-            let s = time.substring(i2 + 1, i3)
+            let h: number = Number(time.substring(0, i1))
+            let m: number = Number(time.substring(i1 + 1, i2))
+            let s: number = Number(time.substring(i2 + 1, i3))
 
-            let candleData = {
+            let candleData: Data = {
                 time: new Date(datetime).valueOf() / 1000,
                 open: +open,
                 high: +high,
@@ -180,9 +211,9 @@ class Datafeed {
                 },
             }
 
-            let timeValue
-            if (unit === Timeframe.MINUTE) timeValue = m
-            else if (unit === Timeframe.HOUR) timeValue = h
+            let timeValue: number
+            if (unit === TimeframeUnit.MINUTE) timeValue = m
+            else if (unit === TimeframeUnit.HOUR) timeValue = h
 
             data[unit + values[0]].push(candleData)
 
@@ -209,7 +240,7 @@ class Datafeed {
         })
     }
 
-    combineCandleData(data) {
+    private combineCandleData(data: Array<Data>): Data {
         let high = -1,
             low = 999999
 
@@ -228,3 +259,5 @@ class Datafeed {
         }
     }
 }
+
+export { Datafeed }

@@ -4,25 +4,17 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>FXCM</title>
+        <title>Tradingview</title>
         <link rel="stylesheet" href="./style/style.css" />
     </head>
     <body>
         <div class="body_wrapper"></div>
 
-        <!-- <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script> -->
-
         <script src="./lib/lightweight-charts-2.js"></script>
-
-        <script src="./src/Timeframe.js"></script>
-        <script src="./src/Ticker.js"></script>
-        <script src="./src/Datafeed.js"></script>
-        <script src="./src/Chart.js"></script>
-        <script src="./src/ChartFrame.js"></script>
-        <script src="./src/ChartMain.js"></script>
+        <script src="./dist/main-bundle.js"></script>
         <script>
             function main() {
-                let chartMain = new ChartMain("body_wrapper")
+                let chartMain = new Danish.default("body_wrapper")
             }
 
             main()
