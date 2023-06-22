@@ -125,6 +125,14 @@ class Chart {
         this.addChartScrollListener()
     }
 
+    public getChart(): any {
+        return this.chart
+    }
+
+    public getCandleSeries(): void {
+        return this.candleSeries
+    }
+
     public setCandleSeriesOption(option: object) {
         this.candleSeries.applyOptions(option)
     }

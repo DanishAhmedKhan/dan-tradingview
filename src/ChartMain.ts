@@ -1,9 +1,8 @@
-import { Ticker } from './Ticker'
-import { Timeframe, TimeframeUnit } from './Timeframe'
 import { Datafeed } from './Datafeed'
 import { ChartFrame } from './ChartFrame'
 import { TimeframeHtml } from './html/TimeframeHtml'
 import { TickerHtml } from './html/TickerHtml'
+import { ToolManager } from './tool/ToolManager'
 
 class ChartMain {
     // TODO: Implement multi chart frame
@@ -14,6 +13,8 @@ class ChartMain {
     private datafeed: Datafeed
 
     private $chartMain: HTMLDivElement
+
+    private toolManager: ToolManager
 
     constructor(elm: HTMLDivElement) {
         this.chartFrames = []
@@ -30,8 +31,12 @@ class ChartMain {
             <div class="chart_main_wrapper">
                 <div class="header">
                 </div>
-                <div class="chart_main_frames">
-                </div>
+                <div class="chart_main_body">
+                    <div class="chart_tool_wrapper">
+                    </div>
+                    <div class="chart_main_frames">
+                    </div>
+                <div>
             </div>
         `
 
@@ -46,6 +51,8 @@ class ChartMain {
         chartFrame.displayChart()
         this.chartFrames.push(chartFrame)
         this.activeChartFrame = chartFrame
+
+        this.toolManager = new ToolManager()
 
         this.addChartMainHeaderHtml()
     }
@@ -78,6 +85,8 @@ class ChartMain {
                 </div>
             </div>
         `
+
+        this.$chartMain.querySelector('.chart_tool_wrapper')!.innerHTML = this.toolManager.getHtml()
 
         tickerHtml.addInputListener()
         timeframeHtml.addChangeListener()

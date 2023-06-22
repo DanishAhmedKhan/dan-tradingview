@@ -25,17 +25,13 @@ class ChartFrame {
     private isDataLoaded: boolean
 
     constructor(elm: HTMLDivElement | string, datafeed: Datafeed, frameIndex: number) {
-        if (typeof elm === "string") {
-            this.$chartFrame = document.querySelector("." + elm)!
-        } else {
-            this.$chartFrame = elm
-        }
+        this.$chartFrame = typeof elm === "string" ? 
+            document.querySelector("." + elm)! : elm
 
-        let html = `
+        this.$chartFrame.insertAdjacentHTML("beforeend", `
             <div class="chart_frame_wrapper" data-frame-index="${frameIndex}">
             </div>
-        `
-        this.$chartFrame.insertAdjacentHTML("beforeend", html)
+        `)
 
         this.datafeed = datafeed
         this.frameIndex = frameIndex

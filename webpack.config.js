@@ -10,7 +10,7 @@ module.exports = {
         path: path.resolve(__dirname, "./dist"),
         filename: "[name]-bundle.js",
         library: {
-            name: "Danish",
+            name: "MentFX",
             type: "umd",
         },
     },

@@ -70,7 +70,26 @@
             }
         }
 
-        .chart_main_frames {}
+        .chart_main_body {
+            display: flex;
+
+            .chart_tool_wrapper {
+                width: 30px;
+                background-color: red;
+
+                .tool_list {
+                    display:  flex;
+                    flex-direction: column;
+
+                    .tool_item {
+                        width: 20px;
+                        height: 20px;
+                    }
+                }
+            }
+
+            .chart_main_frames {}
+        }
     }
 
 }

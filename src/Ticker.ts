@@ -1,3 +1,5 @@
+import { ToolStorage } from "./tool/ToolStorage";
+
 class Ticker {
     public static readonly ALL_TICKERS: Array<string> = [
         // "AUDCAD",

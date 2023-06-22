@@ -54,4 +54,19 @@
 }
 .body_wrapper .chart_main_wrapper .header .header_right .header_chart_frame_select .chart_frame_item:last-child {
   margin-right: 0px;
+}
+.body_wrapper .chart_main_wrapper .chart_main_body {
+  display: flex;
+}
+.body_wrapper .chart_main_wrapper .chart_main_body .chart_tool_wrapper {
+  width: 30px;
+  background-color: red;
+}
+.body_wrapper .chart_main_wrapper .chart_main_body .chart_tool_wrapper .tool_list {
+  display: flex;
+  flex-direction: column;
+}
+.body_wrapper .chart_main_wrapper .chart_main_body .chart_tool_wrapper .tool_list .tool_item {
+  width: 20px;
+  height: 20px;
 }/*# sourceMappingURL=style.css.map */
