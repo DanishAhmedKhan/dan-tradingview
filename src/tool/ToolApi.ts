@@ -1,12 +1,4 @@
-import { ToolStorage } from "./ToolStorage";
-
 interface ToolApi<T> {
-    toolStorage: ToolStorage
-
-    getByIndex(
-        index: number
-    ): T
-
     addAllToChart(
         candleSeries: any
     ): void

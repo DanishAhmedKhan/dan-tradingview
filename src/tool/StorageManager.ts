@@ -1,23 +1,23 @@
 import { Ticker } from "../Ticker"
-import { ToolStorage } from "./ToolStorage"
+import { TickerStorage } from "./TickerStorage"
 
 class StorageManager {
     
-    private toolStorage: {
-        [key: string]: ToolStorage
+    private tickerStorage: {
+        [key: string]: TickerStorage
     }
     
     constructor() {
         let toolStorage: any = {}
         Ticker.ALL_TICKERS.forEach(ticker => {
-            toolStorage[ticker] = new ToolStorage(ticker)
+            toolStorage[ticker] = new TickerStorage(ticker)
         })
 
-        this.toolStorage = toolStorage
+        this.tickerStorage = toolStorage
     }
 
-    public getToolStorage(token: string): ToolStorage {
-        return this.toolStorage[token]
+    public getTickerStorage(ticker: Ticker): TickerStorage {
+        return this.tickerStorage[ticker.getTicker()]
     }
 }
 

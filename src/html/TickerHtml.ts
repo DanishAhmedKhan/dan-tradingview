@@ -12,7 +12,7 @@ class TickerHtml {
     constructor(chartMain: ChartMain) {
         this.chartMain = chartMain
         this.$chartMain = this.chartMain.getChartMainElement()
-        this.chartFrame = this.chartMain.getActiveChartFrame()
+        this.chartFrame = this.chartMain.getChartFrameManager().getActiveChartFrame()
     }
 
     public getHtml(): string {

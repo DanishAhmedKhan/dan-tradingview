@@ -2,6 +2,7 @@ import { Ticker } from './Ticker'
 import { Timeframe, TimeframeUnit } from './Timeframe'
 import { Datafeed } from './Datafeed'
 import { Chart } from './Chart'
+import { StorageManager } from './tool/StorageManager'
 
 type ChartFrameData = {
     ticker: string,
@@ -18,13 +19,19 @@ class ChartFrame {
     private datafeed: Datafeed
     private chart: Chart
 
+    private storageManager: StorageManager
     private $chartFrame: HTMLDivElement
     private frameIndex: number
     private chartFrameData: ChartFrameData
 
     private isDataLoaded: boolean
 
-    constructor(elm: HTMLDivElement | string, datafeed: Datafeed, frameIndex: number) {
+    constructor(
+        elm: HTMLDivElement | string, 
+        datafeed: Datafeed, 
+        frameIndex: number,
+        storageManager: StorageManager
+    ) {
         this.$chartFrame = typeof elm === "string" ? 
             document.querySelector("." + elm)! : elm
 
@@ -35,6 +42,7 @@ class ChartFrame {
 
         this.datafeed = datafeed
         this.frameIndex = frameIndex
+        this.storageManager = storageManager
 
         this.chartFrameData = this.getChartFrameData()
         if (this.chartFrameData) {
@@ -93,8 +101,11 @@ class ChartFrame {
         return this.ticker
     }
 
+    public getChart(): Chart {
+        return this.chart
+    }
+
     public setTimeframe(timeframe: Timeframe): void {
-        console.log(timeframe.getTimeframe(), this.chartFrameData)
         this.chartFrameData.timeframe = timeframe.getTimeframe()
         this.saveChartFrameData()
 
@@ -129,6 +140,12 @@ class ChartFrame {
         })
 
         throw Error('ChartFrame with the index nlot found')
+    }
+
+    public displayDrawing(): void {
+        let tickerStorage = this.storageManager.getTickerStorage(this.ticker)
+
+        // this.allTools.forEach(tool => tool.addAllToChart(chartFrame))
     }
 }
 

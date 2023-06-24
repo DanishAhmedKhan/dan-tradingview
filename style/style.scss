@@ -1,11 +1,29 @@
+*,
+*::after,
+*::before {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+}
+
 .body_wrapper {
+    width: 100vw;
+    height: 100vh;
+    background-color: #ddd;
 
     .chart_main_wrapper {
+        width: 100%;
+        height: 100%;
+        display: grid;
+        grid-template-rows: auto;
+
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            background-color: #fff;
+            padding: 9px 10px;
+            margin-bottom: 4px;
 
             .header_left {
                 display: flex;
@@ -26,7 +44,7 @@
                     display: flex;
 
                     .timeframe_item {
-                        width: 30px;
+                        width: 40px;
                         border: 1px solid #888;
                         padding: 4px 6px;
                         text-align: center;
@@ -71,24 +89,49 @@
         }
 
         .chart_main_body {
-            display: flex;
+            display: grid;
+            grid-template-columns: 1fr calc(100% - 55px);
 
             .chart_tool_wrapper {
-                width: 30px;
-                background-color: red;
+                width: 50px;
+                background-color: #fff;
+                border-top-right-radius: 4px;
+                margin-right: 3px;
 
                 .tool_list {
                     display:  flex;
                     flex-direction: column;
+                    align-items: center;
+                    padding: 10px 0px;
 
                     .tool_item {
-                        width: 20px;
-                        height: 20px;
+                        width: 32px;
+                        height: 32px;
+                        border-radius: 4px;
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        cursor: pointer;
+
+                        &:hover {
+                            background-color: #eee;
+                        }
+
+                        .tool_logo svg {
+                            display: block;
+                        }
+
+                        &.tool_item_selected {
+                            background-color: #eee;
+                        }
                     }
                 }
             }
 
-            .chart_main_frames {}
+            .chart_main_frames {
+                border-top-left-radius: 4px;
+                overflow: hidden;
+            }
         }
     }
 

@@ -1,13 +1,14 @@
-import { Ticker } from "../Ticker"
+import { ChartFrame } from "../ChartFrame"
 import { HorizontalLine } from "./HorizontalLine"
-import { ToolStorage, Toolable } from "./ToolStorage"
+import { StorageManager } from "./StorageManager"
+import { Tool } from "./Tool"
 
 class ToolManager {
 
-    private allTools: Array<Toolable>
+    private allTools: Array<Tool>
     private storageManager: StorageManager
 
-    constructor(ticker: Ticker) {
+    constructor() {
         this.storageManager = new StorageManager()
 
         this.allTools = [
@@ -15,18 +16,30 @@ class ToolManager {
         ]
     }
 
-    public getHtml(): string {
+    public addHtml($toolBox: HTMLDivElement): void {
         let toolItemHtml = this.allTools.reduce((acc, t) => {
             return acc += t.getHtml()
         }, "")
 
-        let html = (`
+        $toolBox.innerHTML = (`
             <div class="tool_list">
                 ${toolItemHtml}
-            </div>        
+            </div>
         `)
 
-        return html
+        this.initListener($toolBox)
+    }
+
+    public getStorageManager(): StorageManager {
+        return this.storageManager
+    }
+
+    public initListener($toolDiv: HTMLDivElement): void {
+        this.allTools.forEach(tool => tool.addClickListener($toolDiv))
+    }
+
+    public displayDrawings(chartFrame: ChartFrame): void {
+        this.allTools.forEach(tool => tool.addAllToChart(chartFrame))
     }
 }
 

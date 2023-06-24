@@ -1,33 +1,25 @@
 import { Datafeed } from './Datafeed'
-import { ChartFrame } from './ChartFrame'
 import { TimeframeHtml } from './html/TimeframeHtml'
 import { TickerHtml } from './html/TickerHtml'
 import { ToolManager } from './tool/ToolManager'
+import { ChartFrameManager } from './ChartFrameManager'
 
 class ChartMain {
-    // TODO: Implement multi chart frame
-    private chartFrames: Array<ChartFrame>
-    private activeChartFrame: ChartFrame
-    private frameCount: number
+    
+    private chartFrameManager: ChartFrameManager
+    private toolManager: ToolManager
 
     private datafeed: Datafeed
 
     private $chartMain: HTMLDivElement
 
-    private toolManager: ToolManager
-
     constructor(elm: HTMLDivElement) {
-        this.chartFrames = []
         this.datafeed = new Datafeed()
-        this.frameCount = 0
 
-        if (typeof elm === "string") {
-            this.$chartMain = document.querySelector("." + elm)!
-        } else {
-            this.$chartMain = elm
-        }
+        this.$chartMain = typeof elm === "string" ? 
+            document.querySelector("." + elm)! : elm
 
-        let chartMainHtml = `
+        this.$chartMain.innerHTML = (`
             <div class="chart_main_wrapper">
                 <div class="header">
                 </div>
@@ -38,21 +30,10 @@ class ChartMain {
                     </div>
                 <div>
             </div>
-        `
-
-        this.$chartMain.innerHTML = chartMainHtml
-
-        let $chartFrame: HTMLDivElement = this.$chartMain.querySelector(".chart_main_frames")!
-        let chartFrame = new ChartFrame(
-            $chartFrame,
-            this.datafeed,
-            this.frameCount++
-        )
-        chartFrame.displayChart()
-        this.chartFrames.push(chartFrame)
-        this.activeChartFrame = chartFrame
+        `)
 
         this.toolManager = new ToolManager()
+        this.chartFrameManager = new ChartFrameManager(this.$chartMain, this.datafeed, this.toolManager)
 
         this.addChartMainHeaderHtml()
     }
@@ -61,8 +42,8 @@ class ChartMain {
         return this.$chartMain
     }
 
-    public getActiveChartFrame(): ChartFrame {
-        return this.activeChartFrame
+    public getChartFrameManager(): ChartFrameManager {
+        return this.chartFrameManager
     }
 
     private addChartMainHeaderHtml() {
@@ -86,7 +67,7 @@ class ChartMain {
             </div>
         `
 
-        this.$chartMain.querySelector('.chart_tool_wrapper')!.innerHTML = this.toolManager.getHtml()
+        this.toolManager.addHtml(this.$chartMain.querySelector('.chart_tool_wrapper')!)
 
         tickerHtml.addInputListener()
         timeframeHtml.addChangeListener()

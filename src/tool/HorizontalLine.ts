@@ -1,6 +1,8 @@
-import { Ticker } from "../Ticker"
-import { ToolStorage, Toolable } from "./ToolStorage"
-import { ToolApi } from "./ToolApi"
+import { Tool } from "./Tool"
+import { StorageManager } from "./StorageManager"
+import { ChartFrame } from "../ChartFrame"
+import { ToolData } from "./TickerStorage"
+import { svg } from '../helper/svg'
 
 type HorizontalLineData = {
     price: number,
@@ -11,39 +13,26 @@ type HorizontalLineData = {
     axisLabelVisible?: boolean,
 }
 
-class HorizontalLine implements ToolApi<HorizontalLineData>, Toolable {
+class HorizontalLine extends Tool {
 
-    private readonly TOOL_HORIZONTAL_LINE = 'tool-horizontal-line'
-
-    public readonly key = 'horizontalLine'
-
-    public  storageManager: StorageManager
-    private line: Array<HorizontalLineData>
-
-    private $tool: HTMLDivElement | null
-    private isSelected: boolean
+    public readonly TOOL_CLASS = 'tool_horizontal_line'
+    public readonly KEY = 'horizontalLine'
+    public readonly toolData = {
+        svg: svg.horizontalLine,
+        name: 'Horizontal Line',
+    }
 
     constructor(storageManager: StorageManager) {
-        this.storageManager = storageManager
-        this.line = this.toolStorage.getData().horizontalLine
+        super(storageManager)
         this.$tool = null
-        this.isSelected = false
     }
 
     public getHtml(): string {
         return `
-            <div class="tool-item ${this.TOOL_HORIZONTAL_LINE}">
-                <div class="tool-logo">-</div>
+            <div class="tool_item ${this.TOOL_CLASS}">
+                <div class="tool_logo">${this.toolData.svg}</div>
             </div>
         `
-    }
-
-    public addClickListener($toolBox: HTMLDivElement): void {
-        this.$tool = $toolBox.querySelector(`.${this.TOOL_HORIZONTAL_LINE}`)!
-        
-        this.$tool.addEventListener('click', e => {
-            this.isSelected = true
-        })
     }
 
     public addChartInterationListener(chart: any, candleSeries: any): void {
@@ -65,59 +54,53 @@ class HorizontalLine implements ToolApi<HorizontalLineData>, Toolable {
         })
     }
 
-    public getAllData(): Array<HorizontalLineData> {
-        return this.line
-    }
+    public addChartListener(chartFrame: ChartFrame): void {
+        let chart = chartFrame.getChart().getLightweightChart()
+        let candleSeries = chartFrame.getChart().getCandleSeries()
 
-    public getByIndex(index: number): HorizontalLineData {
-        if (index > this.line.length) throw Error("HorizontalLine at the given index not found")
-        return this.line[index]
-    }
+        let chartListener = (event: any) => {
+            if (!this.isSelected || !event.point || !event.time) return
 
-    public getLineByPrice(price: number): HorizontalLineData {
-        let line = this.line.find(line => {
-            return line.price === price
-        })
+            let price = candleSeries.coordinateToPrice(event.point.y)
 
-        if (!line) throw Error("HorizontalLine with the given price not found")
-        return line
-    }
+            const line = {
+                price: price,
 
-    public addAllToChart(candleSeries: any): void {
-        this.line.forEach(l => this.addToChart(candleSeries, l, false))
-    }
+                color: "#be1238",
+                lineWidth: 1,
+                lineStyle: window.LightweightCharts.LineStyle.Solid,
+                axisLabelVisible: false,
+            }
 
-    public removeAllFromChart(candleSeries: any): void {
-        this.line.forEach(l => this.removeFromChart(candleSeries, l, false))
+            candleSeries.createPriceLine(line)
+            chart.unsubscribeClick(chartListener)
+        }
+
+        chart.subscribeClick(chartListener)
     }
 
     public addToChart(
-        candleSeries: any, 
-        line: HorizontalLineData, 
+        chartFrame: ChartFrame, 
+        line: ToolData, 
         shouldUpdtaeData: boolean = true,
     ): void {
         if (shouldUpdtaeData) {
-            this.line.push(line)
-            // TODO: save to ToolData
+            this.getTickerStorage(chartFrame).addData(this.KEY, line)
         }
         
-        candleSeries.createPriceLine(line)
+        chartFrame.getChart().getCandleSeries().createPriceLine(line)
     }
 
     public removeFromChart(
-        candleSeries: any, 
-        line: HorizontalLineData,
+        chartFrame: ChartFrame, 
+        line: ToolData,
         shouldUpdtaeData: boolean = true,
     ): void {
         if (shouldUpdtaeData) {
-            let index = this.line.findIndex(l => {
-                return l.price === line.price
-            })
-            
-            if (index > -1) this.line.splice(index, 1)
+            this.getTickerStorage(chartFrame).removeData(this.KEY, line)
         }
 
-        candleSeries.removePriceLine(line)
+        chartFrame.getChart().getCandleSeries().removePriceLine(line)
     }
 }
 

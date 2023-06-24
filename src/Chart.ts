@@ -23,7 +23,7 @@ type ChartThemeOption = {
 
 class Chart {
     private $chart: HTMLDivElement
-    private chart
+    private lightweightChart
     private chartOption
     private candleSeries
     private candleSeriesOption
@@ -47,7 +47,7 @@ class Chart {
         }
 
         this.chartWidth = 1500
-        this.chartHeight = 880
+        this.chartHeight = 900
         this.chartGridColor = "#eeeeee"
 
         let theme: ChartTheme = ChartTheme.THEME_1
@@ -101,11 +101,11 @@ class Chart {
             },
         }
 
-        this.chart = window.LightweightCharts.createChart(
+        this.lightweightChart = window.LightweightCharts.createChart(
             this.$chart,
             this.chartOption
         )
-        this.candleSeries = this.chart.addCandlestickSeries()
+        this.candleSeries = this.lightweightChart.addCandlestickSeries()
 
         this.candleSeriesOption = {
             upColor: themeOption.upColor,
@@ -125,11 +125,11 @@ class Chart {
         this.addChartScrollListener()
     }
 
-    public getChart(): any {
-        return this.chart
+    public getLightweightChart(): any {
+        return this.lightweightChart
     }
 
-    public getCandleSeries(): void {
+    public getCandleSeries(): any {
         return this.candleSeries
     }
 
@@ -138,7 +138,7 @@ class Chart {
     }
 
     public resetChartScale() {
-        this.chart.priceScale("right").applyOptions({
+        this.lightweightChart.priceScale("right").applyOptions({
             autoScale: true,
         })
     }
@@ -161,7 +161,7 @@ class Chart {
             }
         }
 
-        this.chart
+        this.lightweightChart
             .timeScale()
             .subscribeVisibleLogicalRangeChange(onVisibleLogicalRangeChanged)
     }
