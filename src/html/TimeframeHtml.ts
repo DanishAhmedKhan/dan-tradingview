@@ -3,29 +3,31 @@ import { Timeframe, TimeframeUnit } from "../Timeframe"
 
 class TimeframeHtml {
 
+    private readonly TIMEFRAME_WRAPPER_CLASS = 'header_timeframe_select'
     private readonly TIMEFRAME_ITEM = 'timeframe_item'
     private readonly TIMEFRAME_ITEM_SELECTED = 'timeframe_item_selected'
 
-    private chartMain
-    private $chartMain
-    private chartFrame
+    private chartMain: ChartMain
+    private chartMainHtmlElement: HTMLElement
 
     constructor(chartMain: ChartMain) {
         this.chartMain = chartMain
-        this.$chartMain = this.chartMain.getChartMainHtmlElement()
-        this.chartFrame = this.chartMain.getChartFrameManager().getActiveChartFrame()
+        this.chartMainHtmlElement = this.chartMain.getChartMainHtmlElement()
+       
     }
 
-    public getHtml(): string {
-        return Timeframe.ALL_TIMEFRAME.reduce((acc, timeframe) => {
+    public addHtml(containerHtmlElement: HTMLElement): void {
+        let chartFrame = this.chartMain.getChartFrameManager().getActiveChartFrame()
+
+        let timeframeHtml = Timeframe.ALL_TIMEFRAME.reduce((acc, timeframe) => {
             let selectedClass =  ""
 
             let timeframeStr = timeframe.getTimeframeString()
             let unit = timeframe.getUnit()
             let value = timeframe.getValue()
 
-            if (this.chartFrame.getTimeframe().getUnit() === unit &&
-                this.chartFrame.getTimeframe().getValue() === value)
+            if (chartFrame.getTimeframe().getUnit() === unit &&
+                chartFrame.getTimeframe().getValue() === value)
                 selectedClass = this.TIMEFRAME_ITEM_SELECTED
 
             return (acc += `
@@ -34,16 +36,25 @@ class TimeframeHtml {
                 </div>
             `)
         }, "")
+
+        let wrapperHtmlElement = document.createElement('div')
+        wrapperHtmlElement.innerHTML = timeframeHtml
+        wrapperHtmlElement.classList.add(this.TIMEFRAME_WRAPPER_CLASS)
+
+        containerHtmlElement.append(wrapperHtmlElement)
+        this.addChangeListener()
     }
 
     public addChangeListener(): void {
+        let chartFrame = this.chartMain.getChartFrameManager().getActiveChartFrame()
+
         let timeframeItemHtmlElements = 
-            this.$chartMain.querySelectorAll(`.header .${this.TIMEFRAME_ITEM}`)
+            this.chartMainHtmlElement.querySelectorAll(`.header .${this.TIMEFRAME_ITEM}`)
 
         timeframeItemHtmlElements.forEach((timeframeItemHtmlElement) => {
             timeframeItemHtmlElement.addEventListener("click", (event: any) => {
-                timeframeItemHtmlElements.forEach(($t) =>
-                    $t.classList.remove(this.TIMEFRAME_ITEM_SELECTED)
+                timeframeItemHtmlElements.forEach((tfiHtmlElement) =>
+                    tfiHtmlElement.classList.remove(this.TIMEFRAME_ITEM_SELECTED)
                 )
                 timeframeItemHtmlElement.classList.add(this.TIMEFRAME_ITEM_SELECTED)
 
@@ -53,7 +64,7 @@ class TimeframeHtml {
                     <TimeframeUnit>unit, 
                     Number(value)
                 )
-                this.chartFrame.setTimeframe(timeframe)
+                chartFrame.setTimeframe(timeframe)
             })
         })
     }

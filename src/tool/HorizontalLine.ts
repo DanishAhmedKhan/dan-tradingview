@@ -1,6 +1,5 @@
 import { Tool } from "./Tool"
 import { StorageManager } from "./StorageManager"
-import { ChartFrame } from "../ChartFrame"
 import { ToolData } from "./TickerStorage"
 import { svg } from '../helper/svg'
 import { ChartFrameManager } from "../ChartFrameManager"

@@ -1,6 +1,5 @@
 import { ChartFrame } from "./ChartFrame"
 import { Datafeed } from "./Datafeed"
-import { Tool } from "./tool/Tool"
 import { ToolManager } from "./tool/ToolManager"
 
 class ChartFrameManager {
@@ -51,11 +50,11 @@ class ChartFrameManager {
     }
 
     public addActiveListener(): void {
-        let $chartFrame = this.chartMainHtmlElement.querySelectorAll('.chart_frame_wrapper')!
+        let chartFrameHtmlElements = this.chartMainHtmlElement.querySelectorAll('.chart_frame_wrapper')!
         
-        $chartFrame.forEach($cf => {
-            $cf.addEventListener('click', e => {
-                let frameIndex = Number($cf.getAttribute('data-frame-index'))
+        chartFrameHtmlElements.forEach(chartFrameHtmlElement => {
+            chartFrameHtmlElement.addEventListener('click', e => {
+                let frameIndex = Number(chartFrameHtmlElement.getAttribute('data-frame-index'))
                 this.activeChartFrame = this.chartFrames[frameIndex]
             })
         })

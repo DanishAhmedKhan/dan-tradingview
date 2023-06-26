@@ -52,27 +52,22 @@ class ChartMain {
         let timeframeHtml = new TimeframeHtml(this)
         let tickerHtml = new TickerHtml(this)
 
-        let $chartMainHeader = this.chartMainHtmlElement.querySelector('.header')!;
-        $chartMainHeader.innerHTML = `
+        let headerHtmlElement = this.chartMainHtmlElement.querySelector('.header')!;
+        headerHtmlElement.innerHTML = (`
             <div class="header_left">
-                <div class="header_ticker_select">
-                    <select>${tickerHtml.getHtml()}</select>
-                </div>
-                <div class="header_timeframe_select">
-                    ${timeframeHtml.getHtml()}
-                </div>
             </div>
             <div class="header_right">
                 <div class="header_chart_frame_select">
                     ${this.getChartFrameSelectHtml()}
                 </div>
             </div>
-        `
+        `)
+        let headerLeftHtmlElement = headerHtmlElement.querySelector('.header_left')! as HTMLElement
 
         this.toolManager.addHtml(this.chartMainHtmlElement.querySelector('.chart_tool_wrapper')!)
 
-        tickerHtml.addInputListener()
-        timeframeHtml.addChangeListener()
+        tickerHtml.addHtml(headerLeftHtmlElement)
+        timeframeHtml.addHtml(headerLeftHtmlElement)
     }
 
     private getChartFrameSelectHtml(): string {
@@ -88,10 +83,10 @@ class ChartMain {
     }
 
     private addChartFrameListener(): void {
-        let $cahrtFrame = document.querySelectorAll(".chart_frame_item")
+        let cahrtFrameHtmlElements = document.querySelectorAll(".chart_frame_item")
 
-        $cahrtFrame.forEach(($cf) => {
-            $cf.addEventListener("click", (e) => {})
+        cahrtFrameHtmlElements.forEach((cahrtFrameHtmlElement) => {
+            cahrtFrameHtmlElement.addEventListener("click", (e) => {})
         })
     }
 }

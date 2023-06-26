@@ -4,6 +4,7 @@ import { ChartFrame } from "../ChartFrame"
 
 class TickerHtml {
 
+    private readonly TICKER_WRAPPER_CLASS = 'header_ticker_select'
     private readonly TICKER_ITEM = 'ticker_item'
 
     private chartMain: ChartMain
@@ -14,11 +15,10 @@ class TickerHtml {
         this.chartMainHtmlElement = this.chartMain.getChartMainHtmlElement()
     }
 
-    public getHtml(): string {
+    public addHtml(containerHtmlElement: HTMLElement): void {
         let chartFrame = this.chartMain.getChartFrameManager().getActiveChartFrame()
 
-        return Ticker.ALL_TICKERS.reduce((acc, tickerStr) => {
-
+        let optionHtml = Ticker.ALL_TICKERS.reduce((acc, tickerStr) => {
             let selected = tickerStr === chartFrame.getTicker().getTicker() ? "selected" : ""
             
             return (acc += `
@@ -27,18 +27,31 @@ class TickerHtml {
                 </option>
             `)
         }, "")
+
+        let selectHtml = (`
+            <select>
+                ${optionHtml}
+            </select>
+        `)
+
+        let wrapperHtmlElement = document.createElement('div')
+        wrapperHtmlElement.innerHTML = selectHtml
+        wrapperHtmlElement.classList.add(this.TICKER_WRAPPER_CLASS)
+
+        containerHtmlElement.append(wrapperHtmlElement)
+        this.addInputListener()
     }
 
     public addInputListener(): void {
         let chartFrame = this.chartMain.getChartFrameManager().getActiveChartFrame()
 
-        let $tickerSelect: HTMLSelectElement = this.chartMainHtmlElement.querySelector(
+        let tickerSelectHtmlElement: HTMLSelectElement = this.chartMainHtmlElement.querySelector(
             ".header .header_ticker_select select"
         )!
 
-        $tickerSelect.addEventListener("input", (e) => {
-            let $option = $tickerSelect.options[$tickerSelect.selectedIndex]
-            let tickerStr: string = $option.getAttribute("data-value")!
+        tickerSelectHtmlElement.addEventListener("input", (e) => {
+            let optionHtmlElement = tickerSelectHtmlElement.options[tickerSelectHtmlElement.selectedIndex]
+            let tickerStr: string = optionHtmlElement.getAttribute("data-value")!
             let ticker = new Ticker(tickerStr)
 
             chartFrame.setIsDataLoaded(false)
