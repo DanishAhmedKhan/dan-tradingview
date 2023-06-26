@@ -2,7 +2,7 @@ import { Ticker } from './Ticker'
 import { Timeframe, TimeframeUnit } from './Timeframe'
 import { Datafeed } from './Datafeed'
 import { Chart } from './Chart'
-import { StorageManager } from './tool/StorageManager'
+import { ToolManager } from './tool/ToolManager'
 
 type ChartFrameData = {
     ticker: string,
@@ -19,30 +19,30 @@ class ChartFrame {
     private datafeed: Datafeed
     private chart: Chart
 
-    private storageManager: StorageManager
-    private $chartFrame: HTMLDivElement
+    private toolManager: ToolManager
+    private chartFrameHtmlElement: HTMLElement
     private frameIndex: number
     private chartFrameData: ChartFrameData
 
     private isDataLoaded: boolean
 
     constructor(
-        elm: HTMLDivElement | string, 
+        chartFrameHtmlElement: HTMLElement | string, 
         datafeed: Datafeed, 
         frameIndex: number,
-        storageManager: StorageManager
+        toolManager: ToolManager
     ) {
-        this.$chartFrame = typeof elm === "string" ? 
-            document.querySelector("." + elm)! : elm
+        this.chartFrameHtmlElement = typeof chartFrameHtmlElement === "string" ? 
+            document.querySelector("." + chartFrameHtmlElement)! : chartFrameHtmlElement
 
-        this.$chartFrame.insertAdjacentHTML("beforeend", `
+        this.chartFrameHtmlElement.insertAdjacentHTML("beforeend", `
             <div class="chart_frame_wrapper" data-frame-index="${frameIndex}">
             </div>
         `)
 
         this.datafeed = datafeed
         this.frameIndex = frameIndex
-        this.storageManager = storageManager
+        this.toolManager = toolManager
 
         this.chartFrameData = this.getChartFrameData()
         if (this.chartFrameData) {
@@ -62,8 +62,8 @@ class ChartFrame {
 
         this.isDataLoaded = false
 
-        let $chart: HTMLDivElement = this.$chartFrame.querySelector(".chart_frame_wrapper")!
-        this.chart = new Chart($chart, this)
+        let chartFrameWrapperHtmlElement: HTMLElement = this.chartFrameHtmlElement.querySelector(".chart_frame_wrapper")!
+        this.chart = new Chart(chartFrameWrapperHtmlElement, this)
     }
 
     private getChartFrameData(): ChartFrameData {
@@ -143,9 +143,9 @@ class ChartFrame {
     }
 
     public displayDrawing(): void {
-        let tickerStorage = this.storageManager.getTickerStorage(this.ticker)
+        // let tickerStorage = this.storageManager.getTickerStorage(this.ticker)
 
-        // this.allTools.forEach(tool => tool.addAllToChart(chartFrame))
+        this.toolManager.getAllTool().forEach(tool => tool.addAllToChart())
     }
 }
 

@@ -1,4 +1,4 @@
-import { ChartFrame } from "../ChartFrame"
+import { ChartFrameManager } from "../ChartFrameManager"
 import { StorageManager } from "./StorageManager"
 import { TickerStorage, ToolData } from "./TickerStorage"
 
@@ -8,14 +8,16 @@ abstract class Tool {
     public abstract readonly KEY: string
 
     protected storageManager: StorageManager
+    protected chartFrameManager: ChartFrameManager
     protected isSelected: boolean
 
-    protected $tool: HTMLDivElement | null
+    protected toolHtmlElement: HTMLElement | null
 
-    constructor(storageManager: StorageManager) {
+    constructor(storageManager: StorageManager, chartFrameManager:ChartFrameManager) {
         this.storageManager = storageManager
+        this.chartFrameManager = chartFrameManager
         this.isSelected = false
-        this.$tool = null
+        this.toolHtmlElement = null
     }
 
     public getIsSelected(): boolean {
@@ -26,55 +28,54 @@ abstract class Tool {
         this.isSelected = isSelected
     }
 
-    public addClickListener($toolBox: HTMLDivElement): void {
-        this.$tool = $toolBox.querySelector(`.${this.TOOL_CLASS}`)!
+    public addClickListener(toolBoxHtmlElement: HTMLElement): void {
+        this.toolHtmlElement = toolBoxHtmlElement.querySelector(`.${this.TOOL_CLASS}`)!
         
-        this.$tool.addEventListener('click', e => {
+        this.toolHtmlElement.addEventListener('click', e => {
             if (!this.isSelected) {
                 this.isSelected = true
-                this.$tool?.classList.add(`tool_item_selected`)
+                this.toolHtmlElement?.classList.add(`tool_item_selected`)
                 this.addChartListener()
             }
         })
     }
 
-    protected getTickerStorage(chartFrame: ChartFrame): TickerStorage {
+    protected getTickerStorage(): TickerStorage {
+        let chartFrame = this.chartFrameManager.getActiveChartFrame()
         let ticker = chartFrame.getTicker()
         let tickerStorage = this.storageManager.getTickerStorage(ticker)
         return tickerStorage
     }
 
-    protected getData(chartFrame: ChartFrame) {
-        let tickerStorage = this.getTickerStorage(chartFrame)
+    protected getData() {
+        let tickerStorage = this.getTickerStorage()
         let data = tickerStorage.data[this.KEY]
         if (!data) data = []
         return data
     }
 
-    public addAllToChart(chartFrame: ChartFrame): void {
-        this.getData(chartFrame).forEach(line => 
-            this.addToChart(chartFrame.getChart().getCandleSeries(), line, false)
+    public addAllToChart(): void {
+        this.getData().forEach(line => 
+            this.addToChart(line, false)
         )
     }
 
-    public removeAllFromChart(chartFrame: any): void {
-        this.getData(chartFrame).forEach(line => 
-            this.removeFromChart(chartFrame.getChart().getCandleSeries(), line, false)
+    public removeAllFromChart(): void {
+        this.getData().forEach(line => 
+            this.removeFromChart(line, false)
         )
     }
 
     abstract getHtml(): string
 
-    abstract addChartListener(chartFrame: ChartFrame): void
+    abstract addChartListener(): void
 
     abstract addToChart(
-        candleSeries: any, 
         tool: ToolData, 
         shouldUpdtaeData: boolean
     ): void
 
     abstract removeFromChart(
-        candleSeries: any, 
         tool: ToolData, 
         shouldUpdtaeData: boolean
     ): void

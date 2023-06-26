@@ -1,4 +1,5 @@
 import { ChartFrame } from './ChartFrame'
+import { isString } from './helper/TypeCheck';
 
 declare global {
     interface Window {
@@ -22,7 +23,8 @@ type ChartThemeOption = {
 }
 
 class Chart {
-    private $chart: HTMLDivElement
+    private lightweightChartHtmlElement: HTMLElement
+
     private lightweightChart
     private chartOption
     private candleSeries
@@ -34,16 +36,20 @@ class Chart {
     private chartHeight: number
     private chartGridColor: string
 
-    constructor($chart: HTMLDivElement, chartFrame: ChartFrame) {
+    constructor(
+        lightweightChartHtmlElement: string | HTMLElement, 
+        chartFrame: ChartFrame
+    ) {
         this.chartFrame = chartFrame
 
-        if ($chart instanceof HTMLDivElement) this.$chart = $chart
+        if (lightweightChartHtmlElement instanceof HTMLElement) 
+            this.lightweightChartHtmlElement = lightweightChartHtmlElement
         else {
-            let $div = document.createElement("div")
-            $div.classList.add("chart")
-            $div.style.cssText = "width: 1500px; height: 900px;"
-            document.body.appendChild($div)
-            this.$chart = document.querySelector(".chart")!
+            let element = document.createElement("div")
+            element.classList.add("chart")
+            element.style.cssText = "width: 1500px; height: 900px;"
+            document.body.appendChild(element)
+            this.lightweightChartHtmlElement = document.querySelector(".chart")!
         }
 
         this.chartWidth = 1500
@@ -102,7 +108,7 @@ class Chart {
         }
 
         this.lightweightChart = window.LightweightCharts.createChart(
-            this.$chart,
+            this.lightweightChartHtmlElement,
             this.chartOption
         )
         this.candleSeries = this.lightweightChart.addCandlestickSeries()

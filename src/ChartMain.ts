@@ -11,15 +11,15 @@ class ChartMain {
 
     private datafeed: Datafeed
 
-    private $chartMain: HTMLDivElement
+    private chartMainHtmlElement: HTMLElement
 
-    constructor(elm: HTMLDivElement) {
+    constructor(chartMainHtmlElement: HTMLElement | string) {
         this.datafeed = new Datafeed()
 
-        this.$chartMain = typeof elm === "string" ? 
-            document.querySelector("." + elm)! : elm
+        this.chartMainHtmlElement = typeof chartMainHtmlElement === "string" ? 
+            document.querySelector("." + chartMainHtmlElement)! : chartMainHtmlElement
 
-        this.$chartMain.innerHTML = (`
+        this.chartMainHtmlElement.innerHTML = (`
             <div class="chart_main_wrapper">
                 <div class="header">
                 </div>
@@ -32,14 +32,16 @@ class ChartMain {
             </div>
         `)
 
-        this.toolManager = new ToolManager()
-        this.chartFrameManager = new ChartFrameManager(this.$chartMain, this.datafeed, this.toolManager)
+        this.chartFrameManager = new ChartFrameManager(this.chartMainHtmlElement, this.datafeed)
+        this.toolManager = new ToolManager(this.chartFrameManager)
+        this.chartFrameManager.setToolManager(this.toolManager)
+        this.chartFrameManager.addChartFrame()
 
         this.addChartMainHeaderHtml()
     }
 
-    public getChartMainElement(): HTMLDivElement {
-        return this.$chartMain
+    public getChartMainHtmlElement(): HTMLElement {
+        return this.chartMainHtmlElement
     }
 
     public getChartFrameManager(): ChartFrameManager {
@@ -50,7 +52,7 @@ class ChartMain {
         let timeframeHtml = new TimeframeHtml(this)
         let tickerHtml = new TickerHtml(this)
 
-        let $chartMainHeader = this.$chartMain.querySelector('.header')!;
+        let $chartMainHeader = this.chartMainHtmlElement.querySelector('.header')!;
         $chartMainHeader.innerHTML = `
             <div class="header_left">
                 <div class="header_ticker_select">
@@ -67,7 +69,7 @@ class ChartMain {
             </div>
         `
 
-        this.toolManager.addHtml(this.$chartMain.querySelector('.chart_tool_wrapper')!)
+        this.toolManager.addHtml(this.chartMainHtmlElement.querySelector('.chart_tool_wrapper')!)
 
         tickerHtml.addInputListener()
         timeframeHtml.addChangeListener()

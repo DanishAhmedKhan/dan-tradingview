@@ -3,6 +3,7 @@ import { StorageManager } from "./StorageManager"
 import { ChartFrame } from "../ChartFrame"
 import { ToolData } from "./TickerStorage"
 import { svg } from '../helper/svg'
+import { ChartFrameManager } from "../ChartFrameManager"
 
 type HorizontalLineData = {
     price: number,
@@ -22,9 +23,9 @@ class HorizontalLine extends Tool {
         name: 'Horizontal Line',
     }
 
-    constructor(storageManager: StorageManager) {
-        super(storageManager)
-        this.$tool = null
+    constructor(storageManager: StorageManager, chartFrameManager: ChartFrameManager) {
+        super(storageManager, chartFrameManager)
+        this.toolHtmlElement = null
     }
 
     public getHtml(): string {
@@ -35,26 +36,8 @@ class HorizontalLine extends Tool {
         `
     }
 
-    public addChartInterationListener(chart: any, candleSeries: any): void {
-        chart.subscribeClick((event: any) => {
-            if (!event.point) return
-
-            if (event.time) {
-                let price = candleSeries.coordinateToPrice(event.point.y)
-
-                const line = {
-                    price: price,
-                    color: "#be1238",
-                    lineWidth: 1,
-                    lineStyle: window.LightweightCharts.LineStyle.Solid,
-                    axisLabelVisible: false,
-                }
-                candleSeries.createPriceLine(line)
-            }
-        })
-    }
-
-    public addChartListener(chartFrame: ChartFrame): void {
+    public addChartListener(): void {
+        let chartFrame = this.chartFrameManager.getActiveChartFrame()
         let chart = chartFrame.getChart().getLightweightChart()
         let candleSeries = chartFrame.getChart().getCandleSeries()
 
@@ -64,42 +47,44 @@ class HorizontalLine extends Tool {
             let price = candleSeries.coordinateToPrice(event.point.y)
 
             const line = {
+                id: String(+new Date()),
                 price: price,
-
                 color: "#be1238",
                 lineWidth: 1,
                 lineStyle: window.LightweightCharts.LineStyle.Solid,
                 axisLabelVisible: false,
             }
+            this.addToChart(line)
 
-            candleSeries.createPriceLine(line)
             chart.unsubscribeClick(chartListener)
+            this.setIsSelected(false)
+            this.toolHtmlElement?.classList.remove(`tool_item_selected`)
         }
 
         chart.subscribeClick(chartListener)
     }
 
     public addToChart(
-        chartFrame: ChartFrame, 
         line: ToolData, 
         shouldUpdtaeData: boolean = true,
     ): void {
         if (shouldUpdtaeData) {
-            this.getTickerStorage(chartFrame).addData(this.KEY, line)
+            this.getTickerStorage().addData(this.KEY, line)
         }
         
+        let chartFrame = this.chartFrameManager.getActiveChartFrame()
         chartFrame.getChart().getCandleSeries().createPriceLine(line)
     }
 
     public removeFromChart(
-        chartFrame: ChartFrame, 
         line: ToolData,
         shouldUpdtaeData: boolean = true,
     ): void {
         if (shouldUpdtaeData) {
-            this.getTickerStorage(chartFrame).removeData(this.KEY, line)
+            this.getTickerStorage().removeData(this.KEY, line)
         }
 
+        let chartFrame = this.chartFrameManager.getActiveChartFrame()
         chartFrame.getChart().getCandleSeries().removePriceLine(line)
     }
 }

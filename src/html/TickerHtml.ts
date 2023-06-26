@@ -1,24 +1,25 @@
 import { Ticker } from "../Ticker"
 import ChartMain from "../ChartMain"
+import { ChartFrame } from "../ChartFrame"
 
 class TickerHtml {
 
     private readonly TICKER_ITEM = 'ticker_item'
 
-    private chartMain
-    private $chartMain
-    private chartFrame
+    private chartMain: ChartMain
+    private chartMainHtmlElement: HTMLElement
 
     constructor(chartMain: ChartMain) {
         this.chartMain = chartMain
-        this.$chartMain = this.chartMain.getChartMainElement()
-        this.chartFrame = this.chartMain.getChartFrameManager().getActiveChartFrame()
+        this.chartMainHtmlElement = this.chartMain.getChartMainHtmlElement()
     }
 
     public getHtml(): string {
+        let chartFrame = this.chartMain.getChartFrameManager().getActiveChartFrame()
+
         return Ticker.ALL_TICKERS.reduce((acc, tickerStr) => {
 
-            let selected = tickerStr === this.chartFrame.getTicker().getTicker() ? "selected" : ""
+            let selected = tickerStr === chartFrame.getTicker().getTicker() ? "selected" : ""
             
             return (acc += `
                 <option class="${this.TICKER_ITEM}" ${selected} data-value="${tickerStr}">
@@ -29,7 +30,9 @@ class TickerHtml {
     }
 
     public addInputListener(): void {
-        let $tickerSelect: HTMLSelectElement = this.$chartMain.querySelector(
+        let chartFrame = this.chartMain.getChartFrameManager().getActiveChartFrame()
+
+        let $tickerSelect: HTMLSelectElement = this.chartMainHtmlElement.querySelector(
             ".header .header_ticker_select select"
         )!
 
@@ -38,8 +41,8 @@ class TickerHtml {
             let tickerStr: string = $option.getAttribute("data-value")!
             let ticker = new Ticker(tickerStr)
 
-            this.chartFrame.setIsDataLoaded(false)
-            this.chartFrame.setTicker(ticker)
+            chartFrame.setIsDataLoaded(false)
+            chartFrame.setTicker(ticker)
         })
     }
 }

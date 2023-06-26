@@ -12,7 +12,7 @@ class TimeframeHtml {
 
     constructor(chartMain: ChartMain) {
         this.chartMain = chartMain
-        this.$chartMain = this.chartMain.getChartMainElement()
+        this.$chartMain = this.chartMain.getChartMainHtmlElement()
         this.chartFrame = this.chartMain.getChartFrameManager().getActiveChartFrame()
     }
 
@@ -37,19 +37,18 @@ class TimeframeHtml {
     }
 
     public addChangeListener(): void {
-        let $timeframeItem = this.$chartMain.querySelectorAll(
-            `.header .${this.TIMEFRAME_ITEM}`
-        )
+        let timeframeItemHtmlElements = 
+            this.$chartMain.querySelectorAll(`.header .${this.TIMEFRAME_ITEM}`)
 
-        $timeframeItem.forEach(($tf) => {
-            $tf.addEventListener("click", (e) => {
-                $timeframeItem.forEach(($t) =>
+        timeframeItemHtmlElements.forEach((timeframeItemHtmlElement) => {
+            timeframeItemHtmlElement.addEventListener("click", (event: any) => {
+                timeframeItemHtmlElements.forEach(($t) =>
                     $t.classList.remove(this.TIMEFRAME_ITEM_SELECTED)
                 )
-                $tf.classList.add(this.TIMEFRAME_ITEM_SELECTED)
+                timeframeItemHtmlElement.classList.add(this.TIMEFRAME_ITEM_SELECTED)
 
-                let unit: string = $tf.getAttribute("data-unit")!
-                let value: string = $tf.getAttribute("data-value")!
+                let unit: string = timeframeItemHtmlElement.getAttribute("data-unit")!
+                let value: string = timeframeItemHtmlElement.getAttribute("data-value")!
                 let timeframe = new Timeframe(
                     <TimeframeUnit>unit, 
                     Number(value)

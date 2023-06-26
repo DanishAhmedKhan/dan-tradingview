@@ -14,6 +14,7 @@ class TickerStorage {
     constructor(ticker: string) {
         this.ticker = ticker
         this.data = this.getData()
+        console.log(ticker, 'data', this.data)
     }
 
     private getStorageKey(): string {
