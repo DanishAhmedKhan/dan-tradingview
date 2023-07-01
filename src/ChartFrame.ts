@@ -3,6 +3,7 @@ import { Timeframe, TimeframeUnit } from './Timeframe'
 import { Datafeed } from './Datafeed'
 import { Chart } from './Chart'
 import { ToolManager } from './tool/ToolManager'
+import { DrawingManager } from './drawing/drawing-manager'
 
 type ChartFrameData = {
     ticker: string,
@@ -19,11 +20,14 @@ class ChartFrame {
     private datafeed: Datafeed
     private chart: Chart
 
+    public readonly chartFrameHtmlElement: HTMLElement
+    public readonly drawingPrerenderHtmlElement: HTMLElement
+    public readonly chartInteractionWrapperHtmlElement: HTMLDivElement
+
+    private drawingManager: DrawingManager
     private toolManager: ToolManager
-    private chartFrameHtmlElement: HTMLElement
     private frameIndex: number
     private chartFrameData: ChartFrameData
-
     private isDataLoaded: boolean
 
     constructor(
@@ -37,6 +41,10 @@ class ChartFrame {
 
         this.chartFrameHtmlElement.insertAdjacentHTML("beforeend", `
             <div class="chart_frame_wrapper" data-frame-index="${frameIndex}">
+                <div class="chart_interaction_wrapper" style="display:none;">
+                    <canvas class="drawing_prerender_canvas" width=>
+                </div>
+                <div class="chart_frame_main_wrapper"></div>
             </div>
         `)
 
@@ -62,8 +70,18 @@ class ChartFrame {
 
         this.isDataLoaded = false
 
-        let chartFrameWrapperHtmlElement: HTMLElement = this.chartFrameHtmlElement.querySelector(".chart_frame_wrapper")!
+        let chartFrameWrapperHtmlElement: HTMLElement = 
+            this.chartFrameHtmlElement.querySelector(".chart_frame_main_wrapper")!
         this.chart = new Chart(chartFrameWrapperHtmlElement, this)
+
+        this.drawingManager = new DrawingManager()
+        this.chart.getCandleSeries().attachPrimitive(this.drawingManager)
+
+        this.chartInteractionWrapperHtmlElement = 
+            this.chartFrameHtmlElement.querySelector('.chart_interaction_wrapper')!
+        
+        this.drawingPrerenderHtmlElement = 
+            this.chartInteractionWrapperHtmlElement.querySelector('.drawing_prerender_canvas')!
     }
 
     private getChartFrameData(): ChartFrameData {
@@ -74,6 +92,10 @@ class ChartFrame {
     private saveChartFrameData(): void {
         let key = 'data-chart-frame' + this.frameIndex
         localStorage.setItem(key, JSON.stringify(this.chartFrameData))
+    }
+
+    public getDrawingManager(): DrawingManager {
+        return this.drawingManager
     }
 
     public getFrameIndex(): number {

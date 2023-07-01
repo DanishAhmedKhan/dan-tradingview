@@ -1,8 +1,6 @@
-import { Tool } from "./Tool"
-import { StorageManager } from "./StorageManager"
-import { ToolData } from "./TickerStorage"
+import { Tool, ToolParam } from "./Tool"
 import { svg } from '../helper/svg'
-import { ChartFrameManager } from "../ChartFrameManager"
+import { DrawingType } from "../drawing/drawing-type"
 
 type HorizontalLineData = {
     price: number,
@@ -13,7 +11,7 @@ type HorizontalLineData = {
     axisLabelVisible?: boolean,
 }
 
-class HorizontalLine extends Tool {
+class HorizontalLineTool extends Tool {
 
     public readonly TOOL_CLASS = 'tool_horizontal_line'
     public readonly KEY = 'horizontalLine'
@@ -22,70 +20,33 @@ class HorizontalLine extends Tool {
         name: 'Horizontal Line',
     }
 
-    constructor(storageManager: StorageManager, chartFrameManager: ChartFrameManager) {
-        super(storageManager, chartFrameManager)
-        this.toolHtmlElement = null
+    constructor(toolParam: ToolParam) {
+        super(toolParam)
     }
 
-    public getHtml(): string {
-        return `
-            <div class="tool_item ${this.TOOL_CLASS}">
-                <div class="tool_logo">${this.toolData.svg}</div>
-            </div>
-        `
-    }
+    public handleChartEvent(event: any): void {
+        let chartFrameWrapperHtmlElement = event.target.parentElement.parentElement
+        let frameIndex = Number(chartFrameWrapperHtmlElement.getAttribute('data-frame-index'))
+        console.log(frameIndex)
+        let chartFrame = this.chartFrameManager.getChartFrameAtIndex(frameIndex)
+        let drawingManager = chartFrame.getDrawingManager()
 
-    public addChartListener(): void {
-        let chartFrame = this.chartFrameManager.getActiveChartFrame()
-        let chart = chartFrame.getChart().getLightweightChart()
-        let candleSeries = chartFrame.getChart().getCandleSeries()
+        let { chart, candleSeries } = this.getChartAndSeries()
+        let rect = event.target.getBoundingClientRect()
+        console.log(rect)
+        let yPosition = event.clientY - rect.top
+        console.log(event.target.offsetTop)
+        let price =  candleSeries.coordinateToPrice(yPosition)
+        console.log(price)
 
-        let chartListener = (event: any) => {
-            if (!this.isSelected || !event.point || !event.time) return
+        drawingManager.add({
+            type: DrawingType.HORIZONTAL_LINE,
+            price,
+            color: 'rgba(0, 0, 255)'
+        })
 
-            let price = candleSeries.coordinateToPrice(event.point.y)
-
-            const line = {
-                id: String(+new Date()),
-                price: price,
-                color: "#be1238",
-                lineWidth: 1,
-                lineStyle: window.LightweightCharts.LineStyle.Solid,
-                axisLabelVisible: false,
-            }
-            this.addToChart(line)
-
-            chart.unsubscribeClick(chartListener)
-            this.setIsSelected(false)
-            this.toolHtmlElement?.classList.remove(`tool_item_selected`)
-        }
-
-        chart.subscribeClick(chartListener)
-    }
-
-    public addToChart(
-        line: ToolData, 
-        shouldUpdtaeData: boolean = true,
-    ): void {
-        if (shouldUpdtaeData) {
-            this.getTickerStorage().addData(this.KEY, line)
-        }
-        
-        let chartFrame = this.chartFrameManager.getActiveChartFrame()
-        chartFrame.getChart().getCandleSeries().createPriceLine(line)
-    }
-
-    public removeFromChart(
-        line: ToolData,
-        shouldUpdtaeData: boolean = true,
-    ): void {
-        if (shouldUpdtaeData) {
-            this.getTickerStorage().removeData(this.KEY, line)
-        }
-
-        let chartFrame = this.chartFrameManager.getActiveChartFrame()
-        chartFrame.getChart().getCandleSeries().removePriceLine(line)
+        this.removeChartListener()
     }
 }
 
-export { HorizontalLine, HorizontalLineData }
+export { HorizontalLineTool, HorizontalLineData }

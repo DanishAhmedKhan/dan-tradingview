@@ -1,32 +1,29 @@
 import { ChartFrame } from "./ChartFrame"
 import { Datafeed } from "./Datafeed"
+import { DrawingManager } from "./drawing/drawing-manager"
 import { ToolManager } from "./tool/ToolManager"
 
 class ChartFrameManager {
 
-    private chartFrames: Array<ChartFrame>
-    private activeChartFrame: ChartFrame | null
-    private frameCount
+    private chartFrame: Array<ChartFrame> = []
+    private activeChartFrame: ChartFrame | null = null
+    private frameCount = 0
 
     private chartMainHtmlElement: HTMLElement
     private datafeed: Datafeed
-    private toolManager: ToolManager | null
+    private toolManager: ToolManager | null = null
 
     constructor(chartMainHtmlElement: HTMLElement, datafeed: Datafeed) {
         this.chartMainHtmlElement = chartMainHtmlElement
         this.datafeed = datafeed
-        this.toolManager = null
-        this.chartFrames = []
-        this.frameCount = 0
-        this.activeChartFrame = null
     }
 
     public setToolManager(toolManager: ToolManager): void {
         this.toolManager = toolManager
     }
 
-    public getAllChartFrames(): Array<ChartFrame> {
-        return this.chartFrames
+    public getAllChartFrame(): Array<ChartFrame> {
+        return this.chartFrame
     }
 
     public getActiveChartFrame(): ChartFrame {
@@ -41,12 +38,17 @@ class ChartFrameManager {
             this.toolManager!,
         )
         this.activeChartFrame = chartFrame
-        this.chartFrames.push(chartFrame)
+        this.chartFrame.push(chartFrame)
         chartFrame.displayChart()
         chartFrame.displayDrawing()
+        // chartFrame.getChart().getCandleSeries().attachPrimitive(new DrawingManager())
 
         this.addActiveListener()
         return chartFrame
+    }
+
+    public getChartFrameAtIndex(index: number): ChartFrame {
+        return this.chartFrame[index]
     }
 
     public addActiveListener(): void {
@@ -55,8 +57,20 @@ class ChartFrameManager {
         chartFrameHtmlElements.forEach(chartFrameHtmlElement => {
             chartFrameHtmlElement.addEventListener('click', e => {
                 let frameIndex = Number(chartFrameHtmlElement.getAttribute('data-frame-index'))
-                this.activeChartFrame = this.chartFrames[frameIndex]
+                this.activeChartFrame = this.chartFrame[frameIndex]
             })
+        })
+    }
+
+    public activateAllFrameInteraction(): void {
+        this.chartFrame.forEach(chartFrame => {
+            chartFrame.chartInteractionWrapperHtmlElement.style.display = 'block'
+        })
+    }
+
+    public deactivateAllFrameInteraction(): void {
+        this.chartFrame.forEach(chartFrame => {
+            chartFrame.chartInteractionWrapperHtmlElement.style.display = 'none'
         })
     }
 }

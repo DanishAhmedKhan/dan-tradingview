@@ -6,6 +6,10 @@
     box-sizing: border-box;
 }
 
+body {
+    overflow: hidden;
+}
+
 .body_wrapper {
     width: 100vw;
     height: 100vh;
@@ -16,6 +20,7 @@
         height: 100%;
         display: grid;
         grid-template-rows: auto;
+        position: relative;
 
         .header {
             display: flex;
@@ -91,6 +96,7 @@
         .chart_main_body {
             display: grid;
             grid-template-columns: 1fr calc(100% - 55px);
+            grid-template-rows: 1fr;
 
             .chart_tool_wrapper {
                 width: 50px;
@@ -130,7 +136,97 @@
 
             .chart_main_frames {
                 border-top-left-radius: 4px;
+                // overflow: hidden;
+                display: grid;
+
+                &.main_frame_1 {
+                    grid-template-columns: 1fr;
+                    grid-template-rows: 1fr;
+                }
+
+                .chart_frame_wrapper {
+                    position: relative;
+
+                    .chart_interaction_wrapper {
+                        display: none;
+                        position: absolute;
+                        width: calc(100% - 65px);
+                        height: calc(100% - 29px);
+                        left: 0px;
+                        top: 0px;
+                        z-index: 99;
+                    }
+
+                    .chart_frame_main_wrapper {
+                        width: calc(100% - 1px);
+                        height: 100%;
+                    }
+                }
+            }
+        }
+
+        .chart_main_toolbar_canvas {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+
+            .dtv_toolbar_item {
+                position: absolute;
+                background-color: #fff;
+                border-radius: 6px;
+                box-shadow: 0 2px 6px #6a6d7899;
+                z-index: 999;
+                height: 38px;
                 overflow: hidden;
+
+                .dtv_toolbar_wrapper {
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+
+                    .dtv_toolbar_drag {
+                        width: 22px;
+                        height: 100%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        cursor: grab;
+
+                        span svg {
+                            display: block;
+                            width: 8px;
+                            height: 12px;
+                            fill: #bbbbbb;
+                        }
+                    }
+
+                    .dtv_toolbar_widget_list {
+                        height: 100%;
+                        display: flex;
+                        padding: 3px;
+
+                        .dtv_toolbar_widget_item {
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            padding: 0px 4px;
+
+                            span svg {
+                                display: block;
+                                width: 28px;
+                                height: 28px;
+                                fill: #222222;
+                            }
+
+                            &:hover {
+                                background-color: #f0f3fa;
+                            }
+                        }
+                    }
+                }
             }
         }
     }

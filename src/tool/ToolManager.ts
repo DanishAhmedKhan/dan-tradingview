@@ -1,21 +1,32 @@
 import { ChartFrame } from "../ChartFrame"
 import { ChartFrameManager } from "../ChartFrameManager"
-import { HorizontalLine } from "./HorizontalLine"
+import { DrawingManager } from "../drawing/drawing-manager"
+import { HorizontalLineTool } from "./HorizontalLine"
 import { StorageManager } from "./StorageManager"
 import { Tool } from "./Tool"
+import { RectangleTool } from "./rectangle-tool"
 
 class ToolManager {
 
     private allTools: Array<Tool>
     private storageManager: StorageManager
     private chartFrameManager: ChartFrameManager
+    private drawingManger: DrawingManager
 
-    constructor(chartFrameManager: ChartFrameManager) {
+    constructor(chartFrameManager: ChartFrameManager, drawingManager: DrawingManager) {
         this.storageManager = new StorageManager()
         this.chartFrameManager = chartFrameManager
+        this.drawingManger = drawingManager
+
+        let toolParam = {
+            storageManager: this.storageManager,
+            chartFrameManager: this.chartFrameManager,
+            drawingManager: this.drawingManger
+        }
 
         this.allTools = [
-            new HorizontalLine(this.storageManager, this.chartFrameManager),
+            new HorizontalLineTool(toolParam),
+            new RectangleTool(toolParam)
         ]
     }
 

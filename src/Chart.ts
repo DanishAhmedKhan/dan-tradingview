@@ -1,5 +1,6 @@
 import { ChartFrame } from './ChartFrame'
-import { isString } from './helper/TypeCheck';
+import { DrawingManager } from './drawing/drawing-manager';
+import { DrawingType } from './drawing/drawing-type';
 
 declare global {
     interface Window {
@@ -37,7 +38,7 @@ class Chart {
     private chartGridColor: string
 
     constructor(
-        lightweightChartHtmlElement: string | HTMLElement, 
+        lightweightChartHtmlElement: HTMLElement, 
         chartFrame: ChartFrame
     ) {
         this.chartFrame = chartFrame
@@ -82,8 +83,8 @@ class Chart {
 
         this.chartOption = {
             autoSize: true,
-            width: this.chartWidth,
-            height: this.chartHeight,
+            // width: this.chartWidth,
+            // height: this.chartHeight,
             grid: {
                 vertLines: { color: this.chartGridColor },
                 horzLines: { color: this.chartGridColor },
@@ -129,6 +130,37 @@ class Chart {
 
         this.candleSeries.applyOptions(this.candleSeriesOption)
         this.addChartScrollListener()
+        
+        // let drawingManager = new DrawingManager()
+        // this.candleSeries.attachPrimitive(drawingManager)
+
+        // drawingManager.add({
+        //     type: DrawingType.RECTANGLE,
+        //     startPrice: 1.2440,
+        //     endPrice: 1.2640,
+        //     startTime: 1682404200,
+        //     endTime: 1685298600,
+        //     fillColor: '#ff0000',
+        //     fillOpacity: 0.2,
+        //     visible: true
+        // })
+
+        // drawingManager.add({
+        //     type: DrawingType.VERTICAL_LINE,
+        //     time: 1685298600,
+        //     color: "rgba(255, 0, 255, 1)",
+        //     visible: true
+        // })
+
+        // drawingManager.add({
+        //     type: DrawingType.TREND_LINE,
+        //     startTime: 1682404200,
+        //     startPrice: 1.2440,
+        //     endTime: 1685298600,
+        //     endPrice: 1.2640,
+        //     color: "rgba(255, 0, 255, 1)",
+        //     visible: true
+        // })
     }
 
     public getLightweightChart(): any {

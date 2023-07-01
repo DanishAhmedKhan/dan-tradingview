@@ -3,11 +3,13 @@ import { TimeframeHtml } from './html/TimeframeHtml'
 import { TickerHtml } from './html/TickerHtml'
 import { ToolManager } from './tool/ToolManager'
 import { ChartFrameManager } from './ChartFrameManager'
+import { DrawingManager } from './drawing/drawing-manager'
 
 class ChartMain {
     
     private chartFrameManager: ChartFrameManager
     private toolManager: ToolManager
+    private drawingManager: DrawingManager
 
     private datafeed: Datafeed
 
@@ -22,20 +24,27 @@ class ChartMain {
         this.chartMainHtmlElement.innerHTML = (`
             <div class="chart_main_wrapper">
                 <div class="header">
+                    <div class="header_left">
+                    </div>
+                    <div class="header_right">
+                    </div>
                 </div>
                 <div class="chart_main_body">
                     <div class="chart_tool_wrapper">
                     </div>
                     <div class="chart_main_frames">
                     </div>
-                <div>
+                </div>
+                <div class="chart_main_toolbar_canvas"></div>
             </div>
         `)
-
+        
+        this.drawingManager = new DrawingManager()
         this.chartFrameManager = new ChartFrameManager(this.chartMainHtmlElement, this.datafeed)
-        this.toolManager = new ToolManager(this.chartFrameManager)
+        this.toolManager = new ToolManager(this.chartFrameManager, this.drawingManager)
         this.chartFrameManager.setToolManager(this.toolManager)
         this.chartFrameManager.addChartFrame()
+
 
         this.addChartMainHeaderHtml()
     }
@@ -52,20 +61,10 @@ class ChartMain {
         let timeframeHtml = new TimeframeHtml(this)
         let tickerHtml = new TickerHtml(this)
 
-        let headerHtmlElement = this.chartMainHtmlElement.querySelector('.header')!;
-        headerHtmlElement.innerHTML = (`
-            <div class="header_left">
-            </div>
-            <div class="header_right">
-                <div class="header_chart_frame_select">
-                    ${this.getChartFrameSelectHtml()}
-                </div>
-            </div>
-        `)
-        let headerLeftHtmlElement = headerHtmlElement.querySelector('.header_left')! as HTMLElement
-
-        this.toolManager.addHtml(this.chartMainHtmlElement.querySelector('.chart_tool_wrapper')!)
-
+        let headerLeftHtmlElement = this.chartMainHtmlElement.querySelector('.header_left')! as HTMLElement
+        let toolWrapperHtmlElement = this.chartMainHtmlElement.querySelector('.chart_tool_wrapper')! as HTMLElement
+        
+        this.toolManager.addHtml(toolWrapperHtmlElement)
         tickerHtml.addHtml(headerLeftHtmlElement)
         timeframeHtml.addHtml(headerLeftHtmlElement)
     }

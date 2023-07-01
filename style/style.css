@@ -6,6 +6,10 @@
   box-sizing: border-box;
 }
 
+body {
+  overflow: hidden;
+}
+
 .body_wrapper {
   width: 100vw;
   height: 100vh;
@@ -16,6 +20,7 @@
   height: 100%;
   display: grid;
   grid-template-rows: auto;
+  position: relative;
 }
 .body_wrapper .chart_main_wrapper .header {
   display: flex;
@@ -79,6 +84,7 @@
 .body_wrapper .chart_main_wrapper .chart_main_body {
   display: grid;
   grid-template-columns: 1fr calc(100% - 55px);
+  grid-template-rows: 1fr;
 }
 .body_wrapper .chart_main_wrapper .chart_main_body .chart_tool_wrapper {
   width: 50px;
@@ -112,5 +118,81 @@
 }
 .body_wrapper .chart_main_wrapper .chart_main_body .chart_main_frames {
   border-top-left-radius: 4px;
+  display: grid;
+}
+.body_wrapper .chart_main_wrapper .chart_main_body .chart_main_frames.main_frame_1 {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+}
+.body_wrapper .chart_main_wrapper .chart_main_body .chart_main_frames .chart_frame_wrapper {
+  position: relative;
+}
+.body_wrapper .chart_main_wrapper .chart_main_body .chart_main_frames .chart_frame_wrapper .chart_interaction_wrapper {
+  display: none;
+  position: absolute;
+  width: calc(100% - 65px);
+  height: calc(100% - 29px);
+  left: 0px;
+  top: 0px;
+  z-index: 99;
+}
+.body_wrapper .chart_main_wrapper .chart_main_body .chart_main_frames .chart_frame_wrapper .chart_frame_main_wrapper {
+  width: calc(100% - 1px);
+  height: 100%;
+}
+.body_wrapper .chart_main_wrapper .chart_main_toolbar_canvas {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+.body_wrapper .chart_main_wrapper .chart_main_toolbar_canvas .dtv_toolbar_item {
+  position: absolute;
+  background-color: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(106, 109, 120, 0.6);
+  z-index: 999;
+  height: 38px;
   overflow: hidden;
+}
+.body_wrapper .chart_main_wrapper .chart_main_toolbar_canvas .dtv_toolbar_item .dtv_toolbar_wrapper {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+.body_wrapper .chart_main_wrapper .chart_main_toolbar_canvas .dtv_toolbar_item .dtv_toolbar_wrapper .dtv_toolbar_drag {
+  width: 22px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+}
+.body_wrapper .chart_main_wrapper .chart_main_toolbar_canvas .dtv_toolbar_item .dtv_toolbar_wrapper .dtv_toolbar_drag span svg {
+  display: block;
+  width: 8px;
+  height: 12px;
+  fill: #bbbbbb;
+}
+.body_wrapper .chart_main_wrapper .chart_main_toolbar_canvas .dtv_toolbar_item .dtv_toolbar_wrapper .dtv_toolbar_widget_list {
+  height: 100%;
+  display: flex;
+  padding: 3px;
+}
+.body_wrapper .chart_main_wrapper .chart_main_toolbar_canvas .dtv_toolbar_item .dtv_toolbar_wrapper .dtv_toolbar_widget_list .dtv_toolbar_widget_item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0px 4px;
+}
+.body_wrapper .chart_main_wrapper .chart_main_toolbar_canvas .dtv_toolbar_item .dtv_toolbar_wrapper .dtv_toolbar_widget_list .dtv_toolbar_widget_item span svg {
+  display: block;
+  width: 28px;
+  height: 28px;
+  fill: #222222;
+}
+.body_wrapper .chart_main_wrapper .chart_main_toolbar_canvas .dtv_toolbar_item .dtv_toolbar_wrapper .dtv_toolbar_widget_list .dtv_toolbar_widget_item:hover {
+  background-color: #f0f3fa;
 }/*# sourceMappingURL=style.css.map */
