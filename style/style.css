@@ -106,6 +106,10 @@ body {
   justify-content: center;
   align-items: center;
   cursor: pointer;
+  margin-bottom: 2px;
+}
+.body_wrapper .chart_main_wrapper .chart_main_body .chart_tool_wrapper .tool_list .tool_item:last-child {
+  margin-bottom: 0px;
 }
 .body_wrapper .chart_main_wrapper .chart_main_body .chart_tool_wrapper .tool_list .tool_item:hover {
   background-color: #eee;
@@ -156,6 +160,7 @@ body {
   z-index: 999;
   height: 38px;
   overflow: hidden;
+  pointer-events: all;
 }
 .body_wrapper .chart_main_wrapper .chart_main_toolbar_canvas .dtv_toolbar_item .dtv_toolbar_wrapper {
   height: 100%;

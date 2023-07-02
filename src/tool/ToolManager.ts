@@ -1,10 +1,11 @@
 import { ChartFrame } from "../ChartFrame"
 import { ChartFrameManager } from "../ChartFrameManager"
 import { DrawingManager } from "../drawing/drawing-manager"
-import { HorizontalLineTool } from "./HorizontalLine"
 import { StorageManager } from "./StorageManager"
 import { Tool } from "./Tool"
+import { HorizontalLineTool } from "./horizontal-line-tool"
 import { RectangleTool } from "./rectangle-tool"
+import { VerticalLineTool } from "./vertical-line-tool"
 
 class ToolManager {
 
@@ -26,7 +27,8 @@ class ToolManager {
 
         this.allTools = [
             new HorizontalLineTool(toolParam),
-            new RectangleTool(toolParam)
+            new VerticalLineTool(toolParam),
+            new RectangleTool(toolParam),
         ]
     }
 

@@ -1,3 +1,4 @@
+import { ChartFrame } from "../ChartFrame"
 import { ChartFrameManager } from "../ChartFrameManager"
 import { DrawingManager } from "../drawing/drawing-manager"
 import { StorageManager } from "./StorageManager"
@@ -62,19 +63,25 @@ abstract class Tool {
         })
     }
 
+    protected getInteractionChartFrame(event: any): ChartFrame {
+        let chartFrameWrapperHtmlElement = event.target.parentElement.parentElement
+        let frameIndex = Number(chartFrameWrapperHtmlElement.getAttribute('data-frame-index'))
+        let chartFrame = this.chartFrameManager.getChartFrameAtIndex(frameIndex)
+        return chartFrame
+    }
+
     public addChartListener(): void {
         this.isSelected = true
         this.toolHtmlElement?.classList.add(`tool_item_selected`)
         this.chartFrameManager.activateAllFrameInteraction()
         this.chartFrameManager.getAllChartFrame().forEach(chartFrame => {
-            chartFrame.chartInteractionWrapperHtmlElement.onclick = (event: any) => {
-                let chartFrameWrapperHtmlElement = event.target.parentElement.parentElement
-                let frameIndex = Number(chartFrameWrapperHtmlElement.getAttribute('data-frame-index'))
-                let chartFrame = this.chartFrameManager.getChartFrameAtIndex(frameIndex)
-                let drawingManager = chartFrame.getDrawingManager()
-                
-                this.handleChartEvent(event, drawingManager)
-            }
+            chartFrame.drawingPrerenderHtmlElement.width  = 
+                chartFrame.chartInteractionWrapperHtmlElement.offsetWidth
+            chartFrame.drawingPrerenderHtmlElement.height = 
+                chartFrame.chartInteractionWrapperHtmlElement.offsetHeight
+
+            let drawingManager = chartFrame.getDrawingManager()
+            this.handleChartEvent(chartFrame, chartFrame.chartInteractionWrapperHtmlElement, drawingManager)
         })
     }
 
@@ -85,6 +92,21 @@ abstract class Tool {
         this.chartFrameManager.getAllChartFrame().forEach(chartFrame => {
             chartFrame.chartInteractionWrapperHtmlElement.onclick = null
         })
+    }
+
+    protected getPoint(e: any): { x: number, y: number } {
+        const rect = e.target.getBoundingClientRect()
+        let x = e.clientX - rect.left
+        let y = e.clientY - rect.top
+        return { x, y }
+    }
+
+    protected getTimeAndPrice(e: any) {
+        let { x, y } = this.getPoint(e)
+        let { chart, candleSeries } = this.getChartAndSeries()
+        let time = chart.timeScale().coordinateToTime(x)
+        let price = candleSeries.coordinateToPrice(y)
+        return { time, price }
     }
 
     protected getTickerStorage(): TickerStorage {
@@ -142,7 +164,7 @@ abstract class Tool {
         this.drawingManager.add(tool)
     }
 
-    abstract handleChartEvent(event: any, drawingManager: DrawingManager): void
+    abstract handleChartEvent(chartFrame: ChartFrame, htmlElement: HTMLElement, drawingManager: DrawingManager): void
 }
 
 export { Tool, ToolParam }

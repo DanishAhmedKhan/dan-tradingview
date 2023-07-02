@@ -2,6 +2,7 @@ import { Tool, ToolParam } from "./Tool"
 import { svg } from '../helper/svg'
 import { DrawingType } from "../drawing/drawing-type"
 import { DrawingManager } from "../drawing/drawing-manager"
+import { ChartFrame } from "../ChartFrame"
 
 class RectangleTool extends Tool {
 
@@ -12,30 +13,68 @@ class RectangleTool extends Tool {
         name: 'Rectangle',
     }
 
-    constructor(toolParam: ToolParam) {
-        super(toolParam)
-    }
+    public handleChartEvent(chartFrame: ChartFrame, htmlElement: HTMLElement, drawingManager: DrawingManager): void {
+        let startTime: number, startPrice: number
+        let startX: number, startY: number
+        let isMouseDown = false
 
-    public handleChartEvent(event: any, drawingManager: DrawingManager): void {
-        let { chart, candleSeries } = this.getChartAndSeries()
-        let rect = event.target.getBoundingClientRect()
-        console.log(rect)
-        let yPosition = event.clientY - rect.top
-        console.log(event.target.offsetTop)
-        let price =  candleSeries.coordinateToPrice(yPosition)
-        console.log(price)
+        const mouseDownHandle = (event: any) => {
+            let { time, price } = this.getTimeAndPrice(event)
+            let { x, y } = this.getPoint(event)
 
-        document.onmousemove = (event: any) => {
+            startTime = time
+            startPrice = price
+            startX = x
+            startY = y
 
+            htmlElement.onmousemove = mouseMoveHandle
+            isMouseDown = true
+        }
+        
+        let canvas = chartFrame.drawingPrerenderHtmlElement
+        let ctx = canvas.getContext('2d')!
+
+        const mouseMoveHandle = (event: any) => {
+            event.preventDefault()
+            event.stopPropagation()
+
+            if (isMouseDown) {
+                htmlElement.onmousedown = null
+                htmlElement.onmouseup = mouceUpHandle
+            }
+
+            let { x: endX, y: endY } = this.getPoint(event)
+            const width = endX - startX;
+            const height = endY - startY;
+
+            ctx.beginPath()
+            ctx.fillStyle = 'rgba(255, 0, 0)'
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            ctx.fillRect(startX, startY, width, height)
         }
 
-        drawingManager.add({
-            type: DrawingType.HORIZONTAL_LINE,
-            price,
-            color: 'rgba(0, 0, 255, 1)'
-        })
+        const mouceUpHandle = (event: any) => {
+            event.preventDefault()
+            event.stopPropagation()
 
-        this.removeChartListener()
+            let { time: endTime, price: endPrice } = this.getTimeAndPrice(event)
+
+            drawingManager.add({
+                type: DrawingType.RECTANGLE,
+                startTime,
+                startPrice,
+                endTime,
+                endPrice,
+                fillColor: '#ff0000',
+                fillOpacity: 0.3
+            })
+        
+            htmlElement.onmousemove = null
+            htmlElement.onmouseup = null
+            this.removeChartListener()
+        }
+
+        htmlElement.onmousedown = mouseDownHandle
     }
 }
 

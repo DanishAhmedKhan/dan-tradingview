@@ -1,4 +1,4 @@
-import { HorizontalLineData } from "./HorizontalLine"
+import { HorizontalLineData } from "./horizontal-line-tool"
 import { Tool } from "./Tool"
 
 type ToolData = {

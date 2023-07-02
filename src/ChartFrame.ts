@@ -21,8 +21,8 @@ class ChartFrame {
     private chart: Chart
 
     public readonly chartFrameHtmlElement: HTMLElement
-    public readonly drawingPrerenderHtmlElement: HTMLElement
-    public readonly chartInteractionWrapperHtmlElement: HTMLDivElement
+    public readonly drawingPrerenderHtmlElement: HTMLCanvasElement
+    public readonly chartInteractionWrapperHtmlElement: HTMLElement
 
     private drawingManager: DrawingManager
     private toolManager: ToolManager
@@ -82,6 +82,9 @@ class ChartFrame {
         
         this.drawingPrerenderHtmlElement = 
             this.chartInteractionWrapperHtmlElement.querySelector('.drawing_prerender_canvas')!
+        
+        this.drawingPrerenderHtmlElement.style.width = '100%'
+        this.drawingPrerenderHtmlElement.style.height = '100%'
     }
 
     private getChartFrameData(): ChartFrameData {
@@ -165,8 +168,6 @@ class ChartFrame {
     }
 
     public displayDrawing(): void {
-        // let tickerStorage = this.storageManager.getTickerStorage(this.ticker)
-
         this.toolManager.getAllTool().forEach(tool => tool.addAllToChart())
     }
 }

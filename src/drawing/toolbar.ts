@@ -95,7 +95,6 @@ class Toolbar {
 
     public remove(): void {
         if (this.toolbarHtmlElement) {
-            console.log('removing')
             this.toolbarHtmlElement.remove()
         }
     }
@@ -104,6 +103,7 @@ class Toolbar {
         let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
 
         const dragMouseDown = (e: any) => {
+            e.stopPropagation()
             e.preventDefault()
             
             pos3 = e.clientX
@@ -114,6 +114,7 @@ class Toolbar {
         }
 
         const elementDrag = (e: any) => {
+            e.stopPropagation()
             e.preventDefault()
             
             pos1 = pos3 - e.clientX
@@ -129,7 +130,7 @@ class Toolbar {
             }
         }
 
-        const closeDragElement = () => {
+        const closeDragElement = (event: any) => {
             document.onmouseup = null
             document.onmousemove = null
         }

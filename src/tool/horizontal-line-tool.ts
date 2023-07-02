@@ -13,28 +13,29 @@ type HorizontalLineData = {
     axisLabelVisible?: boolean,
 }
 
-class VerticalLineTool extends Tool {
+class HorizontalLineTool extends Tool {
 
-    public readonly TOOL_CLASS = 'tool_vertical_line'
-    public readonly KEY = 'verticalLine'
+    public readonly TOOL_CLASS = 'tool_horizontal_line'
+    public readonly KEY = 'horizontalLine'
     public readonly toolData = {
-        svg: svg.verticalLine,
-        name: 'Vertical Line',
+        svg: svg.horizontalLine,
+        name: 'Horizontal Line',
     }
 
-    public handleChartEvent(chartFrame: ChartFrame, htmlElement: HTMLElement, drawingManager: DrawingManager): void {
+    public override handleChartEvent(chartFrame: ChartFrame, htmlElement: HTMLElement, drawingManager: DrawingManager): void {
         htmlElement.onmousedown = (event: any) => {
-            let { time } = this.getTimeAndPrice(event)
+            let { price } = this.getTimeAndPrice(event)
+            console.log(price)
 
             drawingManager.add({
-                type: DrawingType.VERTICAL_LINE,
-                time,
+                type: DrawingType.HORIZONTAL_LINE,
+                price,
                 color: 'rgba(0, 0, 255)'
             })
-            
+
             this.removeChartListener()
         }
     }
 }
 
-export { VerticalLineTool, HorizontalLineData }
+export { HorizontalLineTool, HorizontalLineData }
