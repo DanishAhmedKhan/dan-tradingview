@@ -12,17 +12,14 @@ class ToolManager {
     private allTools: Array<Tool>
     private storageManager: StorageManager
     private chartFrameManager: ChartFrameManager
-    private drawingManger: DrawingManager
 
     constructor(chartFrameManager: ChartFrameManager, drawingManager: DrawingManager) {
         this.storageManager = new StorageManager()
         this.chartFrameManager = chartFrameManager
-        this.drawingManger = drawingManager
 
         let toolParam = {
             storageManager: this.storageManager,
             chartFrameManager: this.chartFrameManager,
-            drawingManager: this.drawingManger
         }
 
         this.allTools = [
@@ -56,10 +53,6 @@ class ToolManager {
 
     public initListener(toolBoxHtmlElement: HTMLElement): void {
         this.allTools.forEach(tool => tool.addClickListener(toolBoxHtmlElement))
-    }
-
-    public displayDrawings(chartFrame: ChartFrame): void {
-        this.allTools.forEach(tool => tool.addAllToChart())
     }
 }
 

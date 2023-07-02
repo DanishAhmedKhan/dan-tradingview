@@ -168,7 +168,7 @@ class ChartFrame {
     }
 
     public displayDrawing(): void {
-        this.toolManager.getAllTool().forEach(tool => tool.addAllToChart())
+        this.toolManager.getAllTool().forEach(tool => tool.addAllToChart(this.drawingManager))
     }
 }
 

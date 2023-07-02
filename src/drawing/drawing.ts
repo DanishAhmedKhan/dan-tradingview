@@ -2,9 +2,9 @@ import { Tool } from "../tool/Tool"
 import { Drawable } from "./drawable"
 import { Toolbar } from "./toolbar"
 
-abstract class Drawing<RendererDataType> implements Drawable{
+abstract class Drawing<RendererDataType> implements Drawable {
     protected options: RendererDataType
-    protected toolbar: Toolbar
+    public toolbar: Toolbar
 
     constructor(options: RendererDataType) {
         this.options = options
@@ -33,6 +33,10 @@ abstract class Drawing<RendererDataType> implements Drawable{
 
     public remove(): void {
         this.toolbar.remove()
+    }
+
+    public getToolbar(): Toolbar {
+        return this.toolbar
     }
 
     public abstract update(): void

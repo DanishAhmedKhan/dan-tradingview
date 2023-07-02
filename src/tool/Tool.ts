@@ -7,7 +7,6 @@ import { TickerStorage, ToolData } from "./TickerStorage"
 type ToolParam = {
     storageManager: StorageManager,
     chartFrameManager: ChartFrameManager,
-    drawingManager: DrawingManager
 }
 
 abstract class Tool {
@@ -20,7 +19,6 @@ abstract class Tool {
 
     protected storageManager: StorageManager
     protected chartFrameManager: ChartFrameManager
-    protected drawingManager: DrawingManager
 
     protected isSelected: boolean
     protected toolHtmlElement: HTMLElement | null
@@ -28,11 +26,9 @@ abstract class Tool {
     constructor({
         storageManager,
         chartFrameManager,
-        drawingManager
     }: ToolParam) {
         this.storageManager = storageManager
         this.chartFrameManager = chartFrameManager
-        this.drawingManager = drawingManager
         this.isSelected = false
         this.toolHtmlElement = null
     }
@@ -130,38 +126,40 @@ abstract class Tool {
         return { chart, candleSeries }
     }
 
-    public addAllToChart(): void {
-        this.getData().forEach(line =>
-            this.addToChart(line, false)
+    public addAllToChart(drawingManager: DrawingManager): void {
+        this.getData().forEach(toolData =>
+            this.addToChart(drawingManager, toolData, false)
         )
     }
 
-    public removeAllFromChart(): void {
-        this.getData().forEach(line => 
-            this.removeFromChart(line, false)
+    public removeAllFromChart(drawingManager: DrawingManager): void {
+        this.getData().forEach(toolData => 
+            this.removeFromChart(drawingManager, toolData, false)
         )
     }
 
     public addToChart(
-        tool: ToolData, 
+        drawingManager: DrawingManager,
+        toolData: ToolData, 
         shouldUpdtaeData: boolean = true
     ): void {
         if (shouldUpdtaeData) {
-            this.getTickerStorage().addData(this.KEY, tool)
+            this.getTickerStorage().addData(this.KEY, toolData)
         }
         
-        this.drawingManager.add(tool)
+        drawingManager.add(toolData)
     }
 
     public removeFromChart(
-        tool: ToolData, 
+        drawingManager: DrawingManager,
+        toolData: ToolData, 
         shouldUpdtaeData: boolean = true
     ): void {
         if (shouldUpdtaeData) {
-            this.getTickerStorage().removeData(this.KEY, tool)
+            this.getTickerStorage().removeData(this.KEY, toolData)
         }
 
-        this.drawingManager.add(tool)
+        drawingManager.add(toolData)
     }
 
     abstract handleChartEvent(chartFrame: ChartFrame, htmlElement: HTMLElement, drawingManager: DrawingManager): void

@@ -91,6 +91,11 @@ class Toolbar {
         let toolbarCanvasHtmlElement = document.querySelector('.chart_main_wrapper .chart_main_toolbar_canvas')!
         toolbarCanvasHtmlElement.insertAdjacentHTML('beforeend', toolbarHtml)
         this.toolbarHtmlElement = toolbarCanvasHtmlElement.lastElementChild as HTMLDivElement
+    
+        this.toolbarHtmlElement.onclick = (e: any) => {
+            e.stopPropagation()
+            console.log('toolbar clicked')
+        }
     }
 
     public remove(): void {

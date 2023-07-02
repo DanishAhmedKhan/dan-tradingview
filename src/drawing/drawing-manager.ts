@@ -65,8 +65,21 @@ class DrawingManager {
         // console.log(x, y)
     }
 
+    public hideToolbar(): void {
+        document.onclick = (e) => {
+            this.hideAllToolbar()
+        }
+    }
+
+    public hideAllToolbar(): void {
+        this.drawings.forEach(d => {
+            d.getToolbar().hide()
+        })
+    }
+
     public attached(chartReference: any): void {
         this.chartReference = chartReference
+        this.hideToolbar()
     }
 }
 
