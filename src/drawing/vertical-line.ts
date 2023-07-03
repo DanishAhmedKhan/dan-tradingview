@@ -6,6 +6,7 @@ import { Point } from "./point"
 type VeriticalLineOptions = Options & {
     time: number,
     color: string,
+    lineWidth: number,
 }
 
 class VerticalLine extends Drawing<VeriticalLineOptions> {
@@ -28,7 +29,8 @@ class VerticalLine extends Drawing<VeriticalLineOptions> {
     public paint(ctx: any, bitmapSize: any) {
         let xPosition = this.point.getX()!
 
-		ctx.fillStyle = this.options.color
+		ctx.strokeStyle = this.options.color
+        ctx.lineWidth = this.options.lineWidth
         ctx.beginPath()
         ctx.moveTo(xPosition, 0)
 		ctx.lineTo(xPosition, bitmapSize.height)

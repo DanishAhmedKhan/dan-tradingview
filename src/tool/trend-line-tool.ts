@@ -4,13 +4,13 @@ import { DrawingType } from "../drawing/drawing-type"
 import { DrawingManager } from "../drawing/drawing-manager"
 import { ChartFrame } from "../ChartFrame"
 
-class RectangleTool extends Tool {
+class TrendLineTool extends Tool {
 
-    public readonly TOOL_CLASS = 'tool_rectangle'
-    public readonly KEY = 'rectangle'
+    public readonly TOOL_CLASS = 'tool_trend_line'
+    public readonly KEY = 'trendLine'
     public readonly toolData = {
-        svg: svg.rectangle,
-        name: 'Rectangle',
+        svg: svg.trendLine,
+        name: 'Trend Line',
     }
 
     public handleChartEvent(chartFrame: ChartFrame, htmlElement: HTMLElement, drawingManager: DrawingManager): void {
@@ -47,10 +47,13 @@ class RectangleTool extends Tool {
             const width = endX - startX;
             const height = endY - startY;
 
-            ctx.beginPath()
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'
             ctx.clearRect(0, 0, canvas.width, canvas.height)
-            ctx.fillRect(startX, startY, width, height)
+            ctx.strokeStyle = 'rgba(0, 0, 0)'
+            ctx.lineWidth = 1
+            ctx.beginPath()
+            ctx.moveTo(startX, startY)
+            ctx.lineTo(endX, endY)
+            ctx.stroke()
         }
 
         const mouceUpHandle = (event: any) => {
@@ -60,13 +63,13 @@ class RectangleTool extends Tool {
             let { time: endTime, price: endPrice } = this.getTimeAndPrice(event)
 
             drawingManager.add({
-                type: DrawingType.RECTANGLE,
+                type: DrawingType.TREND_LINE,
                 startTime,
                 startPrice,
                 endTime,
                 endPrice,
-                fillColor: '#000000',
-                fillOpacity: 0.2
+                color: '#000000',
+                lineWidth: 1,
             })
         
             htmlElement.onmousemove = null
@@ -78,4 +81,4 @@ class RectangleTool extends Tool {
     }
 }
 
-export { RectangleTool }
+export { TrendLineTool }

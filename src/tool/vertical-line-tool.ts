@@ -32,7 +32,8 @@ class VerticalLineTool extends Tool {
             drawingManager.add({
                 type: DrawingType.VERTICAL_LINE,
                 time,
-                color: 'rgba(0, 0, 255)'
+                color: 'rgba(0, 0, 0)',
+                lineWidth: 1,
             })
             
             this.removeChartListener()

@@ -9,6 +9,7 @@ type TrendLineOptions = Options & {
     endPrice: number,
     endTime: number,
     color: string,
+    lineWidth: number,
 }
 
 class TerendLine extends Drawing<TrendLineOptions> {
@@ -54,20 +55,35 @@ class TerendLine extends Drawing<TrendLineOptions> {
             maxY > 0 && minY < bitmapSize.height
     }
 
-    public paint(target: any): void {
+    public paint(ctx: any, bitmapSize: any): void {
         let { x: x1, y: y1 } = this.startPoint.get()
         let { x: x2, y: y2 } = this.endPoint.get()
 
-        let ctx = target._context
+		ctx.fillStyle = this.options.color
+        ctx.lineWidth = this.options.lineWidth
         ctx.beginPath()
         ctx.moveTo(x1, y1)
 		ctx.lineTo(x2, y2)
-		ctx.fillStyle = this.options.color
 		ctx.stroke()
     }
 
     public override paintHover(ctx: any, bitmapSize: any) {
-       
+        let { x: x1, y: y1 } = this.startPoint.get()
+        let { x: x2, y: y2 } = this.endPoint.get()
+
+        ctx.beginPath()
+        ctx.arc(x1, y1, 6, 0, 2 * Math.PI, false)
+        ctx.stroke()
+        ctx.fillStyle = 'rgb(255, 255, 255)'
+        ctx.arc(x1, y1, 6, 0, 2 * Math.PI, false)
+        ctx.fill()
+
+        ctx.beginPath()
+        ctx.arc(x2, y2, 6, 0, 2 * Math.PI, false)
+        ctx.stroke()
+        ctx.fillStyle = 'rgb(255, 255, 255)'
+        ctx.arc(x2, y2, 6, 0, 2 * Math.PI, false)
+        ctx.fill()
     }
 
     public override isHover(x: number, y: number): any {

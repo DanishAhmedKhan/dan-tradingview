@@ -32,7 +32,8 @@ class HorizontalLineTool extends Tool {
             drawingManager.add({
                 type: DrawingType.HORIZONTAL_LINE,
                 price,
-                color: 'rgba(0, 0, 255)'
+                color: 'rgba(0, 0, 0)',
+                lineWidth: 1,
             })
 
             this.removeChartListener()

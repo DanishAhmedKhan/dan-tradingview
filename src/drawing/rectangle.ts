@@ -74,7 +74,6 @@ class Rectangle extends Drawing<RectangleOptions> {
     public override paintHover(ctx: any, bitmapSize: any) {
         for (let i = 0; i < this.corners.length; ++i) {
             let { x, y } = this.corners[i].get()
-			// ctx.circal(this.corners[i].getX(), this.corners[i].getY())
             ctx.beginPath()
             ctx.arc(x, y, 6, 0, 2 * Math.PI, false)
             ctx.stroke()

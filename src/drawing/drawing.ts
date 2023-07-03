@@ -1,6 +1,7 @@
 import { svg } from "../helper/svg"
 import { Drawable } from "./drawable"
 import { DrawingManager } from "./drawing-manager"
+import { Point } from "./point"
 import { Widget } from "./toolbar"
 
 type Options = {

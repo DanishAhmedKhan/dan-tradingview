@@ -6,6 +6,7 @@ import { Point } from "./point"
 type HorizontalLineOptions = Options & {
     price: number,
     color: string,
+    lineWidth: number,
 }
 
 class HorizontalLine extends Drawing<HorizontalLineOptions> {
@@ -28,7 +29,8 @@ class HorizontalLine extends Drawing<HorizontalLineOptions> {
     public override paint(ctx: any, bitmapSize: any) {
         let yPosition = this.point.getY()!
 
-		ctx.fillStyle = this.options.color
+		ctx.strokeStyle = this.options.color
+        ctx.lineWidth = this.options.lineWidth
         ctx.beginPath()
         ctx.moveTo(0, yPosition)
 		ctx.lineTo(bitmapSize.width, yPosition)
