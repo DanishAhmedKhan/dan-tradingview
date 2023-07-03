@@ -39,12 +39,11 @@ class ChartMain {
             </div>
         `)
         
-        this.drawingManager = new DrawingManager()
         this.chartFrameManager = new ChartFrameManager(this.chartMainHtmlElement, this.datafeed)
-        this.toolManager = new ToolManager(this.chartFrameManager, this.drawingManager)
+        this.toolManager = new ToolManager(this.chartFrameManager)
         this.chartFrameManager.setToolManager(this.toolManager)
         this.chartFrameManager.addChartFrame()
-
+        this.drawingManager = new DrawingManager(this.toolManager)
 
         this.addChartMainHeaderHtml()
     }

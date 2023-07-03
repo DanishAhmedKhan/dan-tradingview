@@ -24,6 +24,9 @@ class HorizontalLineTool extends Tool {
 
     public override handleChartEvent(chartFrame: ChartFrame, htmlElement: HTMLElement, drawingManager: DrawingManager): void {
         htmlElement.onmousedown = (event: any) => {
+            event.preventDefault()
+            event.stopPropagation()
+
             let { price } = this.getTimeAndPrice(event)
 
             drawingManager.add({

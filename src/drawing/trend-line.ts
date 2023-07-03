@@ -1,8 +1,8 @@
-import { Drawing } from "./drawing"
+import { Drawing, Options } from "./drawing"
 import { DrawingManager } from "./drawing-manager"
 import { Point } from "./point"
 
-type TrendLineOptions = {
+type TrendLineOptions = Options & {
     startPrice: number,
     startTime: number,
     endPrice: number,
@@ -26,10 +26,7 @@ class TerendLine extends Drawing<TrendLineOptions> {
         this.endPoint.update()
     }
 
-    public paint(target: any): void {
-        if (this.options === null) return
-        if (this.options.visible === false) return
-
+    public override isInView(bitmapSize: any): boolean {
         let minX, maxX, minY, maxY;
 
         let x1 = this.startPoint.getX()!
@@ -53,12 +50,14 @@ class TerendLine extends Drawing<TrendLineOptions> {
             maxY = y1
         }
 
-        let bitmapSize = target._bitmapSize
+        return maxX > 0 && minX < bitmapSize.width &&
+            maxY > 0 && minY < bitmapSize.height
+    }
 
-        if (maxX < 0 || minX > bitmapSize.width ||
-            maxY < 0 || minY > bitmapSize.height) {
-            return
-        }
+
+    public paint(target: any): void {
+        let { x: x1, y: y1 } = this.startPoint.get()
+        let { x: x2, y: y2 } = this.endPoint.get()
 
         let ctx = target._context
         ctx.beginPath()
@@ -66,6 +65,14 @@ class TerendLine extends Drawing<TrendLineOptions> {
 		ctx.lineTo(x2, y2)
 		ctx.fillStyle = this.options.color
 		ctx.stroke()
+    }
+
+    public override paintHover(ctx: any, bitmapSize: any) {
+       
+    }
+
+    public override isHover(x: number, y: number): any {
+		return false
     }
 }
 

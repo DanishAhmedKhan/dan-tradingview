@@ -202,11 +202,17 @@ body {
                         justify-content: center;
                         cursor: grab;
 
-                        span svg {
-                            display: block;
-                            width: 8px;
-                            height: 12px;
-                            fill: #bbbbbb;
+
+
+                        span  {
+                            pointer-events: none;
+
+                            svg {
+                                display: block;
+                                width: 8px;
+                                height: 12px;
+                                fill: #bbbbbb;
+                            }
                         }
                     }
 
@@ -221,11 +227,15 @@ body {
                             justify-content: center;
                             padding: 0px 4px;
 
-                            span svg {
-                                display: block;
-                                width: 28px;
-                                height: 28px;
-                                fill: #222222;
+                            span {
+                                pointer-events: none;
+
+                                svg {
+                                    display: block;
+                                    width: 28px;
+                                    height: 28px;
+                                    fill: #222222;
+                                }
                             }
 
                             &:hover {

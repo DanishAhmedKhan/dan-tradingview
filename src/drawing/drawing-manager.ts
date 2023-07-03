@@ -4,13 +4,23 @@ import { Drawable } from "./drawable"
 import { DrawingType } from "./drawing-type"
 import { TerendLine } from "./trend-line"
 import { HorizontalLine } from "./horizontal-line"
+import { ToolManager } from "../tool/ToolManager"
 
 class DrawingManager {
     public chartReference: any | null = null
     private drawings: Array<Drawable> = []
 
+    private toolManager: ToolManager
+
+    constructor(toolManager: ToolManager) {
+        this.toolManager = toolManager
+    }
+
     public add(options: any): Drawable {
         let drawing: Drawable
+
+        if (!options.id) options.id = String(+new Date())
+        if (!options.visible) options.visible = true
 
         // if (!options.type) throw Error('options must have a type property')
 
@@ -63,17 +73,29 @@ class DrawingManager {
 
     public hitTest(x: number, y: number): any {
         // console.log(x, y)
+        let d
+
+        this.drawings.forEach(drawing => {
+            let h = drawing.hitTest(x, y)
+            if (h !== null) d = h
+        })
+
+        return d
     }
 
     public hideToolbar(): void {
-        document.onclick = (e) => {
-            this.hideAllToolbar()
+        document.onmousedown = (e) => {
+            let target = e.target as HTMLElement
+            if (!target.classList.contains('dtv_toolbar_widget_item')) {
+                if (!this.toolManager.isToolSelected())
+                    this.hideAllToolbar()
+            }
         }
     }
 
     public hideAllToolbar(): void {
-        this.drawings.forEach(d => {
-            d.getToolbar().hide()
+        this.drawings.forEach(drawing => {
+            drawing.getToolbar().hide()
         })
     }
 

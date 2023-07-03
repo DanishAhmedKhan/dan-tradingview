@@ -24,6 +24,9 @@ class VerticalLineTool extends Tool {
 
     public handleChartEvent(chartFrame: ChartFrame, htmlElement: HTMLElement, drawingManager: DrawingManager): void {
         htmlElement.onmousedown = (event: any) => {
+            event.preventDefault()
+            event.stopPropagation()
+
             let { time } = this.getTimeAndPrice(event)
 
             drawingManager.add({

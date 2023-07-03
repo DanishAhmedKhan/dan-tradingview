@@ -175,6 +175,9 @@ body {
   justify-content: center;
   cursor: grab;
 }
+.body_wrapper .chart_main_wrapper .chart_main_toolbar_canvas .dtv_toolbar_item .dtv_toolbar_wrapper .dtv_toolbar_drag span {
+  pointer-events: none;
+}
 .body_wrapper .chart_main_wrapper .chart_main_toolbar_canvas .dtv_toolbar_item .dtv_toolbar_wrapper .dtv_toolbar_drag span svg {
   display: block;
   width: 8px;
@@ -191,6 +194,9 @@ body {
   align-items: center;
   justify-content: center;
   padding: 0px 4px;
+}
+.body_wrapper .chart_main_wrapper .chart_main_toolbar_canvas .dtv_toolbar_item .dtv_toolbar_wrapper .dtv_toolbar_widget_list .dtv_toolbar_widget_item span {
+  pointer-events: none;
 }
 .body_wrapper .chart_main_wrapper .chart_main_toolbar_canvas .dtv_toolbar_item .dtv_toolbar_wrapper .dtv_toolbar_widget_list .dtv_toolbar_widget_item span svg {
   display: block;

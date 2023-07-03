@@ -1,12 +1,11 @@
 import { svg } from "../helper/svg"
-import { Drawing } from "./drawing"
+import { Drawing, Options } from "./drawing"
 import { DrawingManager } from "./drawing-manager"
 import { Point } from "./point"
 
-type VeriticalLineOptions = {
+type VeriticalLineOptions = Options & {
     time: number,
     color: string,
-    visible?: boolean,
 }
 
 class VerticalLine extends Drawing<VeriticalLineOptions> {
@@ -30,23 +29,40 @@ class VerticalLine extends Drawing<VeriticalLineOptions> {
         this.point.update()
     }
 
-    public paint(target: any) {
-        if (!this.options) return
-        if (this.options.visible === false) return
-
-        let bitmapSize = target._bitmapSize
-        
+     public override isInView(bitmapSize: any): boolean {
         let x = this.point.getX()!
+        return x > 0 && x < bitmapSize.width
+    }
 
-        if (x < 0 || x > bitmapSize.width) return
-
-        let ctx = target._context
-        ctx.beginPath()
-        ctx.moveTo(x, 0)
-		ctx.lineTo(x, bitmapSize.height)
+    public paint(ctx: any, bitmapSize: any) {
+        let xPosition = this.point.getX()!
 
 		ctx.fillStyle = this.options.color
+        ctx.beginPath()
+        ctx.moveTo(xPosition, 0)
+		ctx.lineTo(xPosition, bitmapSize.height)
 		ctx.stroke()
+    }
+
+    public override paintHover(ctx: any, bitmapSize: any) {
+       let xPosition = this.point.getX()!
+
+        ctx.fillStyle = this.options.color
+		ctx.roundRect(xPosition - 5, bitmapSize.height / 2 - 5, 10, 10)
+        ctx.stroke()
+        ctx.fillStyle = 'rgba(255, 255, 255)'
+        ctx.roundRect(xPosition - 5, bitmapSize.height / 2 - 5, 10, 10)
+        ctx.fill()
+    }
+
+    public override isHover(x: number, y: number): any {
+		const xPosition = this.point.getX()!
+        let lineWidth = 1
+        
+        const HitTestThreshold = 7
+
+		return x >= xPosition - lineWidth - HitTestThreshold && 
+            x <= xPosition + lineWidth + HitTestThreshold
     }
 }
 

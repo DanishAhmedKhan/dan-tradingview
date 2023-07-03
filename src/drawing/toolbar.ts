@@ -11,8 +11,8 @@ class Toolbar {
     private y: number
 
     private widgets: Array<Widget> = []
-
     private toolbarHtmlElement: HTMLDivElement | null = null
+    private visible: boolean = true
 
     constructor(x: number, y: number) {
         this.x = x
@@ -29,14 +29,22 @@ class Toolbar {
         this.show()
     }
 
+    public isVisible(): boolean {
+        return this.visible
+    }
+
     public hide(): void {
-        if (this.toolbarHtmlElement)
+        if (this.toolbarHtmlElement) {
+            this.visible = false
             this.toolbarHtmlElement.style.display = 'none'
+        }
     }
 
     public show(): void {
-        if (this.toolbarHtmlElement)
+        if (this.toolbarHtmlElement) {
+            this.visible = true
             this.toolbarHtmlElement.style.display = 'block'
+        }
     }
 
     public setPosition(x: number, y: number) {
@@ -67,6 +75,7 @@ class Toolbar {
                 this.toolbarHtmlElement.querySelectorAll('.dtv_toolbar_widget_item')
             widgetItemsHtmlElement.forEach((htmlElement, index) => {
                 htmlElement.onclick = (e: any) => {
+                    console.log('toolbar delete clicked')
                     if (this.widgets[index].callback) {
                         this.widgets[index].callback()
                     }
@@ -91,11 +100,6 @@ class Toolbar {
         let toolbarCanvasHtmlElement = document.querySelector('.chart_main_wrapper .chart_main_toolbar_canvas')!
         toolbarCanvasHtmlElement.insertAdjacentHTML('beforeend', toolbarHtml)
         this.toolbarHtmlElement = toolbarCanvasHtmlElement.lastElementChild as HTMLDivElement
-    
-        this.toolbarHtmlElement.onclick = (e: any) => {
-            e.stopPropagation()
-            console.log('toolbar clicked')
-        }
     }
 
     public remove(): void {

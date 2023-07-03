@@ -1,12 +1,11 @@
 import { svg } from "../helper/svg"
-import { Drawing } from "./drawing"
+import { Drawing, Options } from "./drawing"
 import { DrawingManager } from "./drawing-manager"
 import { Point } from "./point"
 
-type HorizontalLineOptions = {
+type HorizontalLineOptions = Options & {
     price: number,
     color: string,
-    visible?: boolean,
 }
 
 class HorizontalLine extends Drawing<HorizontalLineOptions> {
@@ -26,27 +25,44 @@ class HorizontalLine extends Drawing<HorizontalLineOptions> {
         ])
     }
 
-    public update(): void {
+    public override update(): void {
         this.point.update()
     }
 
-    public paint(target: any) {
-        if (!this.options) return
-        if (this.options.visible === false) return
-
-        let bitmapSize = target._bitmapSize
-        
+    public override isInView(bitmapSize: any): boolean {
         let y = this.point.getY()!
+        return y > 0 && y < bitmapSize.height
+    }
 
-        if (y < 0 || y > bitmapSize.height) return
-
-        let ctx = target._context
-        ctx.beginPath()
-        ctx.moveTo(0, y)
-		ctx.lineTo(bitmapSize.width, y)
+    public override paint(ctx: any, bitmapSize: any) {
+        let yPosition = this.point.getY()!
 
 		ctx.fillStyle = this.options.color
+        ctx.beginPath()
+        ctx.moveTo(0, yPosition)
+		ctx.lineTo(bitmapSize.width, yPosition)
 		ctx.stroke()
+    }
+
+    public override paintHover(ctx: any, bitmapSize: any) {
+       let yPosition = this.point.getY()!
+
+        ctx.fillStyle = this.options.color
+		ctx.roundRect(bitmapSize.width / 2 - 5, yPosition - 5, 10, 10)
+        ctx.stroke()
+        ctx.fillStyle = 'rgba(255, 255, 255)'
+        ctx.roundRect(bitmapSize.width / 2 - 5, yPosition - 5, 10, 10)
+        ctx.fill()
+    }
+
+    public override isHover(x: number, y: number): any {
+		const yPosition = this.point.getY()!
+        let lineWidth = 1
+        
+        const HitTestThreshold = 7
+
+		return y >= yPosition - lineWidth - HitTestThreshold && 
+            y <= yPosition + lineWidth + HitTestThreshold
     }
 }
 

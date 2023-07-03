@@ -1,20 +1,21 @@
-import { Drawing } from "./drawing"
+import { Drawing, Options } from "./drawing"
 import { SimplePoint, Point } from "./point"
 import { hexToRgba } from "../helper/color"
 import { DrawingManager } from "./drawing-manager"
+import { svg } from "../helper/svg"
 
-type RectangleOptions = {
+type RectangleOptions = Options & {
     startPrice: number,
     endPrice: number,
     startTime: number,
     endTime: number,
     fillColor: string,
     fillOpacity: number,
-    visible?: boolean,
 }
 
 class Rectangle extends Drawing<RectangleOptions> {
     private corners: Array<Point>
+    private color: string
 
     constructor(options: RectangleOptions, drawingManager: DrawingManager) {
         super(options)
@@ -26,6 +27,17 @@ class Rectangle extends Drawing<RectangleOptions> {
             new Point(options.endTime, options.endPrice, chartReference),
             new Point(options.startTime, options.endPrice, chartReference),
         ]
+        this.color = hexToRgba(this.options.fillColor, this.options.fillOpacity)
+
+        this.toolbar.setWidget([
+            {
+                name: 'Delete',
+                svg: svg.delete,
+                callback: () => {
+                    drawingManager.remove(this)
+                }
+            }
+        ])
     }
 
     public update(): void {
@@ -34,11 +46,8 @@ class Rectangle extends Drawing<RectangleOptions> {
         })
     }
 
-    public paint(target: any): void {
-        if (this.options === null) return
-        if (this.options.visible === false) return
-
-        let corners: Array<SimplePoint> = []
+    public override isInView(bitmapSize: any): boolean {
+          let corners: Array<SimplePoint> = []
         let cnr = this.corners
         let minX = cnr[0].getX() as number
         let maxX = cnr[0].getX() as number
@@ -57,22 +66,44 @@ class Rectangle extends Drawing<RectangleOptions> {
             if (y > maxY) maxY = y
         }
 
-        let bitmapSize = target._bitmapSize
+        return maxX > 0 && minX < bitmapSize.width &&
+            maxY > 0 && minY < bitmapSize.height
+    }
 
-        if (maxX < 0 || minX > bitmapSize.width ||
-            maxY < 0 || minY > bitmapSize.height) {
-            return
-        }
-
-        let ctx = target._context
+    public paint(ctx: any, bitmapSize: any): void {
         ctx.beginPath()
-        ctx.moveTo(corners[corners.length - 1].x, corners[corners.length - 1].y)
-        for (let i = 0; i < corners.length; ++i) {
-			ctx.lineTo(corners[i].x, corners[i].y)
+        ctx.moveTo(this.corners[0].getX(), this.corners[0].getY())
+        for (let i = 1; i < this.corners.length; ++i) {
+			ctx.lineTo(this.corners[i].getX(), this.corners[i].getY())
 		}
 
-		ctx.fillStyle = hexToRgba(this.options.fillColor, this.options.fillOpacity)
+		ctx.fillStyle = this.color
 		ctx.fill()
+    }
+
+    public override paintHover(ctx: any, bitmapSize: any) {
+        for (let i = 0; i < this.corners.length; ++i) {
+            let { x, y } = this.corners[i].get()
+			// ctx.circal(this.corners[i].getX(), this.corners[i].getY())
+            ctx.beginPath()
+            ctx.arc(x, y, 6, 0, 2 * Math.PI, false)
+            ctx.stroke()
+            ctx.fillStyle = 'rgb(255, 255, 255)'
+            ctx.arc(x, y, 6, 0, 2 * Math.PI, false)
+            ctx.fill()
+		}
+    }
+
+    public override isHover(x: number, y: number): boolean {
+		// const yPosition = this.point.getY()!
+        // let lineWidth = 1
+        
+        // const HitTestThreshold = 7
+
+		// return y >= yPosition - lineWidth - HitTestThreshold && 
+        //     y <= yPosition + lineWidth + HitTestThreshold
+
+        return true
     }
 }
 

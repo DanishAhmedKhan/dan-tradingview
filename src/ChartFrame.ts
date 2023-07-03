@@ -74,7 +74,7 @@ class ChartFrame {
             this.chartFrameHtmlElement.querySelector(".chart_frame_main_wrapper")!
         this.chart = new Chart(chartFrameWrapperHtmlElement, this)
 
-        this.drawingManager = new DrawingManager()
+        this.drawingManager = new DrawingManager(toolManager)
         this.chart.getCandleSeries().attachPrimitive(this.drawingManager)
 
         this.chartInteractionWrapperHtmlElement = 

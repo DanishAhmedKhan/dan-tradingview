@@ -13,7 +13,7 @@ class ToolManager {
     private storageManager: StorageManager
     private chartFrameManager: ChartFrameManager
 
-    constructor(chartFrameManager: ChartFrameManager, drawingManager: DrawingManager) {
+    constructor(chartFrameManager: ChartFrameManager) {
         this.storageManager = new StorageManager()
         this.chartFrameManager = chartFrameManager
 
@@ -41,6 +41,11 @@ class ToolManager {
         `)
 
         this.initListener(toolBoxHtmlElement)
+    }
+
+    public isToolSelected(): boolean {
+        // this.allTools.forEach(tool => console.log(tool.getIsSelected()))
+        return this.allTools.reduce((acc, tool) => acc || tool.getIsSelected(), false)
     }
 
     public getAllTool(): Array<Tool> {

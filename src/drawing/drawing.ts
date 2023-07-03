@@ -2,9 +2,17 @@ import { Tool } from "../tool/Tool"
 import { Drawable } from "./drawable"
 import { Toolbar } from "./toolbar"
 
-abstract class Drawing<RendererDataType> implements Drawable {
+type Options = {
+    id: string,
+    visible: boolean,
+}
+
+abstract class Drawing<RendererDataType extends Options> implements Drawable {
     protected options: RendererDataType
     public toolbar: Toolbar
+
+    protected visibleInCanvas: boolean = true
+    protected hover: boolean = true
 
     constructor(options: RendererDataType) {
         this.options = options
@@ -22,7 +30,18 @@ abstract class Drawing<RendererDataType> implements Drawable {
     public getPaneView(): any {
         const renderer = {
             draw: (target: any) => {
-                this.paint(target)
+                let { _context: context, _bitmapSize: bitmapSize } = target
+
+                if (!this.options ||
+                    !this.options.visible ||
+                    !this.isInView(bitmapSize)) {
+                        return
+                    }
+
+                this.paint(context, bitmapSize)
+                if (this.toolbar.isVisible() || this.hover) {
+                    this.paintHover(context, bitmapSize)
+                }
             }
         }
         const paneView = () => {
@@ -39,9 +58,27 @@ abstract class Drawing<RendererDataType> implements Drawable {
         return this.toolbar
     }
 
+    public hitTest(x: number, y: number): any {
+        this.hover = this.isHover(x, y)
+
+        if (this.hover) {
+            return {
+                cursorStyle: 'pointer',
+				// hitTestData: this.options,
+				// externalId: this.options.id,
+			};
+        } return null
+    }
+
     public abstract update(): void
 
-    public abstract paint(target: any): void 
+    public abstract isInView(bitmapSize: any): boolean
+
+    public abstract paint(context: any, bitmapSize: any): void 
+
+    public abstract paintHover(context: any, bitmapSize: any): void 
+
+    public abstract isHover(x: number, y: number): boolean
 }
 
-export { Drawing }
+export { Drawing, Options }
