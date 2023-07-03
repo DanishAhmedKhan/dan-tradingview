@@ -1,6 +1,7 @@
-import { Tool } from "../tool/Tool"
+import { svg } from "../helper/svg"
 import { Drawable } from "./drawable"
-import { Toolbar } from "./toolbar"
+import { DrawingManager } from "./drawing-manager"
+import { Widget } from "./toolbar"
 
 type Options = {
     id: string,
@@ -9,14 +10,28 @@ type Options = {
 
 abstract class Drawing<RendererDataType extends Options> implements Drawable {
     protected options: RendererDataType
-    public toolbar: Toolbar
+    protected widget: Array<Widget>
 
     protected visibleInCanvas: boolean = true
     protected hover: boolean = true
 
-    constructor(options: RendererDataType) {
+    private drawingManager: DrawingManager
+
+    constructor(options: RendererDataType,
+        drawingManager: DrawingManager,
+        widget: Array<Widget>
+    ) {
         this.options = options
-        this.toolbar = new Toolbar(200, 200)
+        this.widget = widget
+        this.drawingManager = drawingManager
+        drawingManager.toolbarManager.addDrawingWidget([...widget, {
+            name: 'Delete',
+            svg: svg.delete,
+            callback: () => {
+                drawingManager.remove(this)
+                drawingManager.toolbarManager.drawingToolbar.hide()
+            }
+        }], this)
     }
 
     public getOptions(): RendererDataType {
@@ -35,11 +50,13 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
                 if (!this.options ||
                     !this.options.visible ||
                     !this.isInView(bitmapSize)) {
-                        return
-                    }
-
+                    return
+                }
+                
                 this.paint(context, bitmapSize)
-                if (this.toolbar.isVisible() || this.hover) {
+                let toolbarManager = this.drawingManager.toolbarManager
+                if ((toolbarManager.drawingToolbar.isVisible() && 
+                    toolbarManager.activeDrawing == this) || this.hover) {
                     this.paintHover(context, bitmapSize)
                 }
             }
@@ -48,14 +65,6 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
             return renderer
         }
         return { renderer: paneView }
-    }
-
-    public remove(): void {
-        this.toolbar.remove()
-    }
-
-    public getToolbar(): Toolbar {
-        return this.toolbar
     }
 
     public hitTest(x: number, y: number): any {

@@ -4,6 +4,7 @@ import { Datafeed } from './Datafeed'
 import { Chart } from './Chart'
 import { ToolManager } from './tool/ToolManager'
 import { DrawingManager } from './drawing/drawing-manager'
+import { ToolbarManager } from './drawing/toolbar-manager'
 
 type ChartFrameData = {
     ticker: string,
@@ -26,6 +27,7 @@ class ChartFrame {
 
     private drawingManager: DrawingManager
     private toolManager: ToolManager
+    // private toolbarManager: ToolbarManager
     private frameIndex: number
     private chartFrameData: ChartFrameData
     private isDataLoaded: boolean
@@ -34,7 +36,8 @@ class ChartFrame {
         chartFrameHtmlElement: HTMLElement | string, 
         datafeed: Datafeed, 
         frameIndex: number,
-        toolManager: ToolManager
+        toolManager: ToolManager,
+        toolbarManager: ToolbarManager,
     ) {
         this.chartFrameHtmlElement = typeof chartFrameHtmlElement === "string" ? 
             document.querySelector("." + chartFrameHtmlElement)! : chartFrameHtmlElement
@@ -51,6 +54,7 @@ class ChartFrame {
         this.datafeed = datafeed
         this.frameIndex = frameIndex
         this.toolManager = toolManager
+        // this.toolbarManager = toolbarManager
 
         this.chartFrameData = this.getChartFrameData()
         if (this.chartFrameData) {
@@ -74,7 +78,7 @@ class ChartFrame {
             this.chartFrameHtmlElement.querySelector(".chart_frame_main_wrapper")!
         this.chart = new Chart(chartFrameWrapperHtmlElement, this)
 
-        this.drawingManager = new DrawingManager(toolManager)
+        this.drawingManager = new DrawingManager(toolManager, toolbarManager)
         this.chart.getCandleSeries().attachPrimitive(this.drawingManager)
 
         this.chartInteractionWrapperHtmlElement = 

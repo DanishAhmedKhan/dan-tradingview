@@ -12,17 +12,8 @@ class HorizontalLine extends Drawing<HorizontalLineOptions> {
     private point: Point
 
     constructor(options: HorizontalLineOptions, drawingManager: DrawingManager) {
-        super(options)
+        super(options, drawingManager, [])
         this.point = new Point(null, this.options.price, drawingManager.chartReference)
-        this.toolbar.setWidget([
-            {
-                name: 'Delete',
-                svg: svg.delete,
-                callback: () => {
-                    drawingManager.remove(this)
-                }
-            }
-        ])
     }
 
     public override update(): void {

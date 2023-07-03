@@ -3,13 +3,13 @@ import { TimeframeHtml } from './html/TimeframeHtml'
 import { TickerHtml } from './html/TickerHtml'
 import { ToolManager } from './tool/ToolManager'
 import { ChartFrameManager } from './ChartFrameManager'
-import { DrawingManager } from './drawing/drawing-manager'
+import { ToolbarManager } from './drawing/toolbar-manager'
 
 class ChartMain {
     
     private chartFrameManager: ChartFrameManager
     private toolManager: ToolManager
-    private drawingManager: DrawingManager
+    private toolbarManager: ToolbarManager
 
     private datafeed: Datafeed
 
@@ -39,11 +39,15 @@ class ChartMain {
             </div>
         `)
         
-        this.chartFrameManager = new ChartFrameManager(this.chartMainHtmlElement, this.datafeed)
+        this.toolbarManager = new ToolbarManager()
+        this.chartFrameManager = new ChartFrameManager(
+            this.chartMainHtmlElement, 
+            this.datafeed,
+            this.toolbarManager,
+        )
         this.toolManager = new ToolManager(this.chartFrameManager)
         this.chartFrameManager.setToolManager(this.toolManager)
         this.chartFrameManager.addChartFrame()
-        this.drawingManager = new DrawingManager(this.toolManager)
 
         this.addChartMainHeaderHtml()
     }

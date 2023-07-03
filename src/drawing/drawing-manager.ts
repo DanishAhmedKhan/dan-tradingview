@@ -5,15 +5,19 @@ import { DrawingType } from "./drawing-type"
 import { TerendLine } from "./trend-line"
 import { HorizontalLine } from "./horizontal-line"
 import { ToolManager } from "../tool/ToolManager"
+import { Toolbar } from "./toolbar"
+import { ToolbarManager } from "./toolbar-manager"
 
 class DrawingManager {
     public chartReference: any | null = null
     private drawings: Array<Drawable> = []
 
     private toolManager: ToolManager
+    public toolbarManager: ToolbarManager
 
-    constructor(toolManager: ToolManager) {
+    constructor(toolManager: ToolManager, toolbarManager: ToolbarManager) {
         this.toolManager = toolManager
+        this.toolbarManager = toolbarManager
     }
 
     public add(options: any): Drawable {
@@ -49,7 +53,6 @@ class DrawingManager {
     public remove(drawing: Drawable): void {
         const index = this.drawings.indexOf(drawing)
 		if (index !== -1) {
-            this.drawings[index].remove()
 			this.drawings.splice(index, 1)
             this.chartReference.requestUpdate()
 		}
@@ -72,7 +75,6 @@ class DrawingManager {
     }
 
     public hitTest(x: number, y: number): any {
-        // console.log(x, y)
         let d
 
         this.drawings.forEach(drawing => {
@@ -88,15 +90,10 @@ class DrawingManager {
             let target = e.target as HTMLElement
             if (!target.classList.contains('dtv_toolbar_widget_item')) {
                 if (!this.toolManager.isToolSelected())
-                    this.hideAllToolbar()
+                    this.toolbarManager.hideDrawingToolbar()
+                    this.chartReference.requestUpdate()
             }
         }
-    }
-
-    public hideAllToolbar(): void {
-        this.drawings.forEach(drawing => {
-            drawing.getToolbar().hide()
-        })
     }
 
     public attached(chartReference: any): void {

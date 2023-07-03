@@ -1,6 +1,6 @@
 import { ChartFrame } from "./ChartFrame"
 import { Datafeed } from "./Datafeed"
-import { DrawingManager } from "./drawing/drawing-manager"
+import { ToolbarManager } from "./drawing/toolbar-manager"
 import { ToolManager } from "./tool/ToolManager"
 
 class ChartFrameManager {
@@ -12,10 +12,16 @@ class ChartFrameManager {
     private chartMainHtmlElement: HTMLElement
     private datafeed: Datafeed
     private toolManager: ToolManager | null = null
+    private toolbarManager: ToolbarManager
 
-    constructor(chartMainHtmlElement: HTMLElement, datafeed: Datafeed) {
+    constructor(
+        chartMainHtmlElement: HTMLElement, 
+        datafeed: Datafeed,
+        toolbarManager: ToolbarManager
+    ) {
         this.chartMainHtmlElement = chartMainHtmlElement
         this.datafeed = datafeed
+        this.toolbarManager = toolbarManager
     }
 
     public setToolManager(toolManager: ToolManager): void {
@@ -36,12 +42,12 @@ class ChartFrameManager {
             this.datafeed,
             this.frameCount++,
             this.toolManager!,
+            this.toolbarManager,
         )
         this.activeChartFrame = chartFrame
         this.chartFrame.push(chartFrame)
         chartFrame.displayChart()
         chartFrame.displayDrawing()
-        // chartFrame.getChart().getCandleSeries().attachPrimitive(new DrawingManager())
 
         this.addActiveListener()
         return chartFrame

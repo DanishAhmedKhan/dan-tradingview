@@ -1,3 +1,4 @@
+import { svg } from "../helper/svg"
 import { Drawing, Options } from "./drawing"
 import { DrawingManager } from "./drawing-manager"
 import { Point } from "./point"
@@ -8,7 +9,6 @@ type TrendLineOptions = Options & {
     endPrice: number,
     endTime: number,
     color: string,
-    visible?: boolean,
 }
 
 class TerendLine extends Drawing<TrendLineOptions> {
@@ -16,7 +16,7 @@ class TerendLine extends Drawing<TrendLineOptions> {
     private endPoint: Point
 
     constructor(options: TrendLineOptions, drawingManager: DrawingManager) {
-        super(options)
+        super(options, drawingManager, [])
         this.startPoint =  new Point(options.startTime, options.startPrice, drawingManager.chartReference)
         this.endPoint = new Point(options.endTime, options.endPrice, drawingManager.chartReference)
     }
@@ -53,7 +53,6 @@ class TerendLine extends Drawing<TrendLineOptions> {
         return maxX > 0 && minX < bitmapSize.width &&
             maxY > 0 && minY < bitmapSize.height
     }
-
 
     public paint(target: any): void {
         let { x: x1, y: y1 } = this.startPoint.get()

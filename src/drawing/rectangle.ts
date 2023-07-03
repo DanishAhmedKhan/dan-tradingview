@@ -18,7 +18,7 @@ class Rectangle extends Drawing<RectangleOptions> {
     private color: string
 
     constructor(options: RectangleOptions, drawingManager: DrawingManager) {
-        super(options)
+        super(options, drawingManager, [])
 
         let chartReference = drawingManager.chartReference
         this.corners = [
@@ -28,16 +28,6 @@ class Rectangle extends Drawing<RectangleOptions> {
             new Point(options.startTime, options.endPrice, chartReference),
         ]
         this.color = hexToRgba(this.options.fillColor, this.options.fillOpacity)
-
-        this.toolbar.setWidget([
-            {
-                name: 'Delete',
-                svg: svg.delete,
-                callback: () => {
-                    drawingManager.remove(this)
-                }
-            }
-        ])
     }
 
     public update(): void {

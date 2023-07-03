@@ -14,9 +14,9 @@ class Toolbar {
     private toolbarHtmlElement: HTMLDivElement | null = null
     private visible: boolean = true
 
-    constructor(x: number, y: number) {
-        this.x = x
-        this.y = y
+    constructor(x?: number, y?: number) {
+        this.x = x ?? 200
+        this.y = y ?? 200
 
         this.add()
         this.setPosition(this.x, this.y)
@@ -75,7 +75,6 @@ class Toolbar {
                 this.toolbarHtmlElement.querySelectorAll('.dtv_toolbar_widget_item')
             widgetItemsHtmlElement.forEach((htmlElement, index) => {
                 htmlElement.onclick = (e: any) => {
-                    console.log('toolbar delete clicked')
                     if (this.widgets[index].callback) {
                         this.widgets[index].callback()
                     }
@@ -149,4 +148,4 @@ class Toolbar {
     }
 }
 
-export { Toolbar }
+export { Toolbar, Widget }

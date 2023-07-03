@@ -1,6 +1,4 @@
-import { ChartFrame } from "../ChartFrame"
 import { ChartFrameManager } from "../ChartFrameManager"
-import { DrawingManager } from "../drawing/drawing-manager"
 import { StorageManager } from "./StorageManager"
 import { Tool } from "./Tool"
 import { HorizontalLineTool } from "./horizontal-line-tool"
@@ -44,7 +42,6 @@ class ToolManager {
     }
 
     public isToolSelected(): boolean {
-        // this.allTools.forEach(tool => console.log(tool.getIsSelected()))
         return this.allTools.reduce((acc, tool) => acc || tool.getIsSelected(), false)
     }
 
