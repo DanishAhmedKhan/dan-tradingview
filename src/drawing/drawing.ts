@@ -10,6 +10,11 @@ type Options = {
 }
 
 abstract class Drawing<RendererDataType extends Options> implements Drawable {
+    protected readonly hoverOption = {
+        color: '#1e53e5',
+        opacity: 1,
+    }
+
     protected options: RendererDataType
     protected widget: Array<Widget>
 

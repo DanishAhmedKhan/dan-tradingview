@@ -46,6 +46,14 @@ class Point {
             this.y = Point.yCoord(this.price, this.chartRefenrence) as number
     }
 
+    public distanceSquare(x: number, y: number): number {
+        return (this.x! - x) * (this.x! - x) + (this.y! - y) * (this.y! - y)
+    }
+
+    public distance(x: number, y: number): number {
+        return Math.sqrt(this.distanceSquare(x, y))
+    }
+
     public static xCoord(time: number, chartReference: any): number | null {
         return chartReference.chart.timeScale().timeToCoordinate(time)
     }

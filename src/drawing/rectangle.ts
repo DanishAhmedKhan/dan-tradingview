@@ -3,6 +3,7 @@ import { SimplePoint, Point } from "./point"
 import { Color, hexToRgba } from "../helper/color"
 import { DrawingManager } from "./drawing-manager"
 import { svg } from "../helper/svg"
+import { drawCirulareHandle, fillPolyon, strokePolyon } from "../helper/canvas"
 
 type RectangleOptions = Options & {
     startPrice: number,
@@ -11,11 +12,12 @@ type RectangleOptions = Options & {
     endTime: number,
     fillColor: string,
     fillOpacity: number,
+    borderColor: string,
+    borderOpacity: number,
+    borderWidth: number,
 }
 
 class Rectangle extends Drawing<RectangleOptions> {
-    private color: string
-
     public hoveredCursorStyle: string = 'pointer'
 
     constructor(options: RectangleOptions, drawingManager: DrawingManager) {
@@ -28,7 +30,6 @@ class Rectangle extends Drawing<RectangleOptions> {
             new Point(options.endTime, options.endPrice, chartReference),
             new Point(options.startTime, options.endPrice, chartReference),
         ]
-        this.color = hexToRgba(this.options.fillColor, this.options.fillOpacity)
     }
 
     public update(): void {
@@ -43,38 +44,41 @@ class Rectangle extends Drawing<RectangleOptions> {
     }
 
     public paint(ctx: any, bitmapSize: any): void {
-        ctx.beginPath()
-        ctx.moveTo(this.point[0].getX(), this.point[0].getY())
-        for (let i = 1; i < this.point.length; ++i) {
-			ctx.lineTo(this.point[i].getX(), this.point[i].getY())
-		}
-
-		ctx.fillStyle = this.color
-		ctx.fill()
+        strokePolyon(ctx, this.point, {...this.options, 
+            color: this.options.borderColor,
+            opacity: this.options.borderOpacity,
+            lineWidth: this.options.borderWidth,
+        })
+        fillPolyon(ctx, this.point, {...this.options, 
+            color: this.options.fillColor,
+            opacity: this.options.fillOpacity,
+        })
     }
 
     public override paintHover(ctx: any, bitmapSize: any) {
         for (let i = 0; i < this.point.length; ++i) {
-            let { x, y } = this.point[i].get()
-            ctx.beginPath()
-            ctx.arc(x, y, 6, 0, 2 * Math.PI, false)
-            ctx.stroke()
-            ctx.fillStyle = Color.WHITE
-            ctx.arc(x, y, 6, 0, 2 * Math.PI, false)
-            ctx.fill()
+            drawCirulareHandle(ctx, this.point[i], this.hoverOption)
 		}
     }
 
     public override isHover(x: number, y: number): boolean {
-		// const yPosition = this.point.getY()!
-        // let lineWidth = 1
-        
-        // const HitTestThreshold = 7
+        let lineWidth = 1
+        const hitTestThreshold = lineWidth / 2 + 7
 
-		// return y >= yPosition - lineWidth - HitTestThreshold && 
-        //     y <= yPosition + lineWidth + HitTestThreshold
+        let xgeminx = x >= this.minX - hitTestThreshold
+        let xleminx = x <= this.minX + hitTestThreshold
+        let xgemaxx = x >= this.maxX - hitTestThreshold
+        let xlemaxx = x <= this.maxX + hitTestThreshold
 
-        return true
+        let ygeminy = y >= this.minY - hitTestThreshold
+        let yleminy = y <= this.minY + hitTestThreshold
+        let ygemaxy = y >= this.maxY - hitTestThreshold
+        let ylemaxy = y <= this.maxY + hitTestThreshold
+
+        return (xgeminx && xleminx && ygeminy && ylemaxy) || 
+            (xgemaxx && xlemaxx && ygeminy && ylemaxy) || 
+            (ygeminy && yleminy && xgeminx && xlemaxx) || 
+            (ygemaxy && ylemaxy && xgeminx && xlemaxx)
     }
 }
 

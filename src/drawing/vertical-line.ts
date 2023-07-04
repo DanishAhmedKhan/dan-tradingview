@@ -1,5 +1,4 @@
-import { Color } from "../helper/color"
-import { svg } from "../helper/svg"
+import { drawVerticalHandle, drawVerticalLine } from "../helper/canvas"
 import { Drawing, Options } from "./drawing"
 import { DrawingManager } from "./drawing-manager"
 import { Point } from "./point"
@@ -24,40 +23,26 @@ class VerticalLine extends Drawing<VeriticalLineOptions> {
         this.updatePoint()
     }
 
-     public override isInView(bitmapSize: any): boolean {
+    public override isInView(bitmapSize: any): boolean {
         let x = this.point[0].getX()!
         return x > 0 && x < bitmapSize.width
     }
 
     public paint(ctx: any, bitmapSize: any) {
-        let xPosition = this.point[0].getX()!
-
-		ctx.strokeStyle = this.options.color
-        ctx.lineWidth = this.options.lineWidth
-        ctx.beginPath()
-        ctx.moveTo(xPosition, 0)
-		ctx.lineTo(xPosition, bitmapSize.height)
-		ctx.stroke()
+        drawVerticalLine(ctx, this.point[0], this.options, bitmapSize)
     }
 
     public override paintHover(ctx: any, bitmapSize: any) {
-       let xPosition = this.point[0].getX()!
-
-        ctx.fillStyle = this.options.color
-		ctx.roundRect(xPosition - 5, bitmapSize.height / 2 - 5, 10, 10)
-        ctx.stroke()
-        ctx.fillStyle = Color.WHITE
-        ctx.roundRect(xPosition - 5, bitmapSize.height / 2 - 5, 10, 10)
-        ctx.fill()
+        drawVerticalHandle(ctx, this.point[0], this.hoverOption, bitmapSize)
     }
 
     public override isHover(x: number, y: number): any {
 		const xPosition = this.point[0].getX()!
-        let lineWidth = 1
-        const hitTestThreshold = 7
+        const lineWidth = this.options.lineWidth
+        const hitTestThreshold = lineWidth / 2 + 7
 
-		return x >= xPosition - lineWidth - hitTestThreshold && 
-            x <= xPosition + lineWidth + hitTestThreshold
+		return x >= xPosition - hitTestThreshold && 
+            x <= xPosition + hitTestThreshold
     }
 }
 

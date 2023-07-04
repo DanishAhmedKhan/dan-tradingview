@@ -1,3 +1,4 @@
+import { drawHorizontalHandle, drawHorizontalLine } from "../helper/canvas"
 import { svg } from "../helper/svg"
 import { Drawing, Options } from "./drawing"
 import { DrawingManager } from "./drawing-manager"
@@ -6,6 +7,7 @@ import { Point } from "./point"
 type HorizontalLineOptions = Options & {
     price: number,
     color: string,
+    opacity: number, 
     lineWidth: number,
 }
 
@@ -29,34 +31,20 @@ class HorizontalLine extends Drawing<HorizontalLineOptions> {
     }
 
     public override paint(ctx: any, bitmapSize: any) {
-        let yPosition = this.point[0].getY()!
-
-		ctx.strokeStyle = this.options.color
-        ctx.lineWidth = this.options.lineWidth
-        ctx.beginPath()
-        ctx.moveTo(0, yPosition)
-		ctx.lineTo(bitmapSize.width, yPosition)
-		ctx.stroke()
+        drawHorizontalLine(ctx, this.point[0], this.options, bitmapSize)
     }
 
     public override paintHover(ctx: any, bitmapSize: any) {
-       let yPosition = this.point[0].getY()!
-
-        ctx.fillStyle = this.options.color
-		ctx.roundRect(bitmapSize.width / 2 - 5, yPosition - 5, 10, 10)
-        ctx.stroke()
-        ctx.fillStyle = 'rgba(255, 255, 255)'
-        ctx.roundRect(bitmapSize.width / 2 - 5, yPosition - 5, 10, 10)
-        ctx.fill()
+       drawHorizontalHandle(ctx, this.point[0], this.hoverOption, bitmapSize)
     }
 
     public override isHover(x: number, y: number): any {
 		const yPosition = this.point[0].getY()!
-        let lineWidth = 1
-        const hitTestThreshold = 7
+        const lineWidth = this.options.lineWidth ?? 1
+        const hitTestThreshold = lineWidth / 2 + 7
 
-		return y >= yPosition - lineWidth - hitTestThreshold && 
-            y <= yPosition + lineWidth + hitTestThreshold
+		return y >= yPosition - hitTestThreshold && 
+            y <= yPosition + hitTestThreshold
     }
 }
 

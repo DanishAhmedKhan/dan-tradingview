@@ -3,6 +3,7 @@ import { svg } from '../helper/svg'
 import { DrawingType } from "../drawing/drawing-type"
 import { DrawingManager } from "../drawing/drawing-manager"
 import { ChartFrame } from "../ChartFrame"
+import { Color } from "../helper/color"
 
 class RectangleTool extends Tool {
 
@@ -48,9 +49,12 @@ class RectangleTool extends Tool {
             const height = endY - startY;
 
             ctx.beginPath()
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.2)'
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'
             ctx.clearRect(0, 0, canvas.width, canvas.height)
             ctx.fillRect(startX, startY, width, height)
+            ctx.strokeStyle = 'rgba(0, 0, 0, 1)',
+            ctx.lineWidth = 1
+            ctx.strokeRect(startX, startY, width, height)
         }
 
         const mouceUpHandle = (event: any) => {
@@ -65,8 +69,11 @@ class RectangleTool extends Tool {
                 startPrice,
                 endTime,
                 endPrice,
-                fillColor: '#000000',
-                fillOpacity: 0.2
+                fillColor: Color.BLACK,
+                fillOpacity: 0.1,
+                borderColor: Color.BLACK,
+                borderOpacity: 1,
+                borderWidth: 1,
             })
         
             htmlElement.onmousemove = null

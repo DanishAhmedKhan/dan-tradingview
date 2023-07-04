@@ -1,4 +1,4 @@
-import { Tool, ToolParam } from "./Tool"
+import { Tool } from "./Tool"
 import { svg } from '../helper/svg'
 import { DrawingType } from "../drawing/drawing-type"
 import { DrawingManager } from "../drawing/drawing-manager"
@@ -33,6 +33,7 @@ class HorizontalLineTool extends Tool {
                 type: DrawingType.HORIZONTAL_LINE,
                 price,
                 color: 'rgba(0, 0, 0)',
+                opacity: 1,
                 lineWidth: 1,
             })
 
