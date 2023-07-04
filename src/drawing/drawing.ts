@@ -13,6 +13,12 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
     protected options: RendererDataType
     protected widget: Array<Widget>
 
+    protected point: Array<Point> = []
+    protected minX: number= 0
+    protected maxX: number = 0
+    protected minY: number = 0
+    protected maxY: number = 0
+
     protected visibleInCanvas: boolean = true
     protected hover: boolean = true
 
@@ -84,12 +90,33 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
         if (this.hover) {
             return {
                 cursorStyle: this.hoveredCursorStyle,
-				// hitTestData: this.options,
-				// externalId: this.options.id,
+				hitTestData: this.options,
+				externalId: this.options.id,
 			}
         }
         
         return null
+    }
+
+    protected updatePoint(): void {
+        this.point.forEach(point => point.update())
+    }
+
+    protected updateMinMaxPoint() {
+        this.minX = this.point[0].getX() as number
+        this.maxX = this.point[0].getX() as number
+        this.minY = this.point[0].getY() as number
+        this.maxY = this.point[0].getY() as number
+
+        for (let point of this.point) {
+            let x = point.getX() as number
+            let y = point.getY() as number
+
+            if (x < this.minX) this.minX = x
+            if (x > this.maxX) this.maxX = x
+            if (y < this.minY) this.minY = y
+            if (y > this.maxY) this.maxY = y
+        }
     }
 
     public abstract update(): void

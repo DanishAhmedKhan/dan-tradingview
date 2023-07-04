@@ -10,26 +10,26 @@ type HorizontalLineOptions = Options & {
 }
 
 class HorizontalLine extends Drawing<HorizontalLineOptions> {
-    private point: Point
-
     public hoveredCursorStyle: string = 'pointer'
 
     constructor(options: HorizontalLineOptions, drawingManager: DrawingManager) {
         super(options, drawingManager, [])
-        this.point = new Point(null, this.options.price, drawingManager.chartReference)
+        this.point = [
+            new Point(null, this.options.price, drawingManager.chartReference),
+        ]
     }
 
     public override update(): void {
-        this.point.update()
+        this.updatePoint()
     }
 
     public override isInView(bitmapSize: any): boolean {
-        let y = this.point.getY()!
+        let y = this.point[0].getY()!
         return y > 0 && y < bitmapSize.height
     }
 
     public override paint(ctx: any, bitmapSize: any) {
-        let yPosition = this.point.getY()!
+        let yPosition = this.point[0].getY()!
 
 		ctx.strokeStyle = this.options.color
         ctx.lineWidth = this.options.lineWidth
@@ -40,7 +40,7 @@ class HorizontalLine extends Drawing<HorizontalLineOptions> {
     }
 
     public override paintHover(ctx: any, bitmapSize: any) {
-       let yPosition = this.point.getY()!
+       let yPosition = this.point[0].getY()!
 
         ctx.fillStyle = this.options.color
 		ctx.roundRect(bitmapSize.width / 2 - 5, yPosition - 5, 10, 10)
@@ -51,13 +51,12 @@ class HorizontalLine extends Drawing<HorizontalLineOptions> {
     }
 
     public override isHover(x: number, y: number): any {
-		const yPosition = this.point.getY()!
+		const yPosition = this.point[0].getY()!
         let lineWidth = 1
-        
-        const HitTestThreshold = 7
+        const hitTestThreshold = 7
 
-		return y >= yPosition - lineWidth - HitTestThreshold && 
-            y <= yPosition + lineWidth + HitTestThreshold
+		return y >= yPosition - lineWidth - hitTestThreshold && 
+            y <= yPosition + lineWidth + hitTestThreshold
     }
 }
 

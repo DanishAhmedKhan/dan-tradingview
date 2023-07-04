@@ -1,6 +1,6 @@
 import { Drawing, Options } from "./drawing"
 import { SimplePoint, Point } from "./point"
-import { hexToRgba } from "../helper/color"
+import { Color, hexToRgba } from "../helper/color"
 import { DrawingManager } from "./drawing-manager"
 import { svg } from "../helper/svg"
 
@@ -14,7 +14,6 @@ type RectangleOptions = Options & {
 }
 
 class Rectangle extends Drawing<RectangleOptions> {
-    private corners: Array<Point>
     private color: string
 
     public hoveredCursorStyle: string = 'pointer'
@@ -23,7 +22,7 @@ class Rectangle extends Drawing<RectangleOptions> {
         super(options, drawingManager, [])
 
         let chartReference = drawingManager.chartReference
-        this.corners = [
+        this.point = [
             new Point(options.startTime, options.startPrice, chartReference),
             new Point(options.endTime, options.startPrice, chartReference),     
             new Point(options.endTime, options.endPrice, chartReference),
@@ -33,40 +32,21 @@ class Rectangle extends Drawing<RectangleOptions> {
     }
 
     public update(): void {
-        this.corners.forEach(point => {
-            point.update()
-        })
+        this.updatePoint()
     }
 
     public override isInView(bitmapSize: any): boolean {
-          let corners: Array<SimplePoint> = []
-        let cnr = this.corners
-        let minX = cnr[0].getX() as number
-        let maxX = cnr[0].getX() as number
-        let minY = cnr[0].getY() as number
-        let maxY = cnr[0].getY() as number
+        this.updateMinMaxPoint()
 
-        for (let i = 0; i < cnr.length; i++) {
-            let x = cnr[i].getX() as number
-            let y = cnr[i].getY() as number
-
-            corners[i] = { x, y }
-
-            if (x < minX) minX = x
-            if (x > maxX) maxX = x
-            if (y < minY) minY = y
-            if (y > maxY) maxY = y
-        }
-
-        return maxX > 0 && minX < bitmapSize.width &&
-            maxY > 0 && minY < bitmapSize.height
+        return this.maxX > 0 && this.minX < bitmapSize.width &&
+            this.maxY > 0 && this.minY < bitmapSize.height
     }
 
     public paint(ctx: any, bitmapSize: any): void {
         ctx.beginPath()
-        ctx.moveTo(this.corners[0].getX(), this.corners[0].getY())
-        for (let i = 1; i < this.corners.length; ++i) {
-			ctx.lineTo(this.corners[i].getX(), this.corners[i].getY())
+        ctx.moveTo(this.point[0].getX(), this.point[0].getY())
+        for (let i = 1; i < this.point.length; ++i) {
+			ctx.lineTo(this.point[i].getX(), this.point[i].getY())
 		}
 
 		ctx.fillStyle = this.color
@@ -74,12 +54,12 @@ class Rectangle extends Drawing<RectangleOptions> {
     }
 
     public override paintHover(ctx: any, bitmapSize: any) {
-        for (let i = 0; i < this.corners.length; ++i) {
-            let { x, y } = this.corners[i].get()
+        for (let i = 0; i < this.point.length; ++i) {
+            let { x, y } = this.point[i].get()
             ctx.beginPath()
             ctx.arc(x, y, 6, 0, 2 * Math.PI, false)
             ctx.stroke()
-            ctx.fillStyle = 'rgb(255, 255, 255)'
+            ctx.fillStyle = Color.WHITE
             ctx.arc(x, y, 6, 0, 2 * Math.PI, false)
             ctx.fill()
 		}
