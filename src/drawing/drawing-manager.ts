@@ -15,6 +15,8 @@ class DrawingManager {
     private toolManager: ToolManager
     public toolbarManager: ToolbarManager
 
+    private hoveredDrawing: Drawable | null = null
+
     constructor(toolManager: ToolManager, toolbarManager: ToolbarManager) {
         this.toolManager = toolManager
         this.toolbarManager = toolbarManager
@@ -75,23 +77,36 @@ class DrawingManager {
     }
 
     public hitTest(x: number, y: number): any {
-        let d
+        let hoveredData = null
+        let hoveredDrawing = null
 
         this.drawings.forEach(drawing => {
-            let h = drawing.hitTest(x, y)
-            if (h !== null) d = h
+            let hovered = drawing.hitTest(x, y)
+            if (hovered !== null) {
+                hoveredDrawing = drawing
+                hoveredData = hovered
+            }
         })
 
-        return d
+        this.hoveredDrawing = hoveredDrawing
+        return hoveredData
     }
 
     public hideToolbar(): void {
         document.onmousedown = (e) => {
             let target = e.target as HTMLElement
             if (!target.classList.contains('dtv_toolbar_widget_item')) {
-                if (!this.toolManager.isToolSelected())
+                if (!this.toolManager.isToolSelected()) {
                     this.toolbarManager.hideDrawingToolbar()
                     this.chartReference.requestUpdate()
+                }
+            }
+            
+            if (this.hoveredDrawing !== null) {
+                this.toolbarManager.addDrawingWidget(
+                    this.hoveredDrawing.getWidget(),
+                    this.hoveredDrawing,
+                )
             }
         }
     }

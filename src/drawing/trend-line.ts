@@ -16,6 +16,8 @@ class TerendLine extends Drawing<TrendLineOptions> {
     private startPoint: Point
     private endPoint: Point
 
+    public hoveredCursorStyle: string = 'pointer'
+
     constructor(options: TrendLineOptions, drawingManager: DrawingManager) {
         super(options, drawingManager, [])
         this.startPoint =  new Point(options.startTime, options.startPrice, drawingManager.chartReference)

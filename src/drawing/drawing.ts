@@ -18,21 +18,23 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
 
     private drawingManager: DrawingManager
 
+    protected abstract hoveredCursorStyle: string
+
     constructor(options: RendererDataType,
         drawingManager: DrawingManager,
         widget: Array<Widget>
     ) {
         this.options = options
-        this.widget = widget
-        this.drawingManager = drawingManager
-        drawingManager.toolbarManager.addDrawingWidget([...widget, {
+        this.widget = [...widget, {
             name: 'Delete',
             svg: svg.delete,
             callback: () => {
                 drawingManager.remove(this)
                 drawingManager.toolbarManager.drawingToolbar.hide()
             }
-        }], this)
+        }]
+        this.drawingManager = drawingManager
+        drawingManager.toolbarManager.addDrawingWidget(this.widget, this)
     }
 
     public getOptions(): RendererDataType {
@@ -41,6 +43,14 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
 
     public setOptions(options: RendererDataType): void {
         this.options = options
+    }
+
+    public getWidget(): Array<Widget> {
+        return this.widget
+    }
+
+    public setWidget(widget: Array<Widget>): void {
+        this.widget = widget
     }
 
     public getPaneView(): any {
@@ -73,11 +83,13 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
 
         if (this.hover) {
             return {
-                cursorStyle: 'pointer',
+                cursorStyle: this.hoveredCursorStyle,
 				// hitTestData: this.options,
 				// externalId: this.options.id,
-			};
-        } return null
+			}
+        }
+        
+        return null
     }
 
     public abstract update(): void

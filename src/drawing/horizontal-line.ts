@@ -12,6 +12,8 @@ type HorizontalLineOptions = Options & {
 class HorizontalLine extends Drawing<HorizontalLineOptions> {
     private point: Point
 
+    public hoveredCursorStyle: string = 'pointer'
+
     constructor(options: HorizontalLineOptions, drawingManager: DrawingManager) {
         super(options, drawingManager, [])
         this.point = new Point(null, this.options.price, drawingManager.chartReference)

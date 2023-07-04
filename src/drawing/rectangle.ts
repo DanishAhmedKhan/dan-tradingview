@@ -17,6 +17,8 @@ class Rectangle extends Drawing<RectangleOptions> {
     private corners: Array<Point>
     private color: string
 
+    public hoveredCursorStyle: string = 'pointer'
+
     constructor(options: RectangleOptions, drawingManager: DrawingManager) {
         super(options, drawingManager, [])
 

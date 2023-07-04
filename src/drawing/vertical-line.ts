@@ -12,6 +12,8 @@ type VeriticalLineOptions = Options & {
 class VerticalLine extends Drawing<VeriticalLineOptions> {
     private point: Point
 
+    public hoveredCursorStyle: string = 'pointer'
+
     constructor(options: VeriticalLineOptions, drawingManager: DrawingManager) {
         super(options, drawingManager, [])
         this.point = new Point(this.options.time, null, drawingManager.chartReference)
