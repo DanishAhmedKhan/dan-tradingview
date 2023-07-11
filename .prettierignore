@@ -2,3 +2,4 @@ node_module
 data
 lib
 dist
+/downloadData/__pychache__

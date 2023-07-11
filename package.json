@@ -4,6 +4,8 @@
     "description": "Charting software that displays historical data",
     "main": "",
     "scripts": {
+        "download": "python downloadData/download.py",
+        "download:custom": "python downloadData/downloadCustom.py",
         "watch": "webpack -w",
         "build": "webpack"
     },

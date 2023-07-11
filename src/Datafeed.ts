@@ -42,11 +42,19 @@ class Datafeed {
     private data: AllData
     private fileCount: FileCount
     private dateFilename: Array<string>
+    private fileLoaded: {
+        M: Array<string>,
+        H: Array<string>,
+        D: Array<string>
+    }
 
     constructor() {
         this.data = {}
         this.fileCount = {}
         this.dateFilename = []
+        this.fileLoaded = {
+            M: [], H: [], D: [],
+        }
     }
 
     public getAllData(): AllData {
@@ -69,6 +77,18 @@ class Datafeed {
         throw Error("Data with given ticker and timeframe not found")
     }
 
+    private async loadFilenameDate() {
+        let filepath = this.BASE_FILEPATH + `/dates.csv`
+        let file = await fetch(filepath)
+        let text = await file.text()
+        this.dateFilename = text.split("\n")
+        this.dateFilename = this.dateFilename.map((f) =>
+            f.replace(/(\r\n|\n|\r)/gm, "")
+        )
+        this.dateFilename.reverse()
+        console.log(this.dateFilename)
+    }
+
     private async initFilename(ticker: string) {
         let filepath = this.BASE_FILEPATH + `${ticker}/dates.csv`
         let file = await fetch(filepath)
@@ -83,6 +103,56 @@ class Datafeed {
     private getFilename(ticker: string, unit: TimeframeUnit): string {
         if (unit === TimeframeUnit.DAY) return "ALL.csv"
         return `${this.dateFilename[this.fileCount[ticker][unit]]}.csv`
+    }
+
+    private getTimeIntervalFilname(offset: number = 0): Array<string> {
+        let filename: Array<string> = []
+
+        // for ()
+        return filename
+    }
+
+    async loadDataByDate(date: string = this.dateFilename[0]) {
+        await this.loadFilenameDate()
+
+        if (!this.dateFilename.includes(date)) {
+            throw new Error('date is not valid')
+        }
+
+        let index = this.dateFilename.indexOf(date)
+        let minuteFilenames = [
+            this.dateFilename[index - 1],
+            this.dateFilename[index],
+            this.dateFilename[index + 1],
+        ]
+        let houwFilenames = [
+            this.dateFilename[index - 2],
+            this.dateFilename[index - 1],
+            this.dateFilename[index],
+            this.dateFilename[index + 1],
+            this.dateFilename[index + 2],
+        ]
+        // for (let i = 1; i <= 2; i++) {
+        //     if (this.fileCount[tk].M < this.dateFilename.length) {
+        //         await this.loadDataTimeframe(
+        //             ticker,
+        //             TimeframeUnit.MINUTE,
+        //             minuteValues
+        //         )
+        //         this.fileCount[tk].M++
+        //     }
+        // }
+        // for (let i = 1; i <= 5; i++) {
+        //     if (this.fileCount[tk].H < this.dateFilename.length) {
+        //         await this.loadDataTimeframe(ticker, TimeframeUnit.HOUR, hourValues)
+        //         this.fileCount[tk].H++
+        //     }
+        // }
+        // if (this.fileCount[tk].D === 0) {
+        //     await this.loadDataTimeframe(ticker, TimeframeUnit.DAY, dayValues)
+        //     this.fileCount[tk].D++
+        // }
+
     }
 
     async loadData(ticker: Ticker) {
@@ -139,6 +209,8 @@ class Datafeed {
             await this.loadDataTimeframe(ticker, TimeframeUnit.DAY, dayValues)
             this.fileCount[tk].D++
         }
+
+        this.loadDataByDate()
     }
 
     async loadDataTimeframe(ticker: Ticker, unit: TimeframeUnit, values: Array<number>) {
