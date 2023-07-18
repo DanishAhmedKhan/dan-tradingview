@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap");
 *,
 *::after,
 *::before {
@@ -8,6 +9,7 @@
 
 body {
   overflow: hidden;
+  font-family: "Roboto", sans-serif;
 }
 
 .body_wrapper {
@@ -81,6 +83,25 @@ body {
 .body_wrapper .chart_main_wrapper .header .header_right .header_chart_frame_select .chart_frame_item:last-child {
   margin-right: 0px;
 }
+.body_wrapper .chart_main_wrapper .header .header_right .go_to_date_calendar {
+  position: relative;
+  cursor: pointer;
+}
+.body_wrapper .chart_main_wrapper .header .header_right .go_to_date_calendar .logo svg {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+.body_wrapper .chart_main_wrapper .header .header_right .go_to_date_calendar input {
+  cursor: pointer;
+  position: absolute;
+  opacity: 0;
+  width: 28px;
+  height: 28px;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
 .body_wrapper .chart_main_wrapper .chart_main_body {
   display: grid;
   grid-template-columns: 1fr calc(100% - 55px);
@@ -143,6 +164,62 @@ body {
 .body_wrapper .chart_main_wrapper .chart_main_body .chart_main_frames .chart_frame_wrapper .chart_frame_main_wrapper {
   width: calc(100% - 1px);
   height: 100%;
+}
+.body_wrapper .chart_main_wrapper .chart_main_body .chart_main_frames .chart_frame_wrapper .hud_main {
+  width: 100%;
+  background-color: transparent;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  z-index: 999;
+  cursor: crosshair;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+  pointer-events: none;
+}
+.body_wrapper .chart_main_wrapper .chart_main_body .chart_main_frames .chart_frame_wrapper .hud_main .hud_wrapper {
+  padding: 8px 8px;
+}
+.body_wrapper .chart_main_wrapper .chart_main_body .chart_main_frames .chart_frame_wrapper .hud_main .hud_wrapper .hud_row {
+  display: inline-flex;
+  width: 100%;
+  margin-bottom: 5px;
+}
+.body_wrapper .chart_main_wrapper .chart_main_body .chart_main_frames .chart_frame_wrapper .hud_main .hud_wrapper .hud_row:last-child {
+  margin-bottom: 0px;
+}
+.body_wrapper .chart_main_wrapper .chart_main_body .chart_main_frames .chart_frame_wrapper .hud_main .hud_wrapper .hud_row .hud_row_content {
+  background-color: rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.body_wrapper .chart_main_wrapper .chart_main_body .chart_main_frames .chart_frame_wrapper .hud_main .hud_wrapper .hud_row .hud_ohlc {
+  display: flex;
+}
+.body_wrapper .chart_main_wrapper .chart_main_body .chart_main_frames .chart_frame_wrapper .hud_main .hud_wrapper .hud_row .hud_ohlc .hud_ohlc_value {
+  display: flex;
+  margin-right: 6px;
+}
+.body_wrapper .chart_main_wrapper .chart_main_body .chart_main_frames .chart_frame_wrapper .hud_main .hud_wrapper .hud_row .hud_ohlc .hud_ohlc_value:last-child {
+  margin-right: 0px;
+}
+.body_wrapper .chart_main_wrapper .chart_main_body .chart_main_frames .chart_frame_wrapper .hud_main .hud_wrapper .hud_element {
+  padding: 3px 10px 3px 5px;
+  cursor: default;
+  pointer-events: auto;
+}
+.body_wrapper .chart_main_wrapper .chart_main_body .chart_main_frames .chart_frame_wrapper .hud_main .hud_wrapper .hud_text {
+  display: inline;
+  font-size: 14px;
+}
+.body_wrapper .chart_main_wrapper .chart_main_body .chart_main_frames .chart_frame_wrapper .hud_main .hud_wrapper .hud_text:last-child {
+  padding-right: 5px;
+}
+.body_wrapper .chart_main_wrapper .chart_main_body .chart_main_frames .chart_frame_wrapper .hud_main .hud_wrapper .hud_text_small {
+  font-size: 13px;
+  font-weight: 400;
 }
 .body_wrapper .chart_main_wrapper .chart_main_toolbar_canvas {
   width: 100%;

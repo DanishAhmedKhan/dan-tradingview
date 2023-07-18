@@ -1,7 +1,7 @@
 import { Ticker } from './Ticker'
 import { Timeframe, TimeframeUnit } from './Timeframe'
 
-type Data = {
+type CandleData = {
     time: number,
     open: number,
     high: number,
@@ -19,11 +19,13 @@ type Data = {
 }
 
 type TickerData = {
-    [key: string]: Array<Data>,
+    [timeInterval: string]: Array<CandleData>,
 }
 
-type AllData = {
-    [key: string]: TickerData
+type FullData = {
+    [ticker: string]: {
+        [filename: string]: TickerData
+    }
 }
 
 type FileCount = {
@@ -34,211 +36,236 @@ type FileCount = {
     }
 }
 
+type LoadedFilename = {
+    [key: string]: {
+        M: Array<string>,
+        H: Array<string>,
+        D: Array<string>,
+    }
+}
+
+type Edge = {
+    left: number, 
+    right: number,
+}
+
 class Datafeed {
 
     private readonly BASE_FILEPATH: string = "../data/"
     private readonly CSV_SEPARATOR: string = ","
 
-    private data: AllData
-    private fileCount: FileCount
+    private data: FullData
     private dateFilename: Array<string>
-    private fileLoaded: {
-        M: Array<string>,
-        H: Array<string>,
-        D: Array<string>
+    private loadedFilename: LoadedFilename
+    private filenameEdge: any
+
+    private readonly offset = {
+        M: 1,
+        H: 1,
+        D: 1,
     }
+
+    private minuteInterval: Array<number> = []
+    private hourInterval: Array<number> = []
+    private dayInterval: Array<number> = []
 
     constructor() {
         this.data = {}
-        this.fileCount = {}
         this.dateFilename = []
-        this.fileLoaded = {
-            M: [], H: [], D: [],
-        }
+        this.loadedFilename = {}
+        this.filenameEdge = {}
+
+        Timeframe.ALL_TIMEFRAME.forEach((tf) => {
+            let value = tf.getValue()
+            let frame = tf.getUnit()
+            if (frame === TimeframeUnit.MINUTE) this.minuteInterval.push(value)
+            else if (frame === TimeframeUnit.HOUR) this.hourInterval.push(value)
+            else if (frame === TimeframeUnit.DAY) this.dayInterval.push(value)
+        })
     }
 
-    public getAllData(): AllData {
+    public getAllData(): FullData {
         return this.data
     }
 
-    public getTickerData(ticker: Ticker): TickerData {
-        let tk = ticker.getTicker()
-        if (this.data.hasOwnProperty(tk)) return this.data[tk]
-
-        throw Error("Data with given ticker not found")
-    }
-
-    public getTickerTimeframeData(ticker: Ticker, timeframe: Timeframe): Array<Data> {
-        let tk = ticker.getTicker()
+    public getTickerTimeframeData(ticker: Ticker, timeframe: Timeframe, date: string): Array<CandleData> {
+        let timeUnit = timeframe.getUnit() as TimeframeUnit
         let tf = timeframe.getTimeframeString()
-        if (this.data.hasOwnProperty(tk) && this.data[tk].hasOwnProperty(tf))
-            return this.data[tk][tf]
+        let tk = ticker.getTicker()
 
-        throw Error("Data with given ticker and timeframe not found")
+        if (timeframe.getUnit() === TimeframeUnit.DAY) {
+            return this.data[tk].ALL[tf]
+        }
+        
+        let data: Array<CandleData> = []
+        if (this.data.hasOwnProperty(tk) && this.data[tk].hasOwnProperty(date)) {
+            let left = this.filenameEdge[tk][timeUnit].left
+            let right = this.filenameEdge[tk][timeUnit].right
+
+            for (let i = left; i <= right;  i++) {
+                let filename = this.dateFilename[i]
+                data = this.data[tk][filename][tf].concat(data)
+            }
+        } else {
+            throw Error("Data with given ticker and timeframe not found")
+        }
+
+        return data
     }
 
-    private async loadFilenameDate() {
+    public async loadYearWeekFilename() {
         let filepath = this.BASE_FILEPATH + `/dates.csv`
-        let file = await fetch(filepath)
-        let text = await file.text()
-        this.dateFilename = text.split("\n")
-        this.dateFilename = this.dateFilename.map((f) =>
-            f.replace(/(\r\n|\n|\r)/gm, "")
-        )
-        this.dateFilename.reverse()
-        console.log(this.dateFilename)
+        try {
+            let file = await fetch(filepath)
+            let text = await file.text()
+            this.dateFilename = text.split("\n")
+            this.dateFilename = this.dateFilename.map((f) =>
+                f.replace(/(\r\n|\n|\r)/gm, "")
+            )
+            this.dateFilename.reverse()
+        } catch(e) {
+            throw Error('Dates.csv not found in data folder')
+        }
     }
 
-    private async initFilename(ticker: string) {
-        let filepath = this.BASE_FILEPATH + `${ticker}/dates.csv`
-        let file = await fetch(filepath)
-        let text = await file.text()
-        this.dateFilename = text.split("\n")
-        this.dateFilename = this.dateFilename.map((f) =>
-            f.replace(/(\r\n|\n|\r)/gm, "")
-        )
-        this.dateFilename.reverse()
+    public isFirstDate(date: string): boolean {
+        return date === this.dateFilename[0]
     }
 
-    private getFilename(ticker: string, unit: TimeframeUnit): string {
-        if (unit === TimeframeUnit.DAY) return "ALL.csv"
-        return `${this.dateFilename[this.fileCount[ticker][unit]]}.csv`
+    public isLasttDate(date: string): boolean {
+        return date === this.dateFilename[this.dateFilename.length - 1]
     }
 
-    private getTimeIntervalFilname(offset: number = 0): Array<string> {
-        let filename: Array<string> = []
+    public getNextDateFilename(date: string): string {
+        let index = this.dateFilename.indexOf(date)
+        if (index < 0) throw Error('date not valid')
 
-        // for ()
-        return filename
+        if (index + 1 >= this.dateFilename.length)
+            return date
+
+        return this.dateFilename[index + 1]
     }
 
-    async loadDataByDate(date: string = this.dateFilename[0]) {
-        await this.loadFilenameDate()
+    public getPreviousDateFilename(date: string): string {
+        let index = this.dateFilename.indexOf(date)
+        if (index < 0) throw Error('date not valid')
+
+        if (index - 1 < 0)
+            return date
+
+        return this.dateFilename[index - 1]
+    }
+
+    private calculateFileEdge(ticker: string, date: string, timeUnit: TimeframeUnit): void {
+        let index = this.dateFilename.indexOf(date)
+
+        let leftEdge = 0;
+        let rightEdge = this.dateFilename.length - 1
+
+        for (let i = index; i >= 0; i--) {
+            let filename = this.dateFilename[i]
+            if (!this.loadedFilename[ticker][timeUnit].includes(filename)) {
+                leftEdge = i + 1
+                break
+            }
+        }
+
+        for (let i = index; i < this.dateFilename.length; i++) {
+            let filename = this.dateFilename[i]
+            if (!this.loadedFilename[ticker][timeUnit].includes(filename)) {
+                rightEdge = i - 1
+                break
+            }
+        }
+
+        if (!this.filenameEdge.hasOwnProperty(ticker)) {
+            this.filenameEdge[ticker] = {}
+        }
+        this.filenameEdge[ticker][timeUnit] = {
+            left: leftEdge,
+            right: rightEdge,
+        }
+    }
+
+    async loadFileFromInterval(ticker: Ticker, date: string, timeUnit: TimeframeUnit) {
+        let offset = this.offset[timeUnit]
+        let index = this.dateFilename.indexOf(date)
+        let tk = ticker.getTicker()
+
+        for (let i = index - offset; i <= index + offset; i++) {
+            if (i >= this.dateFilename.length || i < 0) continue
+
+            let filename = this.dateFilename[i]
+            if (!this.loadedFilename[tk][timeUnit].includes(filename)) {
+                await this.loadDataTimeframe(ticker, filename, timeUnit)
+                this.loadedFilename[tk][timeUnit].push(filename)
+            }
+        }
+    }
+
+    async loadData(ticker: Ticker, date: string) {
+        await this.loadYearWeekFilename()
+        if (!date || date === '')
+            date = this.dateFilename[0]
 
         if (!this.dateFilename.includes(date)) {
             throw new Error('date is not valid')
         }
 
-        let index = this.dateFilename.indexOf(date)
-        let minuteFilenames = [
-            this.dateFilename[index - 1],
-            this.dateFilename[index],
-            this.dateFilename[index + 1],
-        ]
-        let houwFilenames = [
-            this.dateFilename[index - 2],
-            this.dateFilename[index - 1],
-            this.dateFilename[index],
-            this.dateFilename[index + 1],
-            this.dateFilename[index + 2],
-        ]
-        // for (let i = 1; i <= 2; i++) {
-        //     if (this.fileCount[tk].M < this.dateFilename.length) {
-        //         await this.loadDataTimeframe(
-        //             ticker,
-        //             TimeframeUnit.MINUTE,
-        //             minuteValues
-        //         )
-        //         this.fileCount[tk].M++
-        //     }
-        // }
-        // for (let i = 1; i <= 5; i++) {
-        //     if (this.fileCount[tk].H < this.dateFilename.length) {
-        //         await this.loadDataTimeframe(ticker, TimeframeUnit.HOUR, hourValues)
-        //         this.fileCount[tk].H++
-        //     }
-        // }
-        // if (this.fileCount[tk].D === 0) {
-        //     await this.loadDataTimeframe(ticker, TimeframeUnit.DAY, dayValues)
-        //     this.fileCount[tk].D++
-        // }
-
-    }
-
-    async loadData(ticker: Ticker) {
         let tk = ticker.getTicker()
-
-        if (!this.fileCount[tk]) {
-            this.fileCount[tk] = { M: 0, H: 0, D: 0 }
-        }
-
-        if (!this.data[tk]) {
-            this.data[tk] = {}
-            Timeframe.ALL_TIMEFRAME.forEach((tf) => {
-                let timeframeStr = tf.getTimeframeString()
-                this.data[tk][timeframeStr] = []
-            })
-        }
-
-        if (this.dateFilename.length === 0) {
-            await this.initFilename(tk)
-            Timeframe.ALL_TIMEFRAME.forEach(
-                (tf) => (this.data[tk][tf.getTimeframeString()] = [])
-            )
-        }
-
-        let minuteValues: Array<number> = []
-        let hourValues: Array<number> = []
-        let dayValues: Array<number> = []
-
-        Timeframe.ALL_TIMEFRAME.forEach((tf) => {
-            let value = tf.getValue()
-            let frame = tf.getUnit()
-            if (frame === TimeframeUnit.MINUTE) minuteValues.push(value)
-            else if (frame === TimeframeUnit.HOUR) hourValues.push(value)
-            else if (frame === TimeframeUnit.DAY) dayValues.push(value)
-        })
-
-        for (let i = 1; i <= 2; i++) {
-            if (this.fileCount[tk].M < this.dateFilename.length) {
-                await this.loadDataTimeframe(
-                    ticker,
-                    TimeframeUnit.MINUTE,
-                    minuteValues
-                )
-                this.fileCount[tk].M++
+        let firstLoad = false
+        if (!this.loadedFilename.hasOwnProperty(tk)) {
+            firstLoad = true
+            this.loadedFilename[tk] = {
+                M: [],
+                H: [],
+                D: [],
             }
         }
-        for (let i = 1; i <= 5; i++) {
-            if (this.fileCount[tk].H < this.dateFilename.length) {
-                await this.loadDataTimeframe(ticker, TimeframeUnit.HOUR, hourValues)
-                this.fileCount[tk].H++
-            }
-        }
-        if (this.fileCount[tk].D === 0) {
-            await this.loadDataTimeframe(ticker, TimeframeUnit.DAY, dayValues)
-            this.fileCount[tk].D++
+
+        await this.loadFileFromInterval(ticker, date, TimeframeUnit.MINUTE)
+        await this.loadFileFromInterval(ticker, date, TimeframeUnit.HOUR)
+        
+        let dayFilename = 'ALL'
+        if (!this.loadedFilename[tk].D.includes(dayFilename)) {
+            await this.loadDataTimeframe(ticker, dayFilename, TimeframeUnit.DAY)
+            this.loadedFilename[tk].D.push(dayFilename)
         }
 
-        this.loadDataByDate()
+        this.calculateFileEdge(tk, date, TimeframeUnit.MINUTE)
+        this.calculateFileEdge(tk, date, TimeframeUnit.HOUR)
+        this.calculateFileEdge(tk, date, TimeframeUnit.DAY)
+
+        return firstLoad ? date : null
     }
 
-    async loadDataTimeframe(ticker: Ticker, unit: TimeframeUnit, values: Array<number>) {
+    async loadDataTimeframe(ticker: Ticker, filename: string, timeUnit: TimeframeUnit,) {
         let tk = ticker.getTicker()
 
         let data: TickerData = {}
         let tempData: TickerData = {}
         let dataThreshold: { [key: string]: number } = {}
-        let timeIntervalCycle
 
-        if (unit === TimeframeUnit.MINUTE) timeIntervalCycle = 60
-        if (unit === TimeframeUnit.HOUR) timeIntervalCycle = 24
+        let interval: Array<number> = []
+        if (timeUnit === TimeframeUnit.MINUTE) interval = this.minuteInterval
+        else if (timeUnit === TimeframeUnit.HOUR) interval = this.hourInterval
+        else if (timeUnit === TimeframeUnit.DAY) interval = this.dayInterval
 
-        values.forEach((val) => {
-            let timeframe: string = unit + val
+        interval.forEach((interval) => {
+            let timeframe: string = timeUnit + interval
             data[timeframe] = []
             tempData[timeframe] = []
-            dataThreshold[timeframe] = val
+            dataThreshold[timeframe] = interval
         })
 
-        let filename = this.getFilename(tk, unit)
-        let filepath = this.BASE_FILEPATH + `${tk}/${unit}/${filename}`
+        let filepath = this.BASE_FILEPATH + `${tk}/${timeUnit}/${filename}`
+        if (!filename.includes('.csv')) filepath += '.csv'
 
         let fileData = await fetch(filepath)
-        let dataText = await fileData.text()
-        if (dataText.includes("html")) return -1
+        let fileDataText = await fileData.text()
+        if (fileDataText.includes("html")) return -1
 
-        let d = dataText.split("\n")
+        let d = fileDataText.split("\n")
 
         for (let i = 0; i < d.length; i++) {
             let row = d[i]
@@ -265,7 +292,7 @@ class Datafeed {
             let m: number = Number(time.substring(i1 + 1, i2))
             let s: number = Number(time.substring(i2 + 1, i3))
 
-            let candleData: Data = {
+            let candleData: CandleData = {
                 time: new Date(datetime).valueOf() / 1000,
                 open: +open,
                 high: +high,
@@ -283,13 +310,13 @@ class Datafeed {
             }
 
             let timeValue: number
-            if (unit === TimeframeUnit.MINUTE) timeValue = m
-            else if (unit === TimeframeUnit.HOUR) timeValue = h
+            if (timeUnit === TimeframeUnit.MINUTE) timeValue = m
+            else if (timeUnit === TimeframeUnit.HOUR) timeValue = h
 
-            data[unit + values[0]].push(candleData)
+            data[timeUnit + interval[0]].push(candleData)
 
-            values.slice(1).forEach((v) => {
-                let tf = unit + v
+            interval.slice(1).forEach((interval) => {
+                let tf = timeUnit + interval
 
                 if (
                     timeValue % dataThreshold[tf] === 0 &&
@@ -305,15 +332,16 @@ class Datafeed {
             })
         }
 
-        values.forEach((v) => {
-            let tf = unit + v
-            this.data[tk][tf] = data[tf].concat(this.data[tk][tf])
-        })
+        if (!this.data.hasOwnProperty(tk)) {
+            this.data[tk] = {}
+        }
+
+        this.data[tk][filename] = { ...this.data[tk][filename], ...data }
     }
 
-    private combineCandleData(data: Array<Data>): Data {
-        let high = -1,
-            low = 999999
+    private combineCandleData(data: Array<CandleData>): CandleData {
+        let high = -1
+        let low = 999999
 
         data.forEach((d) => {
             if (d.high > high) high = d.high

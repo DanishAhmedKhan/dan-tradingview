@@ -1,4 +1,4 @@
-enum TimeframeUnit {
+const enum TimeframeUnit {
     MINUTE = "M",
     HOUR = "H",
     DAY = "D"
@@ -57,6 +57,13 @@ class Timeframe {
             unit: this.unit,
             value: this.value,
         }
+    }
+
+    public getReadableTimeframe(): string {
+        let unit = this.unit == TimeframeUnit.MINUTE ? '' :
+            this.unit.toLowerCase()
+        
+        return this.value + unit
     }
 
     public getTimeframeString(): string {

@@ -1,6 +1,4 @@
 import { ChartFrame } from './ChartFrame'
-import { DrawingManager } from './drawing/drawing-manager';
-import { DrawingType } from './drawing/drawing-type';
 
 declare global {
     interface Window {
@@ -130,37 +128,6 @@ class Chart {
 
         this.candleSeries.applyOptions(this.candleSeriesOption)
         this.addChartScrollListener()
-        
-        // let drawingManager = new DrawingManager()
-        // this.candleSeries.attachPrimitive(drawingManager)
-
-        // drawingManager.add({
-        //     type: DrawingType.RECTANGLE,
-        //     startPrice: 1.2440,
-        //     endPrice: 1.2640,
-        //     startTime: 1682404200,
-        //     endTime: 1685298600,
-        //     fillColor: '#ff0000',
-        //     fillOpacity: 0.2,
-        //     visible: true
-        // })
-
-        // drawingManager.add({
-        //     type: DrawingType.VERTICAL_LINE,
-        //     time: 1685298600,
-        //     color: "rgba(255, 0, 255, 1)",
-        //     visible: true
-        // })
-
-        // drawingManager.add({
-        //     type: DrawingType.TREND_LINE,
-        //     startTime: 1682404200,
-        //     startPrice: 1.2440,
-        //     endTime: 1685298600,
-        //     endPrice: 1.2640,
-        //     color: "rgba(255, 0, 255, 1)",
-        //     visible: true
-        // })
     }
 
     public getLightweightChart(): any {
@@ -186,22 +153,25 @@ class Chart {
     }
 
     private addChartScrollListener() {
-        const LOAD_THRESHOLD = 300
         const onVisibleLogicalRangeChanged = (newVisibleLogicalRange: any) => {
             const barsInfo = this.candleSeries.barsInLogicalRange(
                 newVisibleLogicalRange
             )
-            if (barsInfo != null && barsInfo.barsBefore < LOAD_THRESHOLD) {
-                if (this.chartFrame.getIsDataLoaded()) {
-                    this.chartFrame.setIsDataLoaded(false)
-                    this.chartFrame.displayChart()
-                }
-            }
+            this.chartFrame.handleScroll(barsInfo)
         }
 
         this.lightweightChart
             .timeScale()
             .subscribeVisibleLogicalRangeChange(onVisibleLogicalRangeChanged)
+
+        this.lightweightChart.subscribeCrosshairMove((data: any) => {
+            // console.log(data)
+            // console.log(data.seriesData)
+            if (data.seriesData != null && data.seriesData.size === 1) {
+                let value = data.seriesData.values().next().value
+                this.chartFrame.handleCrosshairMove(value)
+            }
+        })
     }
 }
 

@@ -1,9 +1,10 @@
-import { Datafeed } from './Datafeed'
+import { Datafeed } from './datafeed'
 import { TimeframeHtml } from './html/TimeframeHtml'
 import { TickerHtml } from './html/TickerHtml'
 import { ToolManager } from './tool/ToolManager'
 import { ChartFrameManager } from './ChartFrameManager'
 import { ToolbarManager } from './drawing/toolbar-manager'
+import { Calendar } from './calendar'
 
 class ChartMain {
     
@@ -41,7 +42,7 @@ class ChartMain {
         
         this.toolbarManager = new ToolbarManager()
         this.chartFrameManager = new ChartFrameManager(
-            this.chartMainHtmlElement, 
+            this.chartMainHtmlElement,
             this.datafeed,
             this.toolbarManager,
         )
@@ -60,16 +61,19 @@ class ChartMain {
         return this.chartFrameManager
     }
 
-    private addChartMainHeaderHtml() {
+    private async addChartMainHeaderHtml() {
         let timeframeHtml = new TimeframeHtml(this)
         let tickerHtml = new TickerHtml(this)
 
         let headerLeftHtmlElement = this.chartMainHtmlElement.querySelector('.header_left')! as HTMLElement
+        let headerRightHtmlElement = this.chartMainHtmlElement.querySelector('.header_right')! as HTMLElement
         let toolWrapperHtmlElement = this.chartMainHtmlElement.querySelector('.chart_tool_wrapper')! as HTMLElement
         
         this.toolManager.addHtml(toolWrapperHtmlElement)
         tickerHtml.addHtml(headerLeftHtmlElement)
         timeframeHtml.addHtml(headerLeftHtmlElement)
+
+        let calendar = new Calendar(headerRightHtmlElement, this.chartFrameManager)
     }
 
     private getChartFrameSelectHtml(): string {

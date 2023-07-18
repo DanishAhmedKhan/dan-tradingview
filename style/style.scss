@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap');
+
 *,
 *::after,
 *::before {
@@ -8,6 +10,7 @@
 
 body {
     overflow: hidden;
+    font-family: 'Roboto', sans-serif;
 }
 
 .body_wrapper {
@@ -90,6 +93,30 @@ body {
                         }
                     }
                 }
+
+                .go_to_date_calendar {
+                    position: relative;
+                    cursor: pointer;
+
+                    .logo {
+                        svg {
+                            width: 28px;
+                            height: 28px;
+                            display: block;
+                        }
+                    }
+
+                    input {
+                        cursor: pointer;
+                        position: absolute;
+                        opacity: 0;
+                        width: 28px;
+                        height: 28px;
+                        left: 0;
+                        top: 0;
+                        z-index: 1;
+                    }
+                }
             }
         }
 
@@ -166,6 +193,74 @@ body {
                     .chart_frame_main_wrapper {
                         width: calc(100% - 1px);
                         height: 100%;
+                    }
+
+                    .hud_main {
+                        width: 100%;
+                        background-color: transparent;
+                        position: absolute;
+                        top: 0px;
+                        left: 0px;
+                        z-index: 999;
+                        cursor: crosshair;
+                        user-select: none;
+                        pointer-events: none;
+
+                        .hud_wrapper {
+                            padding: 8px 8px;
+
+                            .hud_row {
+                                display: inline-flex;
+                                width: 100%;
+                                margin-bottom: 5px;
+
+                                &:last-child {
+                                    margin-bottom: 0px;
+                                }
+
+                                .hud_row_content {
+                                    background-color: rgba(255, 255, 255, .4);
+                                    display: flex;
+                                    align-items: center;
+                                    flex-wrap: wrap;
+                                }
+
+                                .hud_ohlc {
+                                    display: flex;
+
+                                    .hud_ohlc_value {
+                                        display: flex;
+                                        margin-right: 6px;
+
+                                        &:last-child {
+                                            margin-right: 0px;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            .hud_element {
+                                padding: 3px 10px 3px 5px;
+                                cursor: default;
+                                pointer-events: auto;
+                            }
+
+                            .hud_text {
+                                display: inline;
+                                font-size: 14px;
+                                // font-weight: 500;
+                               
+
+                                &:last-child {
+                                    padding-right: 5px;
+                                }
+                            }
+
+                            .hud_text_small {
+                                font-size: 13px;
+                                font-weight: 400;
+                            }
+                        }
                     }
                 }
             }

@@ -1,5 +1,5 @@
 import { ChartFrame } from "./ChartFrame"
-import { Datafeed } from "./Datafeed"
+import { Datafeed } from "./datafeed"
 import { ToolbarManager } from "./drawing/toolbar-manager"
 import { ToolManager } from "./tool/ToolManager"
 

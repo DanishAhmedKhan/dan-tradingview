@@ -1,10 +1,11 @@
 import { Ticker } from './Ticker'
 import { Timeframe, TimeframeUnit } from './Timeframe'
-import { Datafeed } from './Datafeed'
+import { Datafeed } from './datafeed'
 import { Chart } from './Chart'
 import { ToolManager } from './tool/ToolManager'
 import { DrawingManager } from './drawing/drawing-manager'
 import { ToolbarManager } from './drawing/toolbar-manager'
+import { CHartHUD } from './chart-hud'
 
 type ChartFrameData = {
     ticker: string,
@@ -20,14 +21,15 @@ class ChartFrame {
     private timeframe: Timeframe
     private datafeed: Datafeed
     private chart: Chart
+    private date: string
 
     public readonly chartFrameHtmlElement: HTMLElement
     public readonly drawingPrerenderHtmlElement: HTMLCanvasElement
     public readonly chartInteractionWrapperHtmlElement: HTMLElement
 
+    private chartHUD: CHartHUD
     private drawingManager: DrawingManager
     private toolManager: ToolManager
-    // private toolbarManager: ToolbarManager
     private frameIndex: number
     private chartFrameData: ChartFrameData
     private isDataLoaded: boolean
@@ -54,7 +56,8 @@ class ChartFrame {
         this.datafeed = datafeed
         this.frameIndex = frameIndex
         this.toolManager = toolManager
-        // this.toolbarManager = toolbarManager
+
+        this.date = ''
 
         this.chartFrameData = this.getChartFrameData()
         if (this.chartFrameData) {
@@ -89,6 +92,10 @@ class ChartFrame {
         
         this.drawingPrerenderHtmlElement.style.width = '100%'
         this.drawingPrerenderHtmlElement.style.height = '100%'
+
+        this.chartHUD = new CHartHUD(chartFrameWrapperHtmlElement)
+        this.chartHUD.setTicker(this.ticker)
+        this.chartHUD.setTimeframe(this.timeframe)
     }
 
     private getChartFrameData(): ChartFrameData {
@@ -134,13 +141,32 @@ class ChartFrame {
         return this.chart
     }
 
+    public getDate(): string {
+        return this.date
+    }
+
+    public setDate(date: string): void {
+        this.date = date
+    }
+
+    public nextDate(): void {
+        this.date = this.datafeed.getNextDateFilename(this.date)
+    }
+
+    public previousDate(): void {
+        this.date = this.datafeed.getPreviousDateFilename(this.date)
+    }
+
     public setTimeframe(timeframe: Timeframe): void {
+        console.log('setTimeframe')
         this.chartFrameData.timeframe = timeframe.getTimeframe()
         this.saveChartFrameData()
 
         let shouldDisplayChart: boolean = this.timeframe.getTimeframeString() !== timeframe.getTimeframeString()
         this.timeframe = timeframe
         if (shouldDisplayChart) this.displayChart()
+
+        this.chartHUD.setTimeframe(timeframe)
     }
 
     public setTicker(ticker: Ticker): void {
@@ -150,17 +176,66 @@ class ChartFrame {
         let shouldDisplayChart: boolean = this.ticker.getTicker() !== ticker.getTicker()
         this.ticker = ticker
         if (shouldDisplayChart) this.displayChart()
+
+        this.chartHUD.setTicker(ticker)
     }
 
-    public async displayChart() {
+    public handleCrosshairMove(value: any): void {
+        // console.log(value)
+        this.chartHUD.setOHLC(value)
+    }
+
+    public handleScroll(barsInfo: any): void {
+        if (barsInfo == null) return
+
+        const CANDLE_THRESHOLD = 300
+        let { barsBefore, barsAfter } = barsInfo
+
+        if (barsBefore < CANDLE_THRESHOLD || 
+            barsAfter < CANDLE_THRESHOLD
+        ) {
+            if (this.getIsDataLoaded()) {
+                if (barsBefore < CANDLE_THRESHOLD) {
+                    if (this.datafeed.isLasttDate(this.date)) return
+                    this.nextDate()
+                } else if (barsAfter < CANDLE_THRESHOLD) {
+                    if (this.datafeed.isFirstDate(this.date)) return
+                    this.previousDate()
+                }
+
+                this.setIsDataLoaded(false)
+                this.displayChart()
+            }
+        }
+    }
+
+    public async displayChart(timePosition?: number) {
         if (!this.isDataLoaded) {
-            await this.datafeed.loadData(this.ticker)
+            let date = await this.datafeed.loadData(this.ticker, this.date)
+            if (date != null) this.date = date as string
             this.isDataLoaded = true
         }
+        let timeScale = this.chart.getLightweightChart().timeScale()
+        
+        let logicalRange: any = {}
+        if (timePosition) {
+            logicalRange = timeScale.getVisibleLogicalRange()
+        }
 
-        let data = this.datafeed.getTickerTimeframeData(this.ticker, this.timeframe)
+        let data = this.datafeed.getTickerTimeframeData(this.ticker, this.timeframe, this.date)
         // this.chart.resetChartScale()
         this.chart.addDataToCandleSeries(data)
+
+        if (timePosition) {
+            let position = timeScale.timeToCoordinate(timePosition)
+            let logical = timeScale.coordinateToLogical(position)
+
+            let semirange = (logicalRange.to - logicalRange.from) / 2
+            timeScale.setVisibleLogicalRange({
+                from: logical - semirange,
+                to: logical + semirange
+            })
+        }
     }
 
     public static getChartFrame(chartframes: Array<ChartFrame>, index: number): ChartFrame {
