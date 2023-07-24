@@ -228,7 +228,6 @@ class Datafeed {
         this.calculateFileEdge(tk, date, TimeframeUnit.HOUR)
         this.calculateFileEdge(tk, date, TimeframeUnit.DAY)
 
-        // console.log(this.loadedFilename)
         return firstLoad ? date : null
     }
 

@@ -158,7 +158,6 @@ class ChartFrame {
     }
 
     public setTimeframe(timeframe: Timeframe): void {
-        console.log('setTimeframe')
         this.chartFrameData.timeframe = timeframe.getTimeframe()
         this.saveChartFrameData()
 
@@ -209,7 +208,7 @@ class ChartFrame {
         }
     }
 
-    public async displayChart(timePosition?: number) {
+    public async displayChart(time?: number) {
         if (!this.isDataLoaded) {
             let date = await this.datafeed.loadData(this.ticker, this.date)
             if (date != null) this.date = date as string
@@ -218,16 +217,25 @@ class ChartFrame {
         let timeScale = this.chart.getLightweightChart().timeScale()
         
         let logicalRange: any = {}
-        if (timePosition) {
+        if (time) {
             logicalRange = timeScale.getVisibleLogicalRange()
         }
 
         let data = this.datafeed.getTickerTimeframeData(this.ticker, this.timeframe, this.date)
-        // this.chart.resetChartScale()
         this.chart.addDataToCandleSeries(data)
 
-        if (timePosition) {
-            let position = timeScale.timeToCoordinate(timePosition)
+        if (time) {
+            let closestTime = -1
+            let minDiff = Math.abs(data[0].time - time!)
+            data.forEach(d => {
+                let diff = Math.abs(d.time - time!)
+                if (diff < minDiff) {
+                    closestTime = d.time
+                    minDiff = diff
+                }
+            })
+
+            let position = timeScale.timeToCoordinate(closestTime)
             let logical = timeScale.coordinateToLogical(position)
 
             let semirange = (logicalRange.to - logicalRange.from) / 2
@@ -235,6 +243,8 @@ class ChartFrame {
                 from: logical - semirange,
                 to: logical + semirange
             })
+
+            this.chart.resetChartScale()
         }
     }
 

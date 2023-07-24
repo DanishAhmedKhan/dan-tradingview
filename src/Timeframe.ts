@@ -32,10 +32,6 @@ class Timeframe {
         this.value = value
     }
 
-    public printTimeframe(): void {
-        console.log(`${this.value}${this.unit}`)
-    }
-
     public getUnit(): string {
         return this.unit
     }

@@ -84,8 +84,6 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
                 let toolbarManager = this.drawingManager.toolbarManager
                 if ((toolbarManager.drawingToolbar.isVisible() && 
                     toolbarManager.activeDrawing == this) || this.hover) {
-                    // console.log('hover', toolbarManager.drawingToolbar.isVisible(), 
-                    // toolbarManager.activeDrawing == this, this.hover)
                     this.paintHover(context, bitmapSize)
                 }
             }
