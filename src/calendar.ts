@@ -60,8 +60,6 @@ class Calendar {
             activeChartFrame.setIsDataLoaded(false)
             activeChartFrame.setDate(filename)
             activeChartFrame.displayChart(timestamp)
-
-            console.log(date, filename, timestamp)
         }
     }
 

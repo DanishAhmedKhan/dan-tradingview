@@ -63,7 +63,7 @@ class RectangleTool extends Tool {
 
             let { time: endTime, price: endPrice } = this.getTimeAndPrice(event)
 
-            drawingManager.add({
+            this.addToChart(drawingManager, {
                 type: DrawingType.RECTANGLE,
                 startTime,
                 startPrice,

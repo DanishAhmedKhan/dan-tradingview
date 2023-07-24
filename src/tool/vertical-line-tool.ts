@@ -29,7 +29,7 @@ class VerticalLineTool extends Tool {
 
             let { time } = this.getTimeAndPrice(event)
 
-            drawingManager.add({
+            this.addToChart(drawingManager, {
                 type: DrawingType.VERTICAL_LINE,
                 time,
                 color: 'rgba(0, 0, 0)',

@@ -1,4 +1,7 @@
+import { DrawingType } from "../drawing/drawing-type"
+
 type ToolData = {
+    type: DrawingType,
     id: string,
 }
 

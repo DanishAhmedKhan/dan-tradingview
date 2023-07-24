@@ -30,18 +30,20 @@ class DrawingManager {
 
         // if (!options.type) throw Error('options must have a type property')
 
+        let allTool = this.toolManager.getAllTool()
+
         switch (options.type) {
             case DrawingType.RECTANGLE: 
-                drawing = new Rectangle(options, this)
+                drawing = new Rectangle(allTool[3], options, this)
                 break
             case DrawingType.HORIZONTAL_LINE:
-                drawing = new HorizontalLine(options, this)
+                drawing = new HorizontalLine(allTool[0], options, this)
                 break
             case DrawingType.VERTICAL_LINE:
-                drawing = new VerticalLine(options, this)
+                drawing = new VerticalLine(allTool[1], options, this)
                 break
             case DrawingType.TREND_LINE:
-                drawing = new TerendLine(options, this)
+                drawing = new TerendLine(allTool[2], options, this)
                 break
             default:
                 throw Error('Drawing not found of type')

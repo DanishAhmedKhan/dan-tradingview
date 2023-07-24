@@ -49,7 +49,6 @@ class CHartHUD {
         htmlElement.insertAdjacentHTML('beforeend', html)
 
         this.hudHtmlElement = htmlElement.querySelector('.hud_main')!
-        console.log(this.hudHtmlElement)
     }
 
     public setTicker(ticker: Ticker): void {

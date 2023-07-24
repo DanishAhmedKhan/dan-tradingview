@@ -62,7 +62,7 @@ class TrendLineTool extends Tool {
 
             let { time: endTime, price: endPrice } = this.getTimeAndPrice(event)
 
-            drawingManager.add({
+            this.addToChart(drawingManager, {
                 type: DrawingType.TREND_LINE,
                 startTime,
                 startPrice,

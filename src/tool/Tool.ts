@@ -3,8 +3,10 @@ import { ChartFrameManager } from "../ChartFrameManager"
 import { DrawingManager } from "../drawing/drawing-manager"
 import { StorageManager } from "./StorageManager"
 import { TickerStorage, ToolData } from "./TickerStorage"
+import { ToolManager } from "./ToolManager"
 
 type ToolParam = {
+    toolManager: ToolManager,
     storageManager: StorageManager,
     chartFrameManager: ChartFrameManager,
 }
@@ -17,6 +19,7 @@ abstract class Tool {
         svg: string,
     } 
 
+    protected toolManager: ToolManager
     protected storageManager: StorageManager
     protected chartFrameManager: ChartFrameManager
 
@@ -24,9 +27,11 @@ abstract class Tool {
     protected toolHtmlElement: HTMLElement | null
 
     constructor({
+        toolManager,
         storageManager,
         chartFrameManager,
     }: ToolParam) {
+        this.toolManager = toolManager
         this.storageManager = storageManager
         this.chartFrameManager = chartFrameManager
         this.isSelected = false
@@ -39,6 +44,16 @@ abstract class Tool {
 
     public setIsSelected(isSelected: boolean): void {
         this.isSelected = isSelected
+    }
+
+    public select(): void {
+        this.isSelected = true
+        this.toolHtmlElement?.classList.add(`tool_item_selected`)
+    }
+
+    public unselect(): void {
+        this.isSelected = false
+        this.toolHtmlElement?.classList.remove(`tool_item_selected`)
     }
 
     public getHtml(): string {
@@ -54,6 +69,10 @@ abstract class Tool {
 
         this.toolHtmlElement.addEventListener('click', e => {
             if (!this.isSelected) {
+                this.toolManager.getAllTool().forEach(tool => {
+                    tool.unselect()
+                })
+
                 this.addChartListener()
             } 
         })
@@ -67,9 +86,9 @@ abstract class Tool {
     }
 
     public addChartListener(): void {
-        this.isSelected = true
-        this.toolHtmlElement?.classList.add(`tool_item_selected`)
+        this.select()
         this.chartFrameManager.activateAllFrameInteraction()
+
         this.chartFrameManager.getAllChartFrame().forEach(chartFrame => {
             chartFrame.drawingPrerenderHtmlElement.width  = 
                 chartFrame.chartInteractionWrapperHtmlElement.offsetWidth
@@ -82,8 +101,7 @@ abstract class Tool {
     }
 
     public removeChartListener(): void {
-        this.isSelected = false
-        this.toolHtmlElement?.classList.remove(`tool_item_selected`)
+        this.unselect()
         this.chartFrameManager.deactivateAllFrameInteraction()
         this.chartFrameManager.getAllChartFrame().forEach(chartFrame => {
             chartFrame.chartInteractionWrapperHtmlElement.onclick = null
@@ -140,7 +158,7 @@ abstract class Tool {
 
     public addToChart(
         drawingManager: DrawingManager,
-        toolData: ToolData, 
+        toolData: any, 
         shouldUpdtaeData: boolean = true
     ): void {
         if (shouldUpdtaeData) {
@@ -152,14 +170,14 @@ abstract class Tool {
 
     public removeFromChart(
         drawingManager: DrawingManager,
-        toolData: ToolData, 
+        drawing: any, 
         shouldUpdtaeData: boolean = true
     ): void {
         if (shouldUpdtaeData) {
-            this.getTickerStorage().removeData(this.KEY, toolData)
+            this.getTickerStorage().removeData(this.KEY, drawing.getOptions())
         }
 
-        drawingManager.add(toolData)
+        drawingManager.remove(drawing)
     }
 
     abstract handleChartEvent(chartFrame: ChartFrame, htmlElement: HTMLElement, drawingManager: DrawingManager): void

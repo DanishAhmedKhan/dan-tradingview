@@ -1,5 +1,6 @@
 import { drawHorizontalHandle, drawHorizontalLine } from "../helper/canvas"
 import { svg } from "../helper/svg"
+import { Tool } from "../tool/Tool"
 import { Drawing, Options } from "./drawing"
 import { DrawingManager } from "./drawing-manager"
 import { Point } from "./point"
@@ -14,8 +15,8 @@ type HorizontalLineOptions = Options & {
 class HorizontalLine extends Drawing<HorizontalLineOptions> {
     public hoveredCursorStyle: string = 'pointer'
 
-    constructor(options: HorizontalLineOptions, drawingManager: DrawingManager) {
-        super(options, drawingManager, [])
+    constructor(tool: Tool, options: HorizontalLineOptions, drawingManager: DrawingManager) {
+        super(tool, options, drawingManager, [])
         this.point = [
             new Point(null, this.options.price, drawingManager.chartReference),
         ]

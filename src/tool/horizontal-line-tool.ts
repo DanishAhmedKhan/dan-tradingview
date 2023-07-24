@@ -29,7 +29,7 @@ class HorizontalLineTool extends Tool {
 
             let { price } = this.getTimeAndPrice(event)
 
-            drawingManager.add({
+            this.addToChart(drawingManager, {
                 type: DrawingType.HORIZONTAL_LINE,
                 price,
                 color: 'rgba(0, 0, 0)',

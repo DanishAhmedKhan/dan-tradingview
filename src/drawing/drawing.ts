@@ -1,4 +1,5 @@
 import { svg } from "../helper/svg"
+import { Tool } from "../tool/Tool"
 import { Drawable } from "./drawable"
 import { DrawingManager } from "./drawing-manager"
 import { Point } from "./point"
@@ -15,6 +16,7 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
         opacity: 1,
     }
 
+    protected tool: Tool
     protected options: RendererDataType
     protected widget: Array<Widget>
 
@@ -25,22 +27,25 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
     protected maxY: number = 0
 
     protected visibleInCanvas: boolean = true
-    protected hover: boolean = true
+    protected hover: boolean = false
 
     private drawingManager: DrawingManager
 
     protected abstract hoveredCursorStyle: string
 
-    constructor(options: RendererDataType,
+    constructor(
+        tool: Tool,
+        options: RendererDataType,
         drawingManager: DrawingManager,
         widget: Array<Widget>
     ) {
+        this.tool = tool
         this.options = options
         this.widget = [...widget, {
             name: 'Delete',
             svg: svg.delete,
             callback: () => {
-                drawingManager.remove(this)
+                tool.removeFromChart(drawingManager, this)
                 drawingManager.toolbarManager.drawingToolbar.hide()
             }
         }]
@@ -51,7 +56,7 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
     public getOptions(): RendererDataType {
         return this.options
     }
-
+        
     public setOptions(options: RendererDataType): void {
         this.options = options
     }
@@ -79,6 +84,8 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
                 let toolbarManager = this.drawingManager.toolbarManager
                 if ((toolbarManager.drawingToolbar.isVisible() && 
                     toolbarManager.activeDrawing == this) || this.hover) {
+                    // console.log('hover', toolbarManager.drawingToolbar.isVisible(), 
+                    // toolbarManager.activeDrawing == this, this.hover)
                     this.paintHover(context, bitmapSize)
                 }
             }

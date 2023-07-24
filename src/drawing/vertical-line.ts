@@ -1,4 +1,5 @@
 import { drawVerticalHandle, drawVerticalLine } from "../helper/canvas"
+import { Tool } from "../tool/Tool"
 import { Drawing, Options } from "./drawing"
 import { DrawingManager } from "./drawing-manager"
 import { Point } from "./point"
@@ -12,8 +13,8 @@ type VeriticalLineOptions = Options & {
 class VerticalLine extends Drawing<VeriticalLineOptions> {
     public hoveredCursorStyle: string = 'pointer'
 
-    constructor(options: VeriticalLineOptions, drawingManager: DrawingManager) {
-        super(options, drawingManager, [])
+    constructor(tool: Tool, options: VeriticalLineOptions, drawingManager: DrawingManager) {
+        super(tool, options, drawingManager, [])
         this.point = [
             new Point(this.options.time, null, drawingManager.chartReference),
         ]

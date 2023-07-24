@@ -1,9 +1,8 @@
 import { Drawing, Options } from "./drawing"
-import { SimplePoint, Point } from "./point"
-import { Color, hexToRgba } from "../helper/color"
+import { Point } from "./point"
 import { DrawingManager } from "./drawing-manager"
-import { svg } from "../helper/svg"
 import { drawCirulareHandle, fillPolyon, strokePolyon } from "../helper/canvas"
+import { Tool } from "../tool/Tool"
 
 type RectangleOptions = Options & {
     startPrice: number,
@@ -20,8 +19,8 @@ type RectangleOptions = Options & {
 class Rectangle extends Drawing<RectangleOptions> {
     public hoveredCursorStyle: string = 'pointer'
 
-    constructor(options: RectangleOptions, drawingManager: DrawingManager) {
-        super(options, drawingManager, [])
+    constructor(tool: Tool, options: RectangleOptions, drawingManager: DrawingManager) {
+        super(tool, options, drawingManager, [])
 
         let chartReference = drawingManager.chartReference
         this.point = [

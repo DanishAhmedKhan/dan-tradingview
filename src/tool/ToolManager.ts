@@ -17,6 +17,7 @@ class ToolManager {
         this.chartFrameManager = chartFrameManager
 
         let toolParam = {
+            toolManager: this, 
             storageManager: this.storageManager,
             chartFrameManager: this.chartFrameManager,
         }

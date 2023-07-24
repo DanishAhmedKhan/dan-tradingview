@@ -1,6 +1,5 @@
 import { drawCirulareHandle, drawLine } from "../helper/canvas"
-import { Color } from "../helper/color"
-import { svg } from "../helper/svg"
+import { Tool } from "../tool/Tool"
 import { Drawing, Options } from "./drawing"
 import { DrawingManager } from "./drawing-manager"
 import { Point } from "./point"
@@ -17,8 +16,8 @@ type TrendLineOptions = Options & {
 class TerendLine extends Drawing<TrendLineOptions> {
     public hoveredCursorStyle: string = 'pointer'
 
-    constructor(options: TrendLineOptions, drawingManager: DrawingManager) {
-        super(options, drawingManager, [])
+    constructor(tool: Tool, options: TrendLineOptions, drawingManager: DrawingManager) {
+        super(tool, options, drawingManager, [])
         this.point = [
             new Point(options.startTime, options.startPrice, drawingManager.chartReference),
             new Point(options.endTime, options.endPrice, drawingManager.chartReference)
@@ -47,7 +46,9 @@ class TerendLine extends Drawing<TrendLineOptions> {
     }
 
     public override isHover(x: number, y: number): any {
-		return false
+
+        return this.point[0].distanceSquare(x, y) < 5 * 5 ||
+            this.point[1].distanceSquare(x, y) < 5 * 5
     }
 }
 

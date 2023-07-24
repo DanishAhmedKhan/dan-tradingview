@@ -91,6 +91,9 @@ class Chart {
                 timeVisible: true,
                 secondsVisible: true,
             },
+            leftPriceScale: {
+                borderColor: '#ff0000'
+            },
             crosshair: {
                 mode: window.LightweightCharts.CrosshairMode.Normal,
                 vertLine: {
@@ -165,8 +168,6 @@ class Chart {
             .subscribeVisibleLogicalRangeChange(onVisibleLogicalRangeChanged)
 
         this.lightweightChart.subscribeCrosshairMove((data: any) => {
-            // console.log(data)
-            // console.log(data.seriesData)
             if (data.seriesData != null && data.seriesData.size === 1) {
                 let value = data.seriesData.values().next().value
                 this.chartFrame.handleCrosshairMove(value)

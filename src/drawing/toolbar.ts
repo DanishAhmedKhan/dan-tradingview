@@ -7,6 +7,7 @@ type Widget = {
 }
 
 class Toolbar {
+    private name: string
     private x: number
     private y: number
 
@@ -14,13 +15,27 @@ class Toolbar {
     private toolbarHtmlElement: HTMLDivElement | null = null
     private visible: boolean = true
 
-    constructor(x?: number, y?: number) {
-        this.x = x ?? 200
-        this.y = y ?? 200
+    constructor(name: string, x?: number, y?: number) {
+        this.name = name
+
+        let key = this.getStorageKey()
+        let position: string | any = localStorage.getItem(key)!
+        if (position != null && position.length > 0) {
+            position = JSON.parse(position) as any
+            this.x = position.x
+            this.y = position.y
+        } else {
+            this.x = x ?? 200
+            this.y = y ?? 200
+        }
 
         this.add()
         this.setPosition(this.x, this.y)
         this.draggable()
+    }
+
+    public getStorageKey(): string {
+        return `toolbar-${this.name}`
     }
 
     public setWidget(widgets: Array<Widget>): void {
@@ -141,6 +156,13 @@ class Toolbar {
         const closeDragElement = (event: any) => {
             document.onmouseup = null
             document.onmousemove = null
+
+            let x = event.clientX
+            let y = event.clientY
+
+            let key = this.getStorageKey()
+            let data = JSON.stringify({ x, y })
+            localStorage.setItem(key, data)
         }
 
         let dragHandleHtmlElement = this.toolbarHtmlElement?.querySelector('.dtv_toolbar_drag') as HTMLDivElement

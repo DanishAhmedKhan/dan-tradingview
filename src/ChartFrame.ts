@@ -177,11 +177,11 @@ class ChartFrame {
         this.ticker = ticker
         if (shouldDisplayChart) this.displayChart()
 
+        document.title = ticker.getTicker()
         this.chartHUD.setTicker(ticker)
     }
 
     public handleCrosshairMove(value: any): void {
-        // console.log(value)
         this.chartHUD.setOHLC(value)
     }
 

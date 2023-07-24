@@ -28,14 +28,6 @@ type FullData = {
     }
 }
 
-type FileCount = {
-    [key: string]: {
-        M: number,
-        H: number,
-        D: number,
-    }
-}
-
 type LoadedFilename = {
     [key: string]: {
         M: Array<string>,
@@ -236,6 +228,7 @@ class Datafeed {
         this.calculateFileEdge(tk, date, TimeframeUnit.HOUR)
         this.calculateFileEdge(tk, date, TimeframeUnit.DAY)
 
+        // console.log(this.loadedFilename)
         return firstLoad ? date : null
     }
 

@@ -6,7 +6,7 @@ class ToolbarManager {
     public activeDrawing: Drawable | null = null
 
     constructor() {
-        this.drawingToolbar = new Toolbar()
+        this.drawingToolbar = new Toolbar('drawing-tool')
         this.drawingToolbar.hide()
     }
 
