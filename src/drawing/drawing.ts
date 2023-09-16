@@ -21,15 +21,16 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
     protected widget: Array<Widget>
 
     protected point: Array<Point> = []
-    protected minX: number= 0
+    protected minX: number = 0
     protected maxX: number = 0
     protected minY: number = 0
     protected maxY: number = 0
 
     protected visibleInCanvas: boolean = true
     protected hover: boolean = false
+    public edit: boolean = false
 
-    private drawingManager: DrawingManager
+    public drawingManager: DrawingManager
 
     protected abstract hoveredCursorStyle: string
 
@@ -45,6 +46,7 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
             name: 'Delete',
             svg: svg.delete,
             callback: () => {
+                console.log('remove')
                 tool.removeFromChart(drawingManager, this)
                 drawingManager.toolbarManager.drawingToolbar.hide()
             }
@@ -56,7 +58,7 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
     public getOptions(): RendererDataType {
         return this.options
     }
-        
+
     public setOptions(options: RendererDataType): void {
         this.options = options
     }
@@ -69,6 +71,22 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
         this.widget = widget
     }
 
+    public setEdit(edit: boolean): void {
+        this.edit = edit
+    }
+
+    public isEdit(): boolean {
+        return this.edit
+    }
+
+    public getTool(): Tool {
+        return this.tool;
+    }
+
+    public getPoint(): Array<Point> {
+        return this.point
+    }
+
     public getPaneView(): any {
         const renderer = {
             draw: (target: any) => {
@@ -79,10 +97,10 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
                     !this.isInView(bitmapSize)) {
                     return
                 }
-                
+
                 this.paint(context, bitmapSize)
                 let toolbarManager = this.drawingManager.toolbarManager
-                if ((toolbarManager.drawingToolbar.isVisible() && 
+                if ((toolbarManager.drawingToolbar.isVisible() &&
                     toolbarManager.activeDrawing == this) || this.hover) {
                     this.paintHover(context, bitmapSize)
                 }
@@ -95,16 +113,17 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
     }
 
     public hitTest(x: number, y: number): any {
+        if (this.isEdit()) { this.editPoint(x, y) }
         this.hover = this.isHover(x, y)
 
         if (this.hover) {
             return {
                 cursorStyle: this.hoveredCursorStyle,
-				hitTestData: this.options,
-				externalId: this.options.id,
-			}
+                hitTestData: this.options,
+                externalId: this.options.id,
+            }
         }
-        
+
         return null
     }
 
@@ -133,11 +152,13 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
 
     public abstract isInView(bitmapSize: any): boolean
 
-    public abstract paint(context: any, bitmapSize: any): void 
+    public abstract paint(context: any, bitmapSize: any): void
 
-    public abstract paintHover(context: any, bitmapSize: any): void 
+    public abstract paintHover(context: any, bitmapSize: any): void
 
     public abstract isHover(x: number, y: number): boolean
+
+    public abstract editPoint(x: number, y: number): void
 }
 
 export { Drawing, Options }

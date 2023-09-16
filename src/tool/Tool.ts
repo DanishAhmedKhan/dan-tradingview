@@ -1,6 +1,8 @@
 import { ChartFrame } from "../ChartFrame"
 import { ChartFrameManager } from "../ChartFrameManager"
+import { Drawing } from "../drawing/drawing"
 import { DrawingManager } from "../drawing/drawing-manager"
+import { Point } from "../drawing/point"
 import { StorageManager } from "./StorageManager"
 import { TickerStorage, ToolData } from "./TickerStorage"
 import { ToolManager } from "./ToolManager"
@@ -17,7 +19,7 @@ abstract class Tool {
     public abstract readonly toolData: {
         name: string,
         svg: string,
-    } 
+    }
 
     protected toolManager: ToolManager
     protected storageManager: StorageManager
@@ -74,7 +76,7 @@ abstract class Tool {
                 })
 
                 this.addChartListener()
-            } 
+            }
         })
     }
 
@@ -90,9 +92,9 @@ abstract class Tool {
         this.chartFrameManager.activateAllFrameInteraction()
 
         this.chartFrameManager.getAllChartFrame().forEach(chartFrame => {
-            chartFrame.drawingPrerenderHtmlElement.width  = 
+            chartFrame.drawingPrerenderHtmlElement.width =
                 chartFrame.chartInteractionWrapperHtmlElement.offsetWidth
-            chartFrame.drawingPrerenderHtmlElement.height = 
+            chartFrame.drawingPrerenderHtmlElement.height =
                 chartFrame.chartInteractionWrapperHtmlElement.offsetHeight
 
             let drawingManager = chartFrame.getDrawingManager()
@@ -115,8 +117,16 @@ abstract class Tool {
         return { x, y }
     }
 
-    protected getTimeAndPrice(e: any) {
-        let { x, y } = this.getPoint(e)
+    public getTimeAndPrice(e: any) {
+        let x, y
+        if (e.offset) {
+            x = e.clientX
+            y = e.clientY
+        } else {
+            let p = this.getPoint(e)
+            x = p.x
+            y = p.y
+        }
         let { chart, candleSeries } = this.getChartAndSeries()
         let time = chart.timeScale().coordinateToTime(x)
         let price = candleSeries.coordinateToPrice(y)
@@ -151,36 +161,58 @@ abstract class Tool {
     }
 
     public removeAllFromChart(drawingManager: DrawingManager): void {
-        this.getData().forEach(toolData => 
+        this.getData().forEach(toolData =>
             this.removeFromChart(drawingManager, toolData, false)
         )
     }
 
     public addToChart(
         drawingManager: DrawingManager,
-        toolData: any, 
+        toolData: any,
         shouldUpdtaeData: boolean = true
     ): void {
         if (shouldUpdtaeData) {
             this.getTickerStorage().addData(this.KEY, toolData)
         }
-        
+
         drawingManager.add(toolData)
     }
 
     public removeFromChart(
         drawingManager: DrawingManager,
-        drawing: any, 
+        toolData: any,
         shouldUpdtaeData: boolean = true
     ): void {
         if (shouldUpdtaeData) {
-            this.getTickerStorage().removeData(this.KEY, drawing.getOptions())
+            if (toolData instanceof Drawing) {
+                this.getTickerStorage().removeData(this.KEY, toolData.getOptions())
+            } else {
+                this.getTickerStorage().removeData(this.KEY, toolData)
+            }
         }
 
-        drawingManager.remove(drawing)
+        if (toolData instanceof Drawing) {
+            console.log('instance')
+            drawingManager.remove(toolData)
+        } else {
+            let drawing = drawingManager.getDrawing(toolData)
+            drawingManager.remove(drawing)
+        }
     }
 
-    abstract handleChartEvent(chartFrame: ChartFrame, htmlElement: HTMLElement, drawingManager: DrawingManager): void
+    abstract handleChartEvent(
+        chartFrame: ChartFrame,
+        htmlElement: HTMLElement,
+        drawingManager: DrawingManager
+    ): void
+
+    abstract editTool(
+        chartFrame: ChartFrame,
+        drawingManager: DrawingManager,
+        point: Array<Point>,
+        drawingOption: any,
+        mousePosition: any
+    ): void
 }
 
 export { Tool, ToolParam }

@@ -1,5 +1,4 @@
 import { drawHorizontalHandle, drawHorizontalLine } from "../helper/canvas"
-import { svg } from "../helper/svg"
 import { Tool } from "../tool/Tool"
 import { Drawing, Options } from "./drawing"
 import { DrawingManager } from "./drawing-manager"
@@ -8,7 +7,7 @@ import { Point } from "./point"
 type HorizontalLineOptions = Options & {
     price: number,
     color: string,
-    opacity: number, 
+    opacity: number,
     lineWidth: number,
 }
 
@@ -36,16 +35,25 @@ class HorizontalLine extends Drawing<HorizontalLineOptions> {
     }
 
     public override paintHover(ctx: any, bitmapSize: any) {
-       drawHorizontalHandle(ctx, this.point[0], this.hoverOption, bitmapSize)
+        drawHorizontalHandle(ctx, this.point[0], this.hoverOption, bitmapSize)
     }
 
     public override isHover(x: number, y: number): any {
-		const yPosition = this.point[0].getY()!
+        const yPosition = this.point[0].getY()!
         const lineWidth = this.options.lineWidth ?? 1
         const hitTestThreshold = lineWidth / 2 + 7
 
-		return y >= yPosition - hitTestThreshold && 
+        return y >= yPosition - hitTestThreshold &&
             y <= yPosition + hitTestThreshold
+    }
+
+    public override editPoint(x: number, y: number): void {
+        // let { time, price } = this.tool.getTimeAndPrice(event)
+        // console.log(time, price)
+
+        // this.point = [
+        //     new Point(null, 1.07618, this.drawingManager.chartReference),
+        // ]
     }
 }
 

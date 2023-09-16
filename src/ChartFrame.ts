@@ -16,7 +16,7 @@ type ChartFrameData = {
 }
 
 class ChartFrame {
-    
+
     private ticker: Ticker
     private timeframe: Timeframe
     private datafeed: Datafeed
@@ -35,13 +35,13 @@ class ChartFrame {
     private isDataLoaded: boolean
 
     constructor(
-        chartFrameHtmlElement: HTMLElement | string, 
-        datafeed: Datafeed, 
+        chartFrameHtmlElement: HTMLElement | string,
+        datafeed: Datafeed,
         frameIndex: number,
         toolManager: ToolManager,
         toolbarManager: ToolbarManager,
     ) {
-        this.chartFrameHtmlElement = typeof chartFrameHtmlElement === "string" ? 
+        this.chartFrameHtmlElement = typeof chartFrameHtmlElement === "string" ?
             document.querySelector("." + chartFrameHtmlElement)! : chartFrameHtmlElement
 
         this.chartFrameHtmlElement.insertAdjacentHTML("beforeend", `
@@ -63,7 +63,7 @@ class ChartFrame {
         if (this.chartFrameData) {
             this.ticker = new Ticker(this.chartFrameData.ticker)
             this.timeframe = new Timeframe(
-                <TimeframeUnit>this.chartFrameData.timeframe.unit, 
+                <TimeframeUnit>this.chartFrameData.timeframe.unit,
                 this.chartFrameData.timeframe.value
             )
         } else {
@@ -77,19 +77,19 @@ class ChartFrame {
 
         this.isDataLoaded = false
 
-        let chartFrameWrapperHtmlElement: HTMLElement = 
+        let chartFrameWrapperHtmlElement: HTMLElement =
             this.chartFrameHtmlElement.querySelector(".chart_frame_main_wrapper")!
         this.chart = new Chart(chartFrameWrapperHtmlElement, this)
 
         this.drawingManager = new DrawingManager(toolManager, toolbarManager)
         this.chart.getCandleSeries().attachPrimitive(this.drawingManager)
 
-        this.chartInteractionWrapperHtmlElement = 
+        this.chartInteractionWrapperHtmlElement =
             this.chartFrameHtmlElement.querySelector('.chart_interaction_wrapper')!
-        
-        this.drawingPrerenderHtmlElement = 
+
+        this.drawingPrerenderHtmlElement =
             this.chartInteractionWrapperHtmlElement.querySelector('.drawing_prerender_canvas')!
-        
+
         this.drawingPrerenderHtmlElement.style.width = '100%'
         this.drawingPrerenderHtmlElement.style.height = '100%'
 
@@ -158,6 +158,7 @@ class ChartFrame {
     }
 
     public setTimeframe(timeframe: Timeframe): void {
+        console.log('setTimeframe')
         this.chartFrameData.timeframe = timeframe.getTimeframe()
         this.saveChartFrameData()
 
@@ -184,13 +185,31 @@ class ChartFrame {
         this.chartHUD.setOHLC(value)
     }
 
+    public handleMouseClick(event: any): void {
+        let hoveredDrawing = this.drawingManager.getHoveredDrawing()
+
+        if (hoveredDrawing) {
+            this.chart.disableScroll()
+            hoveredDrawing.setEdit(true)
+
+            this.chartInteractionWrapperHtmlElement.style.display = 'block'
+
+            let tool = hoveredDrawing.getTool()
+            let point = hoveredDrawing.getPoint()
+            let drawingOption = hoveredDrawing.getOptions()
+            tool.removeFromChart(this.drawingManager, hoveredDrawing)
+
+            tool.editTool(this, this.drawingManager, point, drawingOption, event)
+        }
+    }
+
     public handleScroll(barsInfo: any): void {
         if (barsInfo == null) return
 
         const CANDLE_THRESHOLD = 300
         let { barsBefore, barsAfter } = barsInfo
 
-        if (barsBefore < CANDLE_THRESHOLD || 
+        if (barsBefore < CANDLE_THRESHOLD ||
             barsAfter < CANDLE_THRESHOLD
         ) {
             if (this.getIsDataLoaded()) {
@@ -209,13 +228,14 @@ class ChartFrame {
     }
 
     public async displayChart(time?: number) {
+
         if (!this.isDataLoaded) {
             let date = await this.datafeed.loadData(this.ticker, this.date)
             if (date != null) this.date = date as string
             this.isDataLoaded = true
         }
         let timeScale = this.chart.getLightweightChart().timeScale()
-        
+
         let logicalRange: any = {}
         if (time) {
             logicalRange = timeScale.getVisibleLogicalRange()
@@ -246,6 +266,9 @@ class ChartFrame {
 
             this.chart.resetChartScale()
         }
+
+        this.removeDrawing()
+        this.displayDrawing()
     }
 
     public static getChartFrame(chartframes: Array<ChartFrame>, index: number): ChartFrame {
@@ -253,11 +276,15 @@ class ChartFrame {
             if (cf.getFrameIndex() === index) return cf
         })
 
-        throw Error('ChartFrame with the index nlot found')
+        throw Error('ChartFrame with the index not found')
     }
 
     public displayDrawing(): void {
         this.toolManager.getAllTool().forEach(tool => tool.addAllToChart(this.drawingManager))
+    }
+
+    public removeDrawing(): void {
+        this.toolManager.getAllTool().forEach(tool => tool.removeAllFromChart(this.drawingManager))
     }
 }
 

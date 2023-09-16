@@ -22,6 +22,18 @@ class DrawingManager {
         this.toolbarManager = toolbarManager
     }
 
+    public getDrawing(toolData: any): Drawable {
+        let drawing = this.drawings.find(drawing => {
+            return drawing.getOptions() === toolData
+        })!
+
+        return drawing
+    }
+
+    public getHoveredDrawing(): Drawable | null {
+        return this.hoveredDrawing
+    }
+
     public add(options: any): Drawable {
         let drawing: Drawable
 
@@ -33,7 +45,7 @@ class DrawingManager {
         let allTool = this.toolManager.getAllTool()
 
         switch (options.type) {
-            case DrawingType.RECTANGLE: 
+            case DrawingType.RECTANGLE:
                 drawing = new Rectangle(allTool[3], options, this)
                 break
             case DrawingType.HORIZONTAL_LINE:
@@ -56,10 +68,11 @@ class DrawingManager {
 
     public remove(drawing: Drawable): void {
         const index = this.drawings.indexOf(drawing)
-		if (index !== -1) {
-			this.drawings.splice(index, 1)
+        if (index !== -1) {
+            this.drawings.splice(index, 1)
             this.chartReference.requestUpdate()
-		}
+
+        }
     }
 
     public updateAllViews(): void {
@@ -102,8 +115,9 @@ class DrawingManager {
                     this.toolbarManager.hideDrawingToolbar()
                     this.chartReference.requestUpdate()
                 }
+
             }
-            
+
             if (this.hoveredDrawing !== null) {
                 this.toolbarManager.addDrawingWidget(
                     this.hoveredDrawing.getWidget(),

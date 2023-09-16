@@ -46,9 +46,33 @@ class TerendLine extends Drawing<TrendLineOptions> {
     }
 
     public override isHover(x: number, y: number): any {
+        let x1 = this.point[0].getX()!
+        let y1 = this.point[0].getY()!
+        let x2 = this.point[1].getX()!
+        let y2 = this.point[1].getY()!
 
-        return this.point[0].distanceSquare(x, y) < 5 * 5 ||
-            this.point[1].distanceSquare(x, y) < 5 * 5
+        const threshold = 5
+        const dx = x2 - x1
+        const dy = y2 - y1
+
+        const lineLengthSquared = dx * dx + dy * dy
+
+        if (lineLengthSquared === 0) {
+            const distanceSquared = (x - x1) ** 2 + (y - y1) ** 2
+            return distanceSquared <= threshold ** 2
+        }
+
+        const t = Math.max(0, Math.min(1, ((x - x1) * dx + (y - y1) * dy) / lineLengthSquared))
+
+        const closestX = x1 + t * dx
+        const closestY = y1 + t * dy
+
+        const distanceSquared = (x - closestX) ** 2 + (y - closestY) ** 2
+        return distanceSquared <= threshold ** 2
+    }
+
+    public override editPoint(): void {
+        console.log('ss')
     }
 }
 

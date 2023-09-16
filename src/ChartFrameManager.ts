@@ -47,7 +47,7 @@ class ChartFrameManager {
         this.activeChartFrame = chartFrame
         this.chartFrame.push(chartFrame)
         chartFrame.displayChart()
-        chartFrame.displayDrawing()
+        // chartFrame.displayDrawing()
 
         this.addActiveListener()
         return chartFrame

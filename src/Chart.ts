@@ -36,12 +36,12 @@ class Chart {
     private chartGridColor: string
 
     constructor(
-        lightweightChartHtmlElement: HTMLElement, 
+        lightweightChartHtmlElement: HTMLElement,
         chartFrame: ChartFrame
     ) {
         this.chartFrame = chartFrame
 
-        if (lightweightChartHtmlElement instanceof HTMLElement) 
+        if (lightweightChartHtmlElement instanceof HTMLElement)
             this.lightweightChartHtmlElement = lightweightChartHtmlElement
         else {
             let element = document.createElement("div")
@@ -69,7 +69,7 @@ class Chart {
                 wickDownColor: "#000000",
             }
         } else {
-             themeOption = {
+            themeOption = {
                 upColor: "#ffffff",
                 downColor: "#000000",
                 borderUpColor: "#000000",
@@ -137,6 +137,10 @@ class Chart {
         return this.lightweightChart
     }
 
+    public getLightweightChartHtmlElement() {
+        return this.lightweightChartHtmlElement
+    }
+
     public getCandleSeries(): any {
         return this.candleSeries
     }
@@ -153,6 +157,20 @@ class Chart {
 
     public addDataToCandleSeries(data: any) {
         this.candleSeries.setData(data)
+    }
+
+    public disableScroll(): void {
+        this.lightweightChart.applyOptions({
+            handleScroll: false,
+            handleScale: false,
+        })
+    }
+
+    public enableScroll(): void {
+        this.lightweightChart.applyOptions({
+            handleScroll: true,
+            handleScale: true,
+        })
     }
 
     private addChartScrollListener() {
@@ -172,7 +190,21 @@ class Chart {
                 let value = data.seriesData.values().next().value
                 this.chartFrame.handleCrosshairMove(value)
             }
+
+
         })
+
+        this.lightweightChartHtmlElement.onmousedown = (event) => {
+            this.chartFrame.handleMouseClick(event)
+
+            this.lightweightChartHtmlElement.addEventListener("mousemove", (event) => {
+                event.preventDefault();
+            });
+
+            this.lightweightChartHtmlElement.addEventListener("mouseup", (event) => {
+                event.preventDefault();
+            });
+        }
     }
 }
 

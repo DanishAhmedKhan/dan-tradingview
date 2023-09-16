@@ -38,12 +38,16 @@ class VerticalLine extends Drawing<VeriticalLineOptions> {
     }
 
     public override isHover(x: number, y: number): any {
-		const xPosition = this.point[0].getX()!
+        const xPosition = this.point[0].getX()!
         const lineWidth = this.options.lineWidth
         const hitTestThreshold = lineWidth / 2 + 7
 
-		return x >= xPosition - hitTestThreshold && 
+        return x >= xPosition - hitTestThreshold &&
             x <= xPosition + hitTestThreshold
+    }
+
+    public override editPoint(): void {
+        console.log('ss')
     }
 }
 

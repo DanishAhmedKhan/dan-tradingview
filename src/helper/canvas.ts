@@ -6,7 +6,7 @@ export function drawHorizontalLine(ctx: any, point: Point, options: any, bitmapS
     ctx.strokeStyle = hexToRgba(options.color, options.opacity)
     ctx.lineWidth = options.lineWidth
     ctx.moveTo(0, point.getY())
-	ctx.lineTo(bitmapSize.width, point.getY())
+    ctx.lineTo(bitmapSize.width, point.getY())
     ctx.stroke()
 }
 
@@ -15,7 +15,7 @@ export function drawVerticalLine(ctx: any, point: Point, options: any, bitmapSiz
     ctx.strokeStyle = hexToRgba(options.color, options.opacity)
     ctx.lineWidth = options.lineWidth
     ctx.moveTo(point.getX(), 0)
-	ctx.lineTo(point.getX(), bitmapSize.height)
+    ctx.lineTo(point.getX(), bitmapSize.height)
     ctx.stroke()
 }
 
@@ -41,7 +41,7 @@ export function drawCircle(ctx: any, point: Point, radius: number) {
 export function drawCirulareHandle(ctx: any, point: Point, options: any) {
     let radius = 6
     strokeCircle(ctx, point, radius, options)
-    fillCircle(ctx, point, radius - 1, {...options, color: Color.WHITE, opacity: 1})
+    fillCircle(ctx, point, radius - 1, { ...options, color: Color.WHITE, opacity: 1 })
 }
 
 export function strokePolyon(ctx: any, point: Array<Point>, options: any) {
