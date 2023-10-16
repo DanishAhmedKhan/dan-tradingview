@@ -5,8 +5,9 @@ import { DrawingType } from "./drawing-type"
 import { TerendLine } from "./trend-line"
 import { HorizontalLine } from "./horizontal-line"
 import { ToolManager } from "../tool/ToolManager"
-import { Toolbar } from "./toolbar"
 import { ToolbarManager } from "./toolbar-manager"
+import { LongPosition } from "./long-position"
+import { ShortPosition } from "./short-position"
 
 class DrawingManager {
     public chartReference: any | null = null
@@ -56,6 +57,12 @@ class DrawingManager {
                 break
             case DrawingType.TREND_LINE:
                 drawing = new TerendLine(allTool[2], options, this)
+                break
+            case DrawingType.LONG_POSITION:
+                drawing = new LongPosition(allTool[4], options, this)
+                break
+            case DrawingType.SHORT_POSITION:
+                drawing = new ShortPosition(allTool[5], options, this)
                 break
             default:
                 throw Error('Drawing not found of type')

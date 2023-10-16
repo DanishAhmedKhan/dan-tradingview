@@ -113,7 +113,6 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
     }
 
     public hitTest(x: number, y: number): any {
-        if (this.isEdit()) { this.editPoint(x, y) }
         this.hover = this.isHover(x, y)
 
         if (this.hover) {
@@ -157,8 +156,6 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
     public abstract paintHover(context: any, bitmapSize: any): void
 
     public abstract isHover(x: number, y: number): boolean
-
-    public abstract editPoint(x: number, y: number): void
 }
 
 export { Drawing, Options }

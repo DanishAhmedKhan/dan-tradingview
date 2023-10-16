@@ -18,7 +18,6 @@ interface Drawable {
     paintHover(context: any, bitmapSize: any): void
     hitTest(x: number, y: number): any
     isHover(x: number, y: number): boolean
-    editPoint(x: number, y: number): void
 }
 
 export { Drawable }

@@ -5,9 +5,10 @@ import { DrawingManager } from "./drawing-manager"
 import { Point } from "./point"
 
 type HorizontalLineOptions = Options & {
+    y: number,
     price: number,
-    color: string,
     opacity: number,
+    color: string,
     lineWidth: number,
 }
 
@@ -17,7 +18,7 @@ class HorizontalLine extends Drawing<HorizontalLineOptions> {
     constructor(tool: Tool, options: HorizontalLineOptions, drawingManager: DrawingManager) {
         super(tool, options, drawingManager, [])
         this.point = [
-            new Point(null, this.options.price, drawingManager.chartReference),
+            new Point(null, this.options.price, drawingManager.chartReference, false),
         ]
     }
 
@@ -45,15 +46,6 @@ class HorizontalLine extends Drawing<HorizontalLineOptions> {
 
         return y >= yPosition - hitTestThreshold &&
             y <= yPosition + hitTestThreshold
-    }
-
-    public override editPoint(x: number, y: number): void {
-        // let { time, price } = this.tool.getTimeAndPrice(event)
-        // console.log(time, price)
-
-        // this.point = [
-        //     new Point(null, 1.07618, this.drawingManager.chartReference),
-        // ]
     }
 }
 

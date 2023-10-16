@@ -5,6 +5,8 @@ import { HorizontalLineTool } from "./horizontal-line-tool"
 import { RectangleTool } from "./rectangle-tool"
 import { VerticalLineTool } from "./vertical-line-tool"
 import { TrendLineTool } from "./trend-line-tool"
+import { LongPositionTool } from "./long-position-tool"
+import { ShortPositionTool } from "./short-position-tool"
 
 class ToolManager {
 
@@ -17,7 +19,7 @@ class ToolManager {
         this.chartFrameManager = chartFrameManager
 
         let toolParam = {
-            toolManager: this, 
+            toolManager: this,
             storageManager: this.storageManager,
             chartFrameManager: this.chartFrameManager,
         }
@@ -27,6 +29,8 @@ class ToolManager {
             new VerticalLineTool(toolParam),
             new TrendLineTool(toolParam),
             new RectangleTool(toolParam),
+            new LongPositionTool(toolParam),
+            new ShortPositionTool(toolParam),
         ]
     }
 
@@ -51,7 +55,7 @@ class ToolManager {
     public getAllTool(): Array<Tool> {
         return this.allTools
     }
- 
+
     public getStorageManager(): StorageManager {
         return this.storageManager
     }

@@ -1,10 +1,10 @@
 import { Drawing, Options } from "./drawing"
 import { Point } from "./point"
 import { DrawingManager } from "./drawing-manager"
-import { drawBoxHandle, drawCirularHandle, drawLongPosition } from "../helper/canvas"
+import { drawBoxHandle, drawCirularHandle, drawShortPosition } from "../helper/canvas"
 import { Tool } from "../tool/Tool"
 
-type LongPositionOptions = Options & {
+type ShortPositionOptions = Options & {
     x: number,
     y: number,
     time: number,
@@ -17,10 +17,10 @@ type LongPositionOptions = Options & {
     lineColor: string,
 }
 
-class LongPosition extends Drawing<LongPositionOptions> {
+class ShortPosition extends Drawing<ShortPositionOptions> {
     public hoveredCursorStyle: string = 'pointer'
 
-    constructor(tool: Tool, options: LongPositionOptions, drawingManager: DrawingManager) {
+    constructor(tool: Tool, options: ShortPositionOptions, drawingManager: DrawingManager) {
         super(tool, options, drawingManager, [])
 
         let chartReference = drawingManager.chartReference
@@ -37,10 +37,10 @@ class LongPosition extends Drawing<LongPositionOptions> {
             this.point = [
                 point,
                 new Point(x + 200, y, chartReference, true),
-                new Point(x, y - 200, chartReference, true),
-                new Point(x + 200, y - 200, chartReference, true),
-                new Point(x, y + 100, chartReference, true),
-                new Point(x + 200, y + 100, chartReference, true),
+                new Point(x, y - 100, chartReference, true),
+                new Point(x + 200, y - 100, chartReference, true),
+                new Point(x, y + 200, chartReference, true),
+                new Point(x + 200, y + 200, chartReference, true),
             ]
         }
     }
@@ -57,7 +57,7 @@ class LongPosition extends Drawing<LongPositionOptions> {
     }
 
     public paint(ctx: any, bitmapSize: any): void {
-        drawLongPosition(ctx, this.point, this.options)
+        drawShortPosition(ctx, this.point, this.options)
     }
 
     public override paintHover(ctx: any, bitmapSize: any) {
@@ -92,4 +92,4 @@ class LongPosition extends Drawing<LongPositionOptions> {
     }
 }
 
-export { LongPositionOptions, LongPosition }
+export { ShortPositionOptions, ShortPosition }

@@ -1,4 +1,4 @@
-import { drawCirulareHandle, drawLine } from "../helper/canvas"
+import { drawCirularHandle, drawLine } from "../helper/canvas"
 import { Tool } from "../tool/Tool"
 import { Drawing, Options } from "./drawing"
 import { DrawingManager } from "./drawing-manager"
@@ -40,8 +40,8 @@ class TerendLine extends Drawing<TrendLineOptions> {
     }
 
     public override paintHover(ctx: any, bitmapSize: any) {
-        drawCirulareHandle(ctx, this.point[0], this.hoverOption)
-        drawCirulareHandle(ctx, this.point[1], this.hoverOption)
+        drawCirularHandle(ctx, this.point[0], this.hoverOption)
+        drawCirularHandle(ctx, this.point[1], this.hoverOption)
 
     }
 

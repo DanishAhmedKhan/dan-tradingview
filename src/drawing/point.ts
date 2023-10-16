@@ -17,10 +17,10 @@ class Point {
             this.x = time
             this.y = price
 
-            if (time != null) {
+            if (time != null)
                 this.time = chartRefenrence.chart.timeScale().coordinateToTime(time)
+            if (price != null)
                 this.price = chartRefenrence.series.coordinateToPrice(price)
-            }
         } else {
             this.time = time
             this.price = price

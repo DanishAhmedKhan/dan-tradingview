@@ -38,10 +38,23 @@ export function drawCircle(ctx: any, point: Point, radius: number) {
     ctx.arc(point.getX(), point.getY(), radius, 0, 2 * Math.PI, false)
 }
 
-export function drawCirulareHandle(ctx: any, point: Point, options: any) {
+export function drawCirularHandle(ctx: any, point: Point, options: any) {
     let radius = 6
     strokeCircle(ctx, point, radius, options)
     fillCircle(ctx, point, radius - 1, { ...options, color: Color.WHITE, opacity: 1 })
+}
+
+export function drawBoxHandle(ctx: any, point: Point, options: any) {
+    let size = 5
+    let round = 2
+    ctx.beginPath()
+    ctx.strokeStyle = hexToRgba(options.color, options.opacity)
+    ctx.roundRect(point.getX()! - size + 1, point.getY()! - size + 1, 2 * size, 2 * size, round)
+    ctx.stroke()
+    size = size - 1
+    ctx.fillStyle = Color.WHITE
+    ctx.roundRect(point.getX()! - size, point.getY()! - size, 2 * size, 2 * size, round)
+    ctx.fill()
 }
 
 export function strokePolyon(ctx: any, point: Array<Point>, options: any) {
@@ -95,9 +108,65 @@ export function drawVerticalHandle(ctx: any, point: Point, options: any, bitmapS
 
 export function drawLine(ctx: any, point1: Point, point2: Point, options: any) {
     ctx.beginPath()
-    ctx.strokeStyle = options.color
-    ctx.lineWidth = options.lineWidth
+    ctx.strokeStyle = options.color || '#000'
+    ctx.lineWidth = options.lineWidth || 1
     ctx.moveTo(point1.getX(), point1.getY())
     ctx.lineTo(point2.getX(), point2.getY())
     ctx.stroke()
+}
+
+export function drawLongPosition(ctx: any, point: Array<Point>, options: any) {
+    fillPolyon(ctx, [
+        point[0],
+        point[1],
+        point[3],
+        point[2],
+    ], {
+        ...options,
+        color: options.targetColor,
+        opacity: options.targetOpacity,
+    })
+
+    fillPolyon(ctx, [
+        point[0],
+        point[1],
+        point[5],
+        point[4],
+    ], {
+        ...options,
+        color: options.stopColor,
+        opacity: options.stopOpacity,
+    })
+
+    drawLine(ctx, point[0], point[1], {
+        color: options.lineColor,
+    })
+}
+
+export function drawShortPosition(ctx: any, point: Array<Point>, options: any) {
+    fillPolyon(ctx, [
+        point[0],
+        point[1],
+        point[3],
+        point[2],
+    ], {
+        ...options,
+        color: options.stopColor,
+        opacity: options.stopOpacity,
+    })
+
+    fillPolyon(ctx, [
+        point[0],
+        point[1],
+        point[5],
+        point[4],
+    ], {
+        ...options,
+        color: options.targetColor,
+        opacity: options.targetOpacity,
+    })
+
+    drawLine(ctx, point[0], point[1], {
+        color: options.lineColor,
+    })
 }

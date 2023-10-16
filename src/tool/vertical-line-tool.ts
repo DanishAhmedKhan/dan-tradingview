@@ -1,4 +1,4 @@
-import { Tool, ToolParam } from "./Tool"
+import { Tool } from "./Tool"
 import { svg } from '../helper/svg'
 import { DrawingType } from "../drawing/drawing-type"
 import { DrawingManager } from "../drawing/drawing-manager"
@@ -7,7 +7,8 @@ import { drawVerticalLine } from "../helper/canvas"
 import { Point } from "../drawing/point"
 
 type HorizontalLineData = {
-    price: number,
+    // price: number,
+    x: number,
     color: string,
     id?: string,
     lineWidth?: number,
@@ -30,10 +31,12 @@ class VerticalLineTool extends Tool {
             event.stopPropagation()
 
             let { time } = this.getTimeAndPrice(event)
+            let { x, y } = this.getPoint(event)
 
             this.addToChart(drawingManager, {
                 type: DrawingType.VERTICAL_LINE,
                 time,
+                x,
                 color: 'rgba(0, 0, 0)',
                 lineWidth: 1,
             })
@@ -58,7 +61,8 @@ class VerticalLineTool extends Tool {
 
         htmlElement.onmousemove = (event) => {
             let { time } = this.getTimeAndPrice(event)
-            point[0] = new Point(time, null, drawingManager.chartReference)
+            let { x, y } = this.getPoint(event)
+            point[0] = new Point(x, null, drawingManager.chartReference, true)
             ctx.clearRect(0, 0, canvas.width, canvas.height)
             drawVerticalLine(ctx, point[0], drawingOption, bitmapSize)
         }
@@ -68,10 +72,13 @@ class VerticalLineTool extends Tool {
             htmlElement.onmouseup = null
 
             let { time } = this.getTimeAndPrice(event)
+            let { x, y } = this.getPoint(event)
+            console.log('x', x)
 
             this.addToChart(drawingManager, {
                 type: DrawingType.VERTICAL_LINE,
                 time,
+                x,
                 color: 'rgba(0, 0, 0)',
                 opacity: 1,
                 lineWidth: 1,

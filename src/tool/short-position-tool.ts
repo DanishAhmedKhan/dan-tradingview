@@ -4,15 +4,15 @@ import { DrawingType } from "../drawing/drawing-type"
 import { DrawingManager } from "../drawing/drawing-manager"
 import { ChartFrame } from "../ChartFrame"
 import { Point } from "../drawing/point"
-import { drawLongPosition } from "../helper/canvas"
+import { drawShortPosition } from "../helper/canvas"
 
-class LongPositionTool extends Tool {
+class ShortPositionTool extends Tool {
 
-    public readonly TOOL_CLASS = 'tool_long_position'
-    public readonly KEY = 'longPosition'
+    public readonly TOOL_CLASS = 'tool_short_position'
+    public readonly KEY = 'shortPosition'
     public readonly toolData = {
-        svg: svg.longPosition,
-        name: 'Long Position',
+        svg: svg.shortPosition,
+        name: 'Short Position',
     }
 
     public handleChartEvent(chartFrame: ChartFrame, htmlElement: HTMLElement, drawingManager: DrawingManager): void {
@@ -23,7 +23,7 @@ class LongPositionTool extends Tool {
             let { time, price } = this.getTimeAndPrice(event)
 
             this.addToChart(drawingManager, {
-                type: DrawingType.LONG_POSITION,
+                type: DrawingType.SHORT_POSITION,
                 time,
                 price,
                 stopColor: '#F23645',
@@ -58,7 +58,7 @@ class LongPositionTool extends Tool {
         let d4 = point[4].distanceSquare(x, y)
 
         let ctx = canvas.getContext('2d')!
-        drawLongPosition(ctx, point, drawingOption)
+        drawShortPosition(ctx, point, drawingOption)
 
         htmlElement.onmousemove = (event) => {
             let { time, price } = this.getTimeAndPrice(event)
@@ -109,7 +109,7 @@ class LongPositionTool extends Tool {
             }
 
             ctx.clearRect(0, 0, canvas.width, canvas.height)
-            drawLongPosition(ctx, point, drawingOption)
+            drawShortPosition(ctx, point, drawingOption)
         }
 
         htmlElement.onmouseup = (event) => {
@@ -122,7 +122,7 @@ class LongPositionTool extends Tool {
             })
 
             this.addToChart(drawingManager, {
-                type: DrawingType.LONG_POSITION,
+                type: DrawingType.SHORT_POSITION,
                 point: pointObj,
                 stopColor: '#F23645',
                 stopOpacity: 0.2,
@@ -137,4 +137,4 @@ class LongPositionTool extends Tool {
     }
 }
 
-export { LongPositionTool }
+export { ShortPositionTool }

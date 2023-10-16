@@ -103,6 +103,7 @@ abstract class Tool {
     }
 
     public removeChartListener(): void {
+        console.log('ssusjh')
         this.unselect()
         this.chartFrameManager.deactivateAllFrameInteraction()
         this.chartFrameManager.getAllChartFrame().forEach(chartFrame => {

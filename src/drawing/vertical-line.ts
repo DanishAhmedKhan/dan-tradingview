@@ -6,6 +6,7 @@ import { Point } from "./point"
 
 type VeriticalLineOptions = Options & {
     time: number,
+    x: number,
     color: string,
     lineWidth: number,
 }
@@ -16,7 +17,7 @@ class VerticalLine extends Drawing<VeriticalLineOptions> {
     constructor(tool: Tool, options: VeriticalLineOptions, drawingManager: DrawingManager) {
         super(tool, options, drawingManager, [])
         this.point = [
-            new Point(this.options.time, null, drawingManager.chartReference),
+            new Point(this.options.time, null, drawingManager.chartReference, false),
         ]
     }
 
@@ -44,10 +45,6 @@ class VerticalLine extends Drawing<VeriticalLineOptions> {
 
         return x >= xPosition - hitTestThreshold &&
             x <= xPosition + hitTestThreshold
-    }
-
-    public override editPoint(): void {
-        console.log('ss')
     }
 }
 

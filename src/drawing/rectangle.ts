@@ -1,7 +1,7 @@
 import { Drawing, Options } from "./drawing"
 import { Point } from "./point"
 import { DrawingManager } from "./drawing-manager"
-import { drawCirulareHandle, fillPolyon, strokePolyon } from "../helper/canvas"
+import { drawCirularHandle, fillPolyon } from "../helper/canvas"
 import { Tool } from "../tool/Tool"
 
 type RectangleOptions = Options & {
@@ -23,7 +23,6 @@ class Rectangle extends Drawing<RectangleOptions> {
         super(tool, options, drawingManager, [])
 
         let chartReference = drawingManager.chartReference
-        console.log(chartReference)
         this.point = [
             new Point(options.startTime, options.startPrice, chartReference),
             new Point(options.endTime, options.startPrice, chartReference),
@@ -58,7 +57,7 @@ class Rectangle extends Drawing<RectangleOptions> {
 
     public override paintHover(ctx: any, bitmapSize: any) {
         for (let i = 0; i < this.point.length; ++i) {
-            drawCirulareHandle(ctx, this.point[i], this.hoverOption)
+            drawCirularHandle(ctx, this.point[i], this.hoverOption)
         }
     }
 
@@ -96,17 +95,13 @@ class Rectangle extends Drawing<RectangleOptions> {
             } else if (d4 < 25) {
                 this.hoveredCursorStyle = 'nwse-resize'
             } else {
-                this.hoveredCursorStyle = 'default'
+                this.hoveredCursorStyle = 'pointer'
             }
         } else {
             this.hoveredCursorStyle = 'default'
         }
 
         return hover
-    }
-
-    public override editPoint(): void {
-        console.log('ss')
     }
 }
 

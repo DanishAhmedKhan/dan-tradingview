@@ -7,7 +7,8 @@ import { drawHorizontalLine } from "../helper/canvas"
 import { Point } from "../drawing/point"
 
 type HorizontalLineData = {
-    price: number,
+    // price: number,
+    y: number,
     color: string,
     id?: string,
     lineWidth?: number,
@@ -30,9 +31,11 @@ class HorizontalLineTool extends Tool {
             event.stopPropagation()
 
             let { price } = this.getTimeAndPrice(event)
+            let { x, y } = this.getPoint(event)
 
             this.addToChart(drawingManager, {
                 type: DrawingType.HORIZONTAL_LINE,
+                y,
                 price,
                 color: 'rgba(0, 0, 0)',
                 opacity: 1,
@@ -59,7 +62,8 @@ class HorizontalLineTool extends Tool {
 
         htmlElement.onmousemove = (event) => {
             let { price } = this.getTimeAndPrice(event)
-            point[0] = new Point(null, price, drawingManager.chartReference)
+            let { x, y } = this.getPoint(event)
+            point[0] = new Point(null, y, drawingManager.chartReference, true)
             ctx.clearRect(0, 0, canvas.width, canvas.height)
             drawHorizontalLine(ctx, point[0], drawingOption, bitmapSize)
         }
@@ -69,9 +73,11 @@ class HorizontalLineTool extends Tool {
             htmlElement.onmouseup = null
 
             let { price } = this.getTimeAndPrice(event)
+            let { x, y } = this.getPoint(event)
 
             this.addToChart(drawingManager, {
                 type: DrawingType.HORIZONTAL_LINE,
+                y,
                 price,
                 color: 'rgba(0, 0, 0)',
                 opacity: 1,
