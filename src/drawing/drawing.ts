@@ -20,6 +20,7 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
     protected options: RendererDataType
     protected widget: Array<Widget>
 
+    protected layer: number = -1
     protected point: Array<Point> = []
     protected minX: number = 0
     protected maxX: number = 0

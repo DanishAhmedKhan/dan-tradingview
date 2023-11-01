@@ -70,10 +70,6 @@ class TerendLine extends Drawing<TrendLineOptions> {
         const distanceSquared = (x - closestX) ** 2 + (y - closestY) ** 2
         return distanceSquared <= threshold ** 2
     }
-
-    public override editPoint(): void {
-        console.log('ss')
-    }
 }
 
 export { TrendLineOptions, TerendLine }

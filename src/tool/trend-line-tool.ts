@@ -4,6 +4,8 @@ import { DrawingType } from "../drawing/drawing-type"
 import { DrawingManager } from "../drawing/drawing-manager"
 import { ChartFrame } from "../ChartFrame"
 import { Point } from "../drawing/point"
+import { drawLine } from "../helper/canvas"
+import { Color } from "../helper/color"
 
 class TrendLineTool extends Tool {
 
@@ -18,9 +20,18 @@ class TrendLineTool extends Tool {
         let startTime: number, startPrice: number
         let startX: number, startY: number, endX: number, endY: number
         let isMouseDown = false
-        let isShiftPressed = false;
+        let isShiftPressed = false
+        let mousePosition: any
+
+        const setMousePosition = (event: any) => {
+            mousePosition = {
+                x: event.clientX,
+                y: event.clientY,
+            }
+        }
 
         const mouseDownHandle = (event: any) => {
+            setMousePosition(event)
             let { time, price } = this.getTimeAndPrice(event)
             let { x, y } = this.getPoint(event)
 
@@ -40,6 +51,8 @@ class TrendLineTool extends Tool {
             event.preventDefault()
             event.stopPropagation()
 
+            setMousePosition(event)
+
             if (isMouseDown) {
                 htmlElement.onmousedown = null
                 htmlElement.onmouseup = mouceUpHandle
@@ -50,8 +63,8 @@ class TrendLineTool extends Tool {
             endY = y
 
             if (isShiftPressed) {
-                const deltaX = Math.abs(endX - startX);
-                const deltaY = Math.abs(endY - startY);
+                const deltaX = Math.abs(endX - startX)
+                const deltaY = Math.abs(endY - startY)
 
                 if (deltaX > deltaY) {
                     endY = startY
@@ -69,9 +82,29 @@ class TrendLineTool extends Tool {
             ctx.stroke()
         }
 
+        const triggerMouseMoveEvent = () => {
+            const event = new MouseEvent('mousemove', {
+                bubbles: true,
+                cancelable: true,
+                view: window,
+                clientX: mousePosition.x,
+                clientY: mousePosition.y,
+            })
+
+            htmlElement.dispatchEvent(event)
+        }
+
         const shiftKeyHandle = (event: any) => {
-            if (event.shiftKey) {
-                isShiftPressed = true;
+            if (event.shiftKey && !isShiftPressed) {
+                isShiftPressed = true
+                triggerMouseMoveEvent()
+            }
+        }
+
+        document.onkeyup = (event: any) => {
+            if (!event.shiftKey && isShiftPressed) {
+                isShiftPressed = false
+                triggerMouseMoveEvent()
             }
         }
 
@@ -92,7 +125,7 @@ class TrendLineTool extends Tool {
                 startPrice,
                 endTime,
                 endPrice,
-                color: '#000000',
+                color: Color.BLACK,
                 lineWidth: 1,
             })
 
@@ -105,7 +138,131 @@ class TrendLineTool extends Tool {
         htmlElement.onmousedown = mouseDownHandle
     }
 
-    public editTool(chartFrame: ChartFrame, drawingManager: DrawingManager, point: Array<Point>, drawingOption: any): void {
+    public editTool(chartFrame: ChartFrame, drawingManager: DrawingManager, point: Array<Point>, drawingOption: any, mouseEvent: any): void {
+        let htmlElement = chartFrame.chartInteractionWrapperHtmlElement
+        let chartReference = drawingManager.chartReference
+
+        drawingOption = {
+            ...drawingOption,
+            color: drawingOption.fillColor,
+            opacity: drawingOption.fillOpacity,
+        }
+
+        let canvas = chartFrame.drawingPrerenderHtmlElement
+        canvas.width = chartFrame.chartInteractionWrapperHtmlElement.offsetWidth
+        canvas.height = chartFrame.chartInteractionWrapperHtmlElement.offsetHeight
+
+        let ctx = canvas.getContext('2d')!
+        drawLine(ctx, point[0], point[1], drawingOption)
+
+        let { x, y } = this.getPoint(mouseEvent)
+        let isShiftPressed = false
+        let mousePosition: any
+
+        let d1 = point[0].distance(x, y)
+        let d2 = point[1].distance(x, y)
+        console.log(d1, d2)
+
+        const triggerMouseMoveEvent = () => {
+            const event = new MouseEvent('mousemove', {
+                bubbles: true,
+                cancelable: true,
+                view: window,
+                clientX: mousePosition.x,
+                clientY: mousePosition.y,
+            })
+
+            htmlElement.dispatchEvent(event)
+        }
+
+        document.onkeydown = (event: any) => {
+            if (event.shiftKey && !isShiftPressed) {
+                isShiftPressed = true
+                triggerMouseMoveEvent()
+            }
+        }
+
+        document.onkeyup = (event: any) => {
+            if (!event.shiftKey && isShiftPressed) {
+                isShiftPressed = false
+                triggerMouseMoveEvent()
+            }
+        }
+
+        const setMousePosition = (event: any) => {
+            mousePosition = {
+                x: event.clientX,
+                y: event.clientY,
+            }
+        }
+
+        htmlElement.onmousemove = (event) => {
+            setMousePosition(event)
+
+            let { x, y } = this.getPoint(event)
+            let { time, price } = this.getTimeAndPrice(event)
+            let newPoint: Point
+
+            if (isShiftPressed) {
+                let endX = x
+                let endY = y
+                let deltaX, deltaY
+                let startX, startY
+
+                if (d2 < 6) {
+                    let p = point[0].get()
+                    startX = p.x
+                    startY = p.y
+
+                    deltaX = Math.abs(point[0].getX()! - x)!
+                    deltaY = Math.abs(point[0].getY()! - y)!
+                } else if (d1 < 6) {
+                    let p = point[1].get()
+                    startX = p.x
+                    startY = p.y
+
+                    deltaX = Math.abs(point[1].getX()! - x)!
+                    deltaY = Math.abs(point[1].getY()! - y)!
+                }
+
+                if (deltaX! > deltaY!) {
+                    endY = startY!
+                } else {
+                    endX = startX!
+                }
+
+                newPoint = new Point(endX, endY, chartReference, true)
+            } else {
+                newPoint = new Point(time, price, chartReference)
+            }
+
+            if (d1 < 6) {
+                point[0] = newPoint!
+            } else if (d2 < 6) {
+                point[1] = newPoint!
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
+            drawLine(ctx, point[0], point[1], drawingOption)
+        }
+
+        htmlElement.onmouseup = (event: any) => {
+            htmlElement.onmousemove = null
+            htmlElement.onmouseup = null
+
+            this.addToChart(drawingManager, {
+                type: DrawingType.TREND_LINE,
+                startTime: point[0].getTime(),
+                startPrice: point[0].getPrice(),
+                endTime: point[1].getTime(),
+                endPrice: point[1].getPrice(),
+                color: Color.BLACK,
+                lineWidth: 1,
+            })
+
+            chartFrame.chartInteractionWrapperHtmlElement.style.display = 'none'
+            chartFrame.getChart().enableScroll()
+        }
 
     }
 }

@@ -3,7 +3,7 @@ from forex_data import download_forex
 print('''
 Welcome to MentFX_Backtest. Here you can download the forrex pair data.
 
-Forex pairs available to download are:
+Forex pairs available for download are:
 AUDCAD, AUDCHF, AUDJPY, AUDNZD, CADCHF, EURAUD, EURCHF, EURGBP,
 EURJPY, EURUSD, GBPCHF, GBPJPY, GBPNZD, GBPUSD, GBPCHF, GBPJPY,
 GBPNZD, NZDCAD, NZDCHF, NZDJPY, NZDUSD, USDCAD, USDCHF, USDJPY
