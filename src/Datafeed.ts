@@ -37,7 +37,7 @@ type LoadedFilename = {
 }
 
 type Edge = {
-    left: number, 
+    left: number,
     right: number,
 }
 
@@ -88,13 +88,13 @@ class Datafeed {
         if (timeframe.getUnit() === TimeframeUnit.DAY) {
             return this.data[tk].ALL[tf]
         }
-        
+
         let data: Array<CandleData> = []
         if (this.data.hasOwnProperty(tk) && this.data[tk].hasOwnProperty(date)) {
             let left = this.filenameEdge[tk][timeUnit].left
             let right = this.filenameEdge[tk][timeUnit].right
 
-            for (let i = left; i <= right;  i++) {
+            for (let i = left; i <= right; i++) {
                 let filename = this.dateFilename[i]
                 data = this.data[tk][filename][tf].concat(data)
             }
@@ -115,8 +115,8 @@ class Datafeed {
                 f.replace(/(\r\n|\n|\r)/gm, "")
             )
             this.dateFilename.reverse()
-        } catch(e) {
-            throw Error('Dates.csv not found in data folder')
+        } catch (e) {
+            throw Error('dates.csv not found in data folder')
         }
     }
 
@@ -217,7 +217,7 @@ class Datafeed {
 
         await this.loadFileFromInterval(ticker, date, TimeframeUnit.MINUTE)
         await this.loadFileFromInterval(ticker, date, TimeframeUnit.HOUR)
-        
+
         let dayFilename = 'ALL'
         if (!this.loadedFilename[tk].D.includes(dayFilename)) {
             await this.loadDataTimeframe(ticker, dayFilename, TimeframeUnit.DAY)

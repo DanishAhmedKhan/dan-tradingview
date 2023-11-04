@@ -1,4 +1,4 @@
-from forex_data import download_forex
+from forex_data import download_forex, download_from_tradingview
 
 print('''
 Welcome to MentFX_Backtest. Here you can download the forrex pair data.
@@ -79,4 +79,5 @@ while True:
         starting_year = int(option)
         break
 
+# download_from_tradingview('EURUSD')
 download_forex(ticker, starting_year)

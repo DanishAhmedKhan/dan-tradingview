@@ -115,6 +115,38 @@ export function drawLine(ctx: any, point1: Point, point2: Point, options: any) {
     ctx.stroke()
 }
 
+export function drawText(ctx: any, text: string, pointX: number, pointY: number, width: number, height: number, options: any) {
+    let radius = 6
+    ctx.beginPath()
+    ctx.fillStyle = options.boxColor
+    ctx.roundRect(pointX, pointY, width, height, radius)
+    ctx.fill()
+
+    ctx.font = options.textSize + ' Arial';
+    ctx.fillStyle = options.textColor;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+
+    let textX = pointX + width / 2;
+    let textY = pointY + height / 2 + 1;
+
+    ctx.fillText(text, textX, textY);
+}
+
+export function drawPNLText(ctx: any, text: string, point: Point, pnlWidth: number, boxWidth: number, options: any, shiftDown: boolean = true) {
+    let boxHeight = 26
+    let boxX = point.getX()! + pnlWidth / 2 - boxWidth / 2
+    let boxY
+
+    if (pnlWidth < boxWidth + 20) {
+        boxY = point.getY()! + (shiftDown ? 10 : -36)
+    } else {
+        boxY = point.getY()! - boxHeight / 2
+    }
+
+    drawText(ctx, text, boxX, boxY, boxWidth, boxHeight, options)
+}
+
 export function drawLongPosition(ctx: any, point: Array<Point>, options: any) {
     fillPolyon(ctx, [
         point[0],

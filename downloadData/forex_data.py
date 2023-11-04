@@ -35,9 +35,9 @@ def save_data(tempdata, type, ticker, outname):
     outdir = Path('./data/' + ticker + '/' + type)
     fullname = os.path.join(outdir, outname)
 
-    if not os.path.isfile(fullname):
+    if type == 'D' or not os.path.isfile(fullname):
         outdir.mkdir(parents=True, exist_ok=True)
-        tempdata.to_csv(fullname, header=False, index=False)
+        tempdata.to_csv(fullname, header=False, index=True)
 
 
 def save_data_MH(tempdata, type, ticker, year, week):
@@ -81,13 +81,14 @@ def download_data(ticker, year, week):
 
 
 def save_valid_filenames(ticker):
+    print('valid')
     outdir = Path('./data')
     outdir.mkdir(parents=True, exist_ok=True)
     fullname = os.path.join(outdir, 'dates.csv')
 
-    if not os.path.isfile(fullname):
-        pd.DataFrame(valid_filename).to_csv(
-            fullname, header=False, index=False)
+    # if not os.path.isfile(fullname):
+    pd.DataFrame(valid_filename).to_csv(
+        fullname, header=False, index=False)
 
 
 def download_from_fxcm(ticker):
@@ -95,6 +96,7 @@ def download_from_fxcm(ticker):
         for w in range(1, 54):
             if not (y == year and w > week_num):
                 download_data(ticker, y, w)
+
     save_valid_filenames(ticker)
 
 
@@ -103,7 +105,6 @@ def download_from_tradingview(ticker):
                               interval=Interval.in_daily, n_bars=1000)
     df = df.drop('symbol', axis=1)
     save_data(df, 'D', ticker, 'ALL.csv')
-    print(df)
 
 
 def download_forex(tk, sy):

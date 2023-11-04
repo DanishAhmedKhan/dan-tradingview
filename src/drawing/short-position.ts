@@ -1,8 +1,9 @@
 import { Drawing, Options } from "./drawing"
 import { Point } from "./point"
 import { DrawingManager } from "./drawing-manager"
-import { drawBoxHandle, drawCirularHandle, drawShortPosition } from "../helper/canvas"
+import { drawBoxHandle, drawCirularHandle, drawPNLText, drawShortPosition } from "../helper/canvas"
 import { Tool } from "../tool/Tool"
+import { Color } from "../helper/color"
 
 type ShortPositionOptions = Options & {
     x: number,
@@ -65,6 +66,32 @@ class ShortPosition extends Drawing<ShortPositionOptions> {
         drawBoxHandle(ctx, this.point[1], this.hoverOption)
         drawBoxHandle(ctx, this.point[2], this.hoverOption)
         drawBoxHandle(ctx, this.point[4], this.hoverOption)
+
+        let options = {
+            textColor: Color.WHITE,
+            textSize: '11px',
+        }
+
+        let target = +(this.point[0].getPrice()! - this.point[4].getPrice()!).toFixed(5)
+        let risk = +(this.point[2].getPrice()! - this.point[0].getPrice()!).toFixed(5)
+        let targetPip = (target * 10000).toFixed(2)
+        let riskPip = (risk * 10000).toFixed(2)
+        let rr = (target / risk).toFixed(2)
+
+        let width = this.point[1].getX()! - this.point[0].getX()!
+
+        drawPNLText(ctx, 'Risk/Reward Ratio: ' + rr, this.point[0], width, 150, {
+            ...options,
+            boxColor: '#333',
+        }, false)
+        drawPNLText(ctx, `Risk: ${target} (${targetPip})`, this.point[2], width, 140, {
+            ...options,
+            boxColor: '#F23645',
+        }, false)
+        drawPNLText(ctx, `Target: ${risk} (${riskPip})`, this.point[4], width, 140, {
+            ...options,
+            boxColor: '#089981',
+        }, true)
     }
 
     public override isHover(x: number, y: number): boolean {
