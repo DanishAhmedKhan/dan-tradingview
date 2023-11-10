@@ -3,18 +3,17 @@ import { svg } from '../helper/svg'
 import { DrawingType } from "../drawing/drawing-type"
 import { DrawingManager } from "../drawing/drawing-manager"
 import { ChartFrame } from "../ChartFrame"
-import { Color } from "../helper/color"
+import { Color, hexToRgba } from "../helper/color"
 import { Point } from "../drawing/point"
-import { fillPolyon } from "../helper/canvas"
-import { getId } from "../helper/util"
+import { drawDownArrow, fillPolyon } from "../helper/canvas"
 
-class RectangleTool extends Tool {
+class PriceRangeTool extends Tool {
 
-    public readonly TOOL_CLASS = 'tool_rectangle'
-    public readonly KEY = 'rectangle'
+    public readonly TOOL_CLASS = 'tool_price_range'
+    public readonly KEY = 'priceRange'
     public readonly toolData = {
-        svg: svg.rectangle,
-        name: 'Rectangle',
+        svg: svg.priceRange,
+        name: 'Price Range',
     }
 
     public handleChartEvent(chartFrame: ChartFrame, htmlElement: HTMLElement, drawingManager: DrawingManager): void {
@@ -51,13 +50,34 @@ class RectangleTool extends Tool {
             const width = endX - startX;
             const height = endY - startY;
 
-            ctx.beginPath()
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'
             ctx.clearRect(0, 0, canvas.width, canvas.height)
+            ctx.beginPath()
+            ctx.fillStyle = hexToRgba('#2962FF', 0.15)
             ctx.fillRect(startX, startY, width, height)
-            ctx.strokeStyle = 'rgba(0, 0, 0, 1)'
-            ctx.lineWidth = 1
-            // ctx.strokeRect(startX, startY, width, height)
+
+            let arrowStartX = (startX + endX) / 2
+            let arrowStartY = startY
+            let length = height
+
+            let lineOption = {
+                color: '#2962FF',
+                lineWidth: 2,
+            }
+
+            drawDownArrow(ctx, arrowStartX, arrowStartY, length, lineOption)
+
+            ctx.strokeStyle = '#2962FF'
+            ctx.lineWidth = 2
+
+            ctx.beginPath()
+            ctx.moveTo(startX, startY)
+            ctx.lineTo(endX, startY)
+            ctx.stroke()
+
+            ctx.beginPath()
+            ctx.moveTo(startX, endY)
+            ctx.lineTo(endX, endY)
+            ctx.stroke()
         }
 
         const mouceUpHandle = (event: any) => {
@@ -84,17 +104,14 @@ class RectangleTool extends Tool {
             }
 
             this.addToChart(drawingManager, {
-                id: getId(),
-                type: DrawingType.RECTANGLE,
+                type: DrawingType.PRICE_RANGE,
                 startTime: minTime,
                 startPrice: minPrice,
                 endTime: maxTime,
                 endPrice: maxPrice,
-                fillColor: Color.BLACK,
-                fillOpacity: 0.1,
-                borderColor: Color.BLACK,
-                borderOpacity: 1,
-                borderWidth: 1,
+                fillColor: '#2962FF',
+                fillOpacity: 0.15,
+                arrowColor: '#2962FF',
             })
 
             htmlElement.onmousemove = null
@@ -192,21 +209,21 @@ class RectangleTool extends Tool {
 
             let bottomLeft = point.reduce((minPoint, p) => {
                 if (p.getX()! < minPoint.getX()! || (p.getX() === minPoint.getX() && p.getY()! > minPoint.getY()!)) {
-                    return p
+                    return p;
                 }
-                return minPoint
+                return minPoint;
             });
 
-            let anticlockwisePoint: any = [bottomLeft, null, null, null]
+            let anticlockwisePoint: any = [bottomLeft, null, null, null];
 
             for (let i = 0; i < point.length; i++) {
                 if (point[i].getX() !== bottomLeft.getX() || point[i].getY() !== bottomLeft.getY()) {
                     if (point[i].getX() === bottomLeft.getX()) {
-                        anticlockwisePoint[3] = point[i]
+                        anticlockwisePoint[3] = point[i];
                     } else if (point[i].getY()! < bottomLeft.getY()!) {
-                        anticlockwisePoint[2] = point[i]
+                        anticlockwisePoint[2] = point[i];
                     } else {
-                        anticlockwisePoint[1] = point[i]
+                        anticlockwisePoint[1] = point[i];
                     }
                 }
             }
@@ -214,17 +231,14 @@ class RectangleTool extends Tool {
             point = anticlockwisePoint
 
             this.addToChart(drawingManager, {
-                id: drawingOption.id,
-                type: DrawingType.RECTANGLE,
+                type: DrawingType.PRICE_RANGE,
                 startTime: point[0].getTime(),
                 startPrice: point[0].getPrice(),
                 endTime: point[2].getTime(),
                 endPrice: point[2].getPrice(),
-                fillColor: Color.BLACK,
-                fillOpacity: 0.1,
-                borderColor: Color.BLACK,
-                borderOpacity: 1,
-                borderWidth: 1,
+                fillColor: '#2962FF',
+                fillOpacity: 0.15,
+                arrowColor: '#2962FF',
             })
 
             chartFrame.chartInteractionWrapperHtmlElement.style.display = 'none'
@@ -233,4 +247,4 @@ class RectangleTool extends Tool {
     }
 }
 
-export { RectangleTool }
+export { PriceRangeTool }

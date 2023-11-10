@@ -47,7 +47,6 @@ abstract class Drawing<RendererDataType extends Options> implements Drawable {
             name: 'Delete',
             svg: svg.delete,
             callback: () => {
-                console.log('remove')
                 tool.removeFromChart(drawingManager, this)
                 drawingManager.toolbarManager.drawingToolbar.hide()
             }

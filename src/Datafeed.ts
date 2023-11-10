@@ -197,12 +197,8 @@ class Datafeed {
 
     async loadData(ticker: Ticker, date: string) {
         await this.loadYearWeekFilename()
-        if (!date || date === '')
+        if (!date || date === '' || !this.dateFilename.includes(date))
             date = this.dateFilename[0]
-
-        if (!this.dateFilename.includes(date)) {
-            throw new Error('date is not valid')
-        }
 
         let tk = ticker.getTicker()
         let firstLoad = false
@@ -351,4 +347,4 @@ class Datafeed {
     }
 }
 
-export { Datafeed }
+export { Datafeed, CandleData }

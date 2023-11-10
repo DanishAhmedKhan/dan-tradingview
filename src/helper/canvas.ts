@@ -117,10 +117,18 @@ export function drawLine(ctx: any, point1: Point, point2: Point, options: any) {
 
 export function drawText(ctx: any, text: string, pointX: number, pointY: number, width: number, height: number, options: any) {
     let radius = 6
+    ctx.save()
     ctx.beginPath()
     ctx.fillStyle = options.boxColor
+    if (options.shadow) {
+        ctx.shadowBlur = 6
+        ctx.shadowColor = "rgba(0, 0, 0, 0.25)"
+        ctx.shadowOffsetX = 0
+        ctx.shadowOffsetY = 0
+    }
     ctx.roundRect(pointX, pointY, width, height, radius)
     ctx.fill()
+    ctx.restore()
 
     ctx.font = options.textSize + ' Arial';
     ctx.fillStyle = options.textColor;
@@ -145,6 +153,26 @@ export function drawPNLText(ctx: any, text: string, point: Point, pnlWidth: numb
     }
 
     drawText(ctx, text, boxX, boxY, boxWidth, boxHeight, options)
+}
+
+export function drawDownArrow(ctx: any, startX: number, startY: number, length: number, options: any) {
+    ctx.strokeStyle = options.color || '#000'
+    ctx.lineWidth = options.lineWidth || 2
+
+    ctx.beginPath()
+    ctx.moveTo(startX, startY)
+    ctx.lineTo(startX, startY + length)
+    ctx.stroke()
+
+    ctx.beginPath()
+    ctx.moveTo(startX - 10, startY + length - 10)
+    ctx.lineTo(startX, startY + length)
+    ctx.stroke()
+
+    ctx.beginPath()
+    ctx.moveTo(startX, startY + length)
+    ctx.lineTo(startX + 10, startY + length - 10)
+    ctx.stroke()
 }
 
 export function drawLongPosition(ctx: any, point: Array<Point>, options: any) {
@@ -201,4 +229,24 @@ export function drawShortPosition(ctx: any, point: Array<Point>, options: any) {
     drawLine(ctx, point[0], point[1], {
         color: options.lineColor,
     })
+}
+
+export function drawPriceRange(ctx: any, point: Array<Point>, options: any) {
+    fillPolyon(ctx, point, {
+        ...options,
+        color: options.fillColor,
+        opacity: options.fillOpacity,
+    })
+    let startX = (point[0].getX()! + point[1].getX()!) / 2
+    let startY = point[2].getY()!
+    let length = point[0].getY()! - point[2].getY()!
+
+    let lineOption = {
+        color: options.arrowColor,
+        lineWidth: 2,
+    }
+
+    drawDownArrow(ctx, startX, startY, length, lineOption)
+    drawLine(ctx, point[0], point[1], lineOption)
+    drawLine(ctx, point[2], point[3], lineOption)
 }

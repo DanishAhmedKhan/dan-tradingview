@@ -103,7 +103,6 @@ abstract class Tool {
     }
 
     public removeChartListener(): void {
-        console.log('ssusjh')
         this.unselect()
         this.chartFrameManager.deactivateAllFrameInteraction()
         this.chartFrameManager.getAllChartFrame().forEach(chartFrame => {
@@ -170,19 +169,28 @@ abstract class Tool {
     public addToChart(
         drawingManager: DrawingManager,
         toolData: any,
-        shouldUpdtaeData: boolean = true
+        shouldUpdtaeData: boolean = true,
+        shouldSendData: boolean = true,
     ): void {
         if (shouldUpdtaeData) {
             this.getTickerStorage().addData(this.KEY, toolData)
         }
 
         drawingManager.add(toolData)
+
+        if (shouldSendData && drawingManager.getIsDrawingInitialized()) {
+            drawingManager.broadcast.postMessage({
+                action: 'ADD',
+                toolData,
+            })
+        }
     }
 
     public removeFromChart(
         drawingManager: DrawingManager,
         toolData: any,
-        shouldUpdtaeData: boolean = true
+        shouldUpdtaeData: boolean = true,
+        shouldSendData: boolean = true,
     ): void {
         if (shouldUpdtaeData) {
             if (toolData instanceof Drawing) {
@@ -193,11 +201,18 @@ abstract class Tool {
         }
 
         if (toolData instanceof Drawing) {
-            console.log('instance')
             drawingManager.remove(toolData)
+            toolData = toolData.getOptions()
         } else {
             let drawing = drawingManager.getDrawing(toolData)
             drawingManager.remove(drawing)
+        }
+
+        if (shouldSendData && drawingManager.getIsDrawingInitialized()) {
+            drawingManager.broadcast.postMessage({
+                action: 'REMOVE',
+                toolData,
+            })
         }
     }
 

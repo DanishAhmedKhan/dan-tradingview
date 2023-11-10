@@ -8,6 +8,7 @@ import { ToolManager } from "../tool/ToolManager"
 import { ToolbarManager } from "./toolbar-manager"
 import { LongPosition } from "./long-position"
 import { ShortPosition } from "./short-position"
+import { PriceRange } from "./price-range"
 
 class DrawingManager {
     public chartReference: any | null = null
@@ -17,10 +18,40 @@ class DrawingManager {
     public toolbarManager: ToolbarManager
 
     private hoveredDrawing: Drawable | null = null
+    private isDrawingInitialized: boolean = false
+
+    public broadcast = new BroadcastChannel('drawing_channel')
 
     constructor(toolManager: ToolManager, toolbarManager: ToolbarManager) {
         this.toolManager = toolManager
         this.toolbarManager = toolbarManager
+
+        this.handleDrawingMessage()
+    }
+
+    public handleDrawingMessage(): void {
+        this.broadcast.onmessage = (message) => {
+            let data = message.data
+            let action = data.action
+
+            if (action === 'ADD') {
+                let toolData = data.toolData
+                this.removeById(toolData.id)
+                this.add(toolData)
+            } else if (action === 'REMOVE') {
+                this.removeById(data.toolData.id)
+            }
+
+            this.toolbarManager.drawingToolbar.hide()
+        }
+    }
+
+    public getIsDrawingInitialized(): boolean {
+        return this.isDrawingInitialized
+    }
+
+    public setIsDrawingInitialized(isDrawingInitialized: boolean): void {
+        this.isDrawingInitialized = isDrawingInitialized
     }
 
     public getDrawing(toolData: any): Drawable {
@@ -40,8 +71,6 @@ class DrawingManager {
 
         if (!options.id) options.id = String(+new Date())
         if (!options.visible) options.visible = true
-
-        // if (!options.type) throw Error('options must have a type property')
 
         let allTool = this.toolManager.getAllTool()
 
@@ -64,6 +93,9 @@ class DrawingManager {
             case DrawingType.SHORT_POSITION:
                 drawing = new ShortPosition(allTool[5], options, this)
                 break
+            case DrawingType.PRICE_RANGE:
+                drawing = new PriceRange(allTool[6], options, this)
+                break
             default:
                 throw Error('Drawing not found of type')
         }
@@ -79,6 +111,17 @@ class DrawingManager {
             this.drawings.splice(index, 1)
             this.chartReference.requestUpdate()
 
+        }
+    }
+
+    public removeById(id: string): void {
+        let drawing = this.drawings.find(d => d.getOptions().id == id)
+        if (drawing) {
+            const index = this.drawings.indexOf(drawing)
+            if (index >= 0) {
+                this.drawings.splice(index, 1)
+                this.chartReference.requestUpdate()
+            }
         }
     }
 

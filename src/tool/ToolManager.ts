@@ -7,6 +7,7 @@ import { VerticalLineTool } from "./vertical-line-tool"
 import { TrendLineTool } from "./trend-line-tool"
 import { LongPositionTool } from "./long-position-tool"
 import { ShortPositionTool } from "./short-position-tool"
+import { PriceRangeTool } from "./price-range-tool"
 
 class ToolManager {
 
@@ -31,6 +32,7 @@ class ToolManager {
             new RectangleTool(toolParam),
             new LongPositionTool(toolParam),
             new ShortPositionTool(toolParam),
+            new PriceRangeTool(toolParam),
         ]
     }
 

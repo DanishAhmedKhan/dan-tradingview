@@ -1,4 +1,5 @@
 import { ChartFrame } from "./ChartFrame"
+import { Calendar } from "./calendar"
 import { Datafeed } from "./datafeed"
 import { ToolbarManager } from "./drawing/toolbar-manager"
 import { ToolManager } from "./tool/ToolManager"
@@ -15,7 +16,7 @@ class ChartFrameManager {
     private toolbarManager: ToolbarManager
 
     constructor(
-        chartMainHtmlElement: HTMLElement, 
+        chartMainHtmlElement: HTMLElement,
         datafeed: Datafeed,
         toolbarManager: ToolbarManager
     ) {
@@ -36,7 +37,7 @@ class ChartFrameManager {
         return this.activeChartFrame!
     }
 
-    public addChartFrame(): ChartFrame {
+    public addChartFrame(calendar: Calendar): ChartFrame {
         let chartFrame = new ChartFrame(
             this.chartMainHtmlElement.querySelector(".chart_main_frames")! as HTMLElement,
             this.datafeed,
@@ -46,7 +47,15 @@ class ChartFrameManager {
         )
         this.activeChartFrame = chartFrame
         this.chartFrame.push(chartFrame)
-        chartFrame.displayChart()
+
+
+        // chartFrame.displayChart()
+        setTimeout(() => {
+
+            calendar.setChartDate(null, false)
+            calendar.setChartDate()
+        }, 0)
+
         // chartFrame.displayDrawing()
 
         this.addActiveListener()
@@ -59,7 +68,7 @@ class ChartFrameManager {
 
     public addActiveListener(): void {
         let chartFrameHtmlElements = this.chartMainHtmlElement.querySelectorAll('.chart_frame_wrapper')!
-        
+
         chartFrameHtmlElements.forEach(chartFrameHtmlElement => {
             chartFrameHtmlElement.addEventListener('click', e => {
                 let frameIndex = Number(chartFrameHtmlElement.getAttribute('data-frame-index'))

@@ -13,14 +13,13 @@ class TimeframeHtml {
     constructor(chartMain: ChartMain) {
         this.chartMain = chartMain
         this.chartMainHtmlElement = this.chartMain.getChartMainHtmlElement()
-       
     }
 
     public addHtml(containerHtmlElement: HTMLElement): void {
         let chartFrame = this.chartMain.getChartFrameManager().getActiveChartFrame()
 
         let timeframeHtml = Timeframe.ALL_TIMEFRAME.reduce((acc, timeframe) => {
-            let selectedClass =  ""
+            let selectedClass = ""
 
             let timeframeStr = timeframe.getTimeframeString()
             let unit = timeframe.getUnit()
@@ -48,7 +47,7 @@ class TimeframeHtml {
     public addChangeListener(): void {
         let chartFrame = this.chartMain.getChartFrameManager().getActiveChartFrame()
 
-        let timeframeItemHtmlElements = 
+        let timeframeItemHtmlElements =
             this.chartMainHtmlElement.querySelectorAll(`.header .${this.TIMEFRAME_ITEM}`)
 
         timeframeItemHtmlElements.forEach((timeframeItemHtmlElement) => {
@@ -61,7 +60,7 @@ class TimeframeHtml {
                 let unit: string = timeframeItemHtmlElement.getAttribute("data-unit")!
                 let value: string = timeframeItemHtmlElement.getAttribute("data-value")!
                 let timeframe = new Timeframe(
-                    <TimeframeUnit>unit, 
+                    <TimeframeUnit>unit,
                     Number(value)
                 )
                 chartFrame.setTimeframe(timeframe)

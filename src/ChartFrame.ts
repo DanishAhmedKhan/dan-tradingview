@@ -1,6 +1,6 @@
 import { Ticker } from './Ticker'
 import { Timeframe, TimeframeUnit } from './Timeframe'
-import { Datafeed } from './datafeed'
+import { CandleData, Datafeed } from './datafeed'
 import { Chart } from './Chart'
 import { ToolManager } from './tool/ToolManager'
 import { DrawingManager } from './drawing/drawing-manager'
@@ -22,6 +22,7 @@ class ChartFrame {
     private datafeed: Datafeed
     private chart: Chart
     private date: string
+    private data: Array<CandleData> = []
 
     public readonly chartFrameHtmlElement: HTMLElement
     public readonly drawingPrerenderHtmlElement: HTMLCanvasElement
@@ -158,13 +159,18 @@ class ChartFrame {
     }
 
     public setTimeframe(timeframe: Timeframe): void {
-        console.log('setTimeframe')
+        let timeScale = this.chart.getLightweightChart().timeScale()
+        let logicalRange = timeScale.getVisibleLogicalRange()
+        let centerCandleIndex = +((logicalRange.from + logicalRange.to) / 2).toFixed(0)
+        let candle = this.data[centerCandleIndex]
+        let timestamp = candle.time
+
         this.chartFrameData.timeframe = timeframe.getTimeframe()
         this.saveChartFrameData()
 
         let shouldDisplayChart: boolean = this.timeframe.getTimeframeString() !== timeframe.getTimeframeString()
         this.timeframe = timeframe
-        if (shouldDisplayChart) this.displayChart()
+        if (shouldDisplayChart) this.displayChart(timestamp)
 
         this.chartHUD.setTimeframe(timeframe)
     }
@@ -228,11 +234,10 @@ class ChartFrame {
     }
 
     public async displayChart(time?: number) {
-
         if (!this.isDataLoaded) {
             let date = await this.datafeed.loadData(this.ticker, this.date)
             if (date != null) this.date = date as string
-            this.isDataLoaded = true
+            this.setIsDataLoaded(true)
         }
         let timeScale = this.chart.getLightweightChart().timeScale()
 
@@ -243,6 +248,7 @@ class ChartFrame {
 
         let data = this.datafeed.getTickerTimeframeData(this.ticker, this.timeframe, this.date)
         this.chart.addDataToCandleSeries(data)
+        this.data = data
 
         if (time) {
             let closestTime = -1
@@ -281,6 +287,9 @@ class ChartFrame {
 
     public displayDrawing(): void {
         this.toolManager.getAllTool().forEach(tool => tool.addAllToChart(this.drawingManager))
+        setTimeout(() => {
+            this.drawingManager.setIsDrawingInitialized(true)
+        }, 1000)
     }
 
     public removeDrawing(): void {

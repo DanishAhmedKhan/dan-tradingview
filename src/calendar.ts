@@ -33,11 +33,16 @@ class Calendar {
             </div>
         `)
 
-        htmlElement.insertAdjacentHTML('beforeend', html)
-        this.calendarLogoHtmlElement = 
-            htmlElement.querySelector('.go_to_date_calendar .logo') as HTMLElement
-        this.calendarHTMLInputElement = 
-            htmlElement.querySelector('.go_to_date_calendar input') as HTMLInputElement
+        this.calendarLogoHtmlElement =
+            htmlElement.querySelector('.go_to_date_calendar .logo')
+
+        if (!this.calendarLogoHtmlElement) {
+            htmlElement.insertAdjacentHTML('beforeend', html)
+            this.calendarLogoHtmlElement =
+                htmlElement.querySelector('.go_to_date_calendar .logo')
+            this.calendarHTMLInputElement =
+                htmlElement.querySelector('.go_to_date_calendar input')
+        }
     }
 
     public addGoToDateCalendarListener(): void {
@@ -48,19 +53,51 @@ class Calendar {
 
         this.calendarHTMLInputElement!.onchange = (event) => {
             let dateValue = this.calendarHTMLInputElement!.value
-            let date = new Date(dateValue)
-            let timestamp = +date / 1000
 
-            let year = new Date(date.getFullYear(), 0, 1)
-            let days = Math.floor((+date - +year) / (24 * 60 * 60 * 1000))
-            let week = Math.ceil((date.getDay() + 1 + days) / 7)
-            let filename = date.getFullYear() + '-' + week
+            let ticker = this.chartFrameManager.getActiveChartFrame().getTicker().getTicker()
+            localStorage.setItem(`date-${ticker}`, dateValue)
 
-            let activeChartFrame = this.chartFrameManager.getActiveChartFrame()
-            activeChartFrame.setIsDataLoaded(false)
-            activeChartFrame.setDate(filename)
-            activeChartFrame.displayChart(timestamp)
+            this.setChartDate(dateValue)
         }
+    }
+
+    public setChartDate(dateValue: string | null = null, isTimestamp: boolean = true): void {
+        if (!dateValue) {
+            let ticker = this.chartFrameManager.getActiveChartFrame().getTicker().getTicker()
+            dateValue = localStorage.getItem(`date-${ticker}`) || ''
+            this.calendarHTMLInputElement!.value = dateValue
+        }
+
+        if (dateValue === '') {
+            var today = new Date();
+            var dd = String(today.getDate()).padStart(2, '0');
+            var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+            var yyyy = today.getFullYear();
+
+            dateValue = yyyy + '-' + mm + '-' + dd
+        }
+
+        console.log(dateValue)
+
+        let date = new Date(dateValue)
+        let timestamp = +date / 1000
+
+        let year = new Date(date.getFullYear(), 0, 1)
+        let days = Math.floor((+date - +year) / (24 * 60 * 60 * 1000))
+        let week = Math.ceil((date.getDay() + 1 + days) / 7)
+        let filename = date.getFullYear() + '-' + week
+
+        console.log(filename)
+
+        let activeChartFrame = this.chartFrameManager.getActiveChartFrame()
+        activeChartFrame.setIsDataLoaded(false)
+        activeChartFrame.setDate(filename)
+        if (isTimestamp) {
+            activeChartFrame.displayChart(timestamp)
+        } else {
+            activeChartFrame.displayChart()
+        }
+
     }
 
 }

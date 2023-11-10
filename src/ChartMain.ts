@@ -7,7 +7,7 @@ import { ToolbarManager } from './drawing/toolbar-manager'
 import { Calendar } from './calendar'
 
 class ChartMain {
-    
+
     private chartFrameManager: ChartFrameManager
     private toolManager: ToolManager
     private toolbarManager: ToolbarManager
@@ -15,11 +15,12 @@ class ChartMain {
     private datafeed: Datafeed
 
     private chartMainHtmlElement: HTMLElement
+    private calendar: Calendar | null = null
 
     constructor(chartMainHtmlElement: HTMLElement | string) {
         this.datafeed = new Datafeed()
 
-        this.chartMainHtmlElement = typeof chartMainHtmlElement === "string" ? 
+        this.chartMainHtmlElement = typeof chartMainHtmlElement === "string" ?
             document.querySelector("." + chartMainHtmlElement)! : chartMainHtmlElement
 
         this.chartMainHtmlElement.innerHTML = (`
@@ -39,7 +40,7 @@ class ChartMain {
                 <div class="chart_main_toolbar_canvas"></div>
             </div>
         `)
-        
+
         this.toolbarManager = new ToolbarManager()
         this.chartFrameManager = new ChartFrameManager(
             this.chartMainHtmlElement,
@@ -48,7 +49,11 @@ class ChartMain {
         )
         this.toolManager = new ToolManager(this.chartFrameManager)
         this.chartFrameManager.setToolManager(this.toolManager)
-        this.chartFrameManager.addChartFrame()
+
+        let headerRightHtmlElement = this.chartMainHtmlElement.querySelector('.header_right')! as HTMLElement
+        this.calendar = new Calendar(headerRightHtmlElement, this.chartFrameManager)
+
+        this.chartFrameManager.addChartFrame(this.calendar!)
 
         this.addChartMainHeaderHtml()
     }
@@ -68,12 +73,13 @@ class ChartMain {
         let headerLeftHtmlElement = this.chartMainHtmlElement.querySelector('.header_left')! as HTMLElement
         let headerRightHtmlElement = this.chartMainHtmlElement.querySelector('.header_right')! as HTMLElement
         let toolWrapperHtmlElement = this.chartMainHtmlElement.querySelector('.chart_tool_wrapper')! as HTMLElement
-        
+
         this.toolManager.addHtml(toolWrapperHtmlElement)
         tickerHtml.addHtml(headerLeftHtmlElement)
         timeframeHtml.addHtml(headerLeftHtmlElement)
 
-        let calendar = new Calendar(headerRightHtmlElement, this.chartFrameManager)
+        // this.calendar = new Calendar(headerRightHtmlElement, this.chartFrameManager)
+
     }
 
     private getChartFrameSelectHtml(): string {
@@ -92,7 +98,7 @@ class ChartMain {
         let cahrtFrameHtmlElements = document.querySelectorAll(".chart_frame_item")
 
         cahrtFrameHtmlElements.forEach((cahrtFrameHtmlElement) => {
-            cahrtFrameHtmlElement.addEventListener("click", (e) => {})
+            cahrtFrameHtmlElement.addEventListener("click", (e) => { })
         })
     }
 }

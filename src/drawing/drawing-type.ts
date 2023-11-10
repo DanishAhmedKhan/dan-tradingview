@@ -5,6 +5,7 @@ enum DrawingType {
     RECTANGLE,
     LONG_POSITION,
     SHORT_POSITION,
+    PRICE_RANGE,
 }
 
 export { DrawingType }
