@@ -6,6 +6,8 @@ import { ToolManager } from './tool/ToolManager'
 import { DrawingManager } from './drawing/drawing-manager'
 import { ToolbarManager } from './drawing/toolbar-manager'
 import { CHartHUD } from './chart-hud'
+import ChartMain from './ChartMain'
+import { ChartFrameManager } from './ChartFrameManager'
 
 type ChartFrameData = {
     ticker: string,
@@ -34,6 +36,10 @@ class ChartFrame {
     private frameIndex: number
     private chartFrameData: ChartFrameData
     private isDataLoaded: boolean
+    private hoverCandleData: any
+
+    private fromTimestamp: number = 0
+    private toTimestamp: number = 0
 
     constructor(
         chartFrameHtmlElement: HTMLElement | string,
@@ -188,6 +194,7 @@ class ChartFrame {
     }
 
     public handleCrosshairMove(value: any): void {
+        this.hoverCandleData = value
         this.chartHUD.setOHLC(value)
     }
 
@@ -209,24 +216,34 @@ class ChartFrame {
         }
     }
 
-    public handleScroll(barsInfo: any): void {
-        if (barsInfo == null) return
+    public findCandleWithTimestamp(timestamp: number) {
+        let candle = this.data.find(d => d.time === timestamp)
+        // console.log(candle)
+        return candle
+    }
 
-        const CANDLE_THRESHOLD = 300
+    public handleScroll(barsInfo: any): void {
+        if (barsInfo == null || !this.getIsDataLoaded() || ChartMain.candleReplay?.isReplayMode) return
+
+        // console.log('scrolll')
+
+        const CANDLE_THRESHOLD = 100
         let { barsBefore, barsAfter } = barsInfo
 
         if (barsBefore < CANDLE_THRESHOLD ||
             barsAfter < CANDLE_THRESHOLD
         ) {
             if (this.getIsDataLoaded()) {
-                if (barsBefore < CANDLE_THRESHOLD) {
-                    if (this.datafeed.isLasttDate(this.date)) return
-                    this.nextDate()
-                } else if (barsAfter < CANDLE_THRESHOLD) {
+                // console.log('scroll', barsInfo)
+                this.fromTimestamp = barsInfo.from
+                this.toTimestamp = barsInfo.to
+                if (barsAfter < CANDLE_THRESHOLD) {
                     if (this.datafeed.isFirstDate(this.date)) return
                     this.previousDate()
+                } else if (barsBefore < CANDLE_THRESHOLD) {
+                    if (this.datafeed.isLasttDate(this.date)) return
+                    this.nextDate()
                 }
-
                 this.setIsDataLoaded(false)
                 this.displayChart()
             }
@@ -234,23 +251,32 @@ class ChartFrame {
     }
 
     public async displayChart(time?: number) {
-        if (!this.isDataLoaded) {
-            let date = await this.datafeed.loadData(this.ticker, this.date)
-            if (date != null) this.date = date as string
-            this.setIsDataLoaded(true)
-        }
-        let timeScale = this.chart.getLightweightChart().timeScale()
+        if (this.isDataLoaded) return
 
-        let logicalRange: any = {}
-        if (time) {
-            logicalRange = timeScale.getVisibleLogicalRange()
-        }
+        let date = await this.datafeed.loadData(this.ticker, this.date)
+        if (date != null) this.date = date as string
+
+        let timeScale = this.chart.getLightweightChart().timeScale()
+        // timeScale.applyOptions({ shiftVisibleRangeOnNewBar: false })
+        let logicalRange: any = timeScale.getVisibleLogicalRange()
+        // if (time) {
+        //     console.log('timestamp')
+        //     logicalRange = timeScale.getVisibleLogicalRange()
+        // }
 
         let data = this.datafeed.getTickerTimeframeData(this.ticker, this.timeframe, this.date)
+        // console.log('data length', data.length)
+        // console.log(data)
+        timeScale.applyOptions({
+            shiftVisibleRangeOnNewBar: false,
+        })
         this.chart.addDataToCandleSeries(data)
+        // timeScale.applyOptions({ shiftVisibleRangeOnNewBar: false })
         this.data = data
+        // console.log(data)
 
-        if (time) {
+        if (time && logicalRange) {
+            // console.log('timee')
             let closestTime = -1
             let minDiff = Math.abs(data[0].time - time!)
             data.forEach(d => {
@@ -272,9 +298,29 @@ class ChartFrame {
 
             this.chart.resetChartScale()
         }
+        else {
+            // logicalRange = timeScale.getVisibleLogicalRange()
+            if (ChartFrameManager.isChartLoaded && this.fromTimestamp > 0 && this.toTimestamp > 0) {
+                let positionFrom = timeScale.timeToCoordinate(this.fromTimestamp)
+                let logicalFrom = timeScale.coordinateToLogical(positionFrom)
+
+                let positionTo = timeScale.timeToCoordinate(this.toTimestamp)
+                let logicalTo = timeScale.coordinateToLogical(positionTo)
+
+                // console.log(this.fromTimestamp, positionFrom, logicalFrom)
+                // console.log(this.toTimestamp, positionTo, logicalTo)
+
+                // timeScale.setVisibleLogicalRange({
+                //     from: logicalFrom,
+                //     to: logicalTo,
+                // })
+            }
+        }
 
         this.removeDrawing()
         this.displayDrawing()
+
+        this.setIsDataLoaded(true)
     }
 
     public static getChartFrame(chartframes: Array<ChartFrame>, index: number): ChartFrame {
@@ -295,6 +341,38 @@ class ChartFrame {
     public removeDrawing(): void {
         this.toolManager.getAllTool().forEach(tool => tool.removeAllFromChart(this.drawingManager))
     }
+
+    public setReplayMode(): number {
+        let index = this.data.findIndex((candle) => {
+            return candle.time === this.hoverCandleData.time
+        })
+
+        let dataCopy = [...this.data]
+        let newData = this.data.splice(0, index)
+        this.data = [...dataCopy]
+
+        let timeScale = this.chart.getLightweightChart().timeScale()
+        let logicalRange = timeScale.getVisibleLogicalRange()
+
+        this.chart.addDataToCandleSeries(newData)
+        timeScale.setVisibleLogicalRange({
+            from: logicalRange.from,
+            to: logicalRange.to,
+        })
+
+        return index
+    }
+
+    public async displayNextCandle(index: number) {
+        if (index > this.data.length) {
+            this.nextDate()
+            let date = await this.datafeed.loadData(this.ticker, this.date)
+            if (date != null) this.date = date as string
+            this.data = this.datafeed.getTickerTimeframeData(this.ticker, this.timeframe, this.date)
+        }
+        let candle = this.data[index]
+        this.chart.updateCandle(candle)
+    }
 }
 
-export { ChartFrame }
+export { ChartFrame, ChartFrameData }

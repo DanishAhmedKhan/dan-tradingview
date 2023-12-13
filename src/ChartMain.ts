@@ -5,6 +5,8 @@ import { ToolManager } from './tool/ToolManager'
 import { ChartFrameManager } from './ChartFrameManager'
 import { ToolbarManager } from './drawing/toolbar-manager'
 import { Calendar } from './calendar'
+import { CandleReplay } from './candle-replay'
+import { IndicatorHtml } from './html/indicator-html'
 
 class ChartMain {
 
@@ -15,7 +17,9 @@ class ChartMain {
     private datafeed: Datafeed
 
     private chartMainHtmlElement: HTMLElement
+
     private calendar: Calendar | null = null
+    public static candleReplay: CandleReplay | null = null
 
     constructor(chartMainHtmlElement: HTMLElement | string) {
         this.datafeed = new Datafeed()
@@ -69,6 +73,7 @@ class ChartMain {
     private async addChartMainHeaderHtml() {
         let timeframeHtml = new TimeframeHtml(this)
         let tickerHtml = new TickerHtml(this)
+        let indicatorHtml = new IndicatorHtml(this)
 
         let headerLeftHtmlElement = this.chartMainHtmlElement.querySelector('.header_left')! as HTMLElement
         let headerRightHtmlElement = this.chartMainHtmlElement.querySelector('.header_right')! as HTMLElement
@@ -77,9 +82,9 @@ class ChartMain {
         this.toolManager.addHtml(toolWrapperHtmlElement)
         tickerHtml.addHtml(headerLeftHtmlElement)
         timeframeHtml.addHtml(headerLeftHtmlElement)
+        indicatorHtml.addHtml(headerRightHtmlElement)
 
-        // this.calendar = new Calendar(headerRightHtmlElement, this.chartFrameManager)
-
+        ChartMain.candleReplay = new CandleReplay(headerRightHtmlElement, this.chartFrameManager)
     }
 
     private getChartFrameSelectHtml(): string {

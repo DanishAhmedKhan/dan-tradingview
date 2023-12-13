@@ -69,15 +69,13 @@ class Calendar {
         }
 
         if (dateValue === '') {
-            var today = new Date();
-            var dd = String(today.getDate()).padStart(2, '0');
-            var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-            var yyyy = today.getFullYear();
+            let today = new Date()
+            let dd = String(today.getDate()).padStart(2, '0')
+            let mm = String(today.getMonth() + 1).padStart(2, '0')
+            let yyyy = today.getFullYear()
 
             dateValue = yyyy + '-' + mm + '-' + dd
         }
-
-        console.log(dateValue)
 
         let date = new Date(dateValue)
         let timestamp = +date / 1000
@@ -86,8 +84,6 @@ class Calendar {
         let days = Math.floor((+date - +year) / (24 * 60 * 60 * 1000))
         let week = Math.ceil((date.getDay() + 1 + days) / 7)
         let filename = date.getFullYear() + '-' + week
-
-        console.log(filename)
 
         let activeChartFrame = this.chartFrameManager.getActiveChartFrame()
         activeChartFrame.setIsDataLoaded(false)

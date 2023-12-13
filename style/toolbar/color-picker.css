@@ -1,0 +1,19 @@
+.color_picker_main {
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  box-sizing: border-box;
+  text-align: left;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+       user-select: none;
+  z-index: 100;
+}
+.color_picker_main .container {
+  padding: 6px 12px;
+  width: 224px;
+}
+.color_picker_main .container .color_area .swatch {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -3px 6px;
+}/*# sourceMappingURL=color-picker.css.map */

@@ -1,4 +1,8 @@
-import { ChartFrame } from './ChartFrame'
+import { ChartFrame } from './ChartFrame';
+import ChartMain from './ChartMain';
+import { MentStructure } from './series/ment-structure';
+import { Series } from './series/series';
+import { SeriesRenderer } from './series/series-renderer';
 
 declare global {
     interface Window {
@@ -34,6 +38,8 @@ class Chart {
     private chartWidth: number
     private chartHeight: number
     private chartGridColor: string
+
+    private indicatorSeries: Array<any> = []
 
     constructor(
         lightweightChartHtmlElement: HTMLElement,
@@ -80,9 +86,9 @@ class Chart {
         }
 
         this.chartOption = {
+            // shiftVisibleRangeOnNewBar: false,
             autoSize: true,
-            // width: this.chartWidth,
-            // height: this.chartHeight,
+
             grid: {
                 vertLines: { color: this.chartGridColor },
                 horzLines: { color: this.chartGridColor },
@@ -111,7 +117,7 @@ class Chart {
 
         this.lightweightChart = window.LightweightCharts.createChart(
             this.lightweightChartHtmlElement,
-            this.chartOption
+            this.chartOption,
         )
         this.candleSeries = this.lightweightChart.addCandlestickSeries()
 
@@ -130,7 +136,20 @@ class Chart {
         }
 
         this.candleSeries.applyOptions(this.candleSeriesOption)
+
+        let mentStructureSeries = new Series(new MentStructure(this.lightweightChart))
+        this.addIndicatorSeries(mentStructureSeries)
+
+        this.lightweightChart.timeScale().applyOptions({ shiftVisibleRangeOnNewBar: false })
         this.addChartScrollListener()
+    }
+
+    public addIndicatorSeries(indicatorSeries: Series): void {
+        let series = this.lightweightChart.addCustomSeries(indicatorSeries, {})
+        this.indicatorSeries.push({
+            indicator: indicatorSeries,
+            chartSeries: series,
+        })
     }
 
     public getLightweightChart(): any {
@@ -157,6 +176,14 @@ class Chart {
 
     public addDataToCandleSeries(data: any) {
         this.candleSeries.setData(data)
+
+        this.indicatorSeries.forEach(series => {
+            series.chartSeries.setData(series.indicator.getData(data))
+        })
+    }
+
+    public updateCandle(candle: any) {
+        this.candleSeries.update(candle)
     }
 
     public disableScroll(): void {
@@ -190,12 +217,13 @@ class Chart {
                 let value = data.seriesData.values().next().value
                 this.chartFrame.handleCrosshairMove(value)
             }
-
-
         })
 
         this.lightweightChartHtmlElement.onmousedown = (event) => {
             this.chartFrame.handleMouseClick(event)
+            if (ChartMain.candleReplay?.isReplayPressed) {
+                ChartMain.candleReplay!.handleChartMouseClick(event)
+            }
 
             this.lightweightChartHtmlElement.addEventListener("mousemove", (event) => {
                 event.preventDefault();

@@ -1,4 +1,4 @@
-import { ChartFrame } from "../ChartFrame"
+import { ChartFrame } from '../ChartFrame'
 import { ChartFrameManager } from "../ChartFrameManager"
 import { Drawing } from "../drawing/drawing"
 import { DrawingManager } from "../drawing/drawing-manager"

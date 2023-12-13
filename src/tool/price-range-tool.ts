@@ -2,7 +2,7 @@ import { Tool, ToolParam } from "./Tool"
 import { svg } from '../helper/svg'
 import { DrawingType } from "../drawing/drawing-type"
 import { DrawingManager } from "../drawing/drawing-manager"
-import { ChartFrame } from "../ChartFrame"
+import { ChartFrame } from '../ChartFrame'
 import { Color, hexToRgba } from "../helper/color"
 import { Point } from "../drawing/point"
 import { drawDownArrow, fillPolyon } from "../helper/canvas"

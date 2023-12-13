@@ -238,7 +238,7 @@ body {
                                     }
                                 }
                             }
-                            
+
                             .hud_element {
                                 padding: 3px 10px 3px 5px;
                                 cursor: default;
@@ -249,7 +249,7 @@ body {
                                 display: inline;
                                 font-size: 14px;
                                 // font-weight: 500;
-                               
+
 
                                 &:last-child {
                                     padding-right: 5px;
@@ -299,7 +299,7 @@ body {
 
 
 
-                        span  {
+                        span {
                             pointer-events: none;
 
                             svg {
@@ -344,3 +344,6 @@ body {
     }
 
 }
+
+@import "replay";
+@import "indicator";

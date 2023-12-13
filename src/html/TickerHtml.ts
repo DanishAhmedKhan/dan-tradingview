@@ -1,6 +1,6 @@
 import { Ticker } from "../Ticker"
 import ChartMain from "../ChartMain"
-import { ChartFrame } from "../ChartFrame"
+import { ChartFrame } from '../ChartFrame'
 
 class TickerHtml {
 
@@ -20,7 +20,7 @@ class TickerHtml {
 
         let optionHtml = Ticker.ALL_TICKERS.reduce((acc, tickerStr) => {
             let selected = tickerStr === chartFrame.getTicker().getTicker() ? "selected" : ""
-            
+
             return (acc += `
                 <option class="${this.TICKER_ITEM}" ${selected} data-value="${tickerStr}">
                     ${tickerStr}

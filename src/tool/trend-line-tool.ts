@@ -2,7 +2,7 @@ import { Tool, ToolParam } from "./Tool"
 import { svg } from '../helper/svg'
 import { DrawingType } from "../drawing/drawing-type"
 import { DrawingManager } from "../drawing/drawing-manager"
-import { ChartFrame } from "../ChartFrame"
+import { ChartFrame } from '../ChartFrame'
 import { Point } from "../drawing/point"
 import { drawLine } from "../helper/canvas"
 import { Color } from "../helper/color"

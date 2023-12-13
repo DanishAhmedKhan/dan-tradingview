@@ -84,9 +84,9 @@ class Toolbar {
 
         if (this.toolbarHtmlElement) {
             this.toolbarHtmlElement.querySelector('.dtv_toolbar_widget_list')!.innerHTML = widgetHtml
-            
 
-            let widgetItemsHtmlElement: NodeListOf<HTMLDivElement> = 
+
+            let widgetItemsHtmlElement: NodeListOf<HTMLDivElement> =
                 this.toolbarHtmlElement.querySelectorAll('.dtv_toolbar_widget_item')
             widgetItemsHtmlElement.forEach((htmlElement, index) => {
                 htmlElement.onclick = (e: any) => {
@@ -128,7 +128,7 @@ class Toolbar {
         const dragMouseDown = (e: any) => {
             e.stopPropagation()
             e.preventDefault()
-            
+
             pos3 = e.clientX
             pos4 = e.clientY
 
@@ -139,16 +139,16 @@ class Toolbar {
         const elementDrag = (e: any) => {
             e.stopPropagation()
             e.preventDefault()
-            
+
             pos1 = pos3 - e.clientX
             pos2 = pos4 - e.clientY
             pos3 = e.clientX
             pos4 = e.clientY
-            
+
             if (this.toolbarHtmlElement) {
-                this.toolbarHtmlElement.style.top = 
+                this.toolbarHtmlElement.style.top =
                     (this.toolbarHtmlElement.offsetTop - pos2) + "px";
-                this.toolbarHtmlElement.style.left = 
+                this.toolbarHtmlElement.style.left =
                     (this.toolbarHtmlElement.offsetLeft - pos1) + "px";
             }
         }

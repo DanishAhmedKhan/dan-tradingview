@@ -1,10 +1,12 @@
-import { ChartFrame } from "./ChartFrame"
+import { ChartFrame } from './ChartFrame'
 import { Calendar } from "./calendar"
 import { Datafeed } from "./datafeed"
 import { ToolbarManager } from "./drawing/toolbar-manager"
 import { ToolManager } from "./tool/ToolManager"
 
 class ChartFrameManager {
+
+    public static isChartLoaded: boolean = false
 
     private chartFrame: Array<ChartFrame> = []
     private activeChartFrame: ChartFrame | null = null
@@ -50,11 +52,10 @@ class ChartFrameManager {
 
 
         // chartFrame.displayChart()
-        setTimeout(() => {
 
-            calendar.setChartDate(null, false)
-            calendar.setChartDate()
-        }, 0)
+        calendar.setChartDate(null, false)
+        calendar.setChartDate()
+        ChartFrameManager.isChartLoaded = true
 
         // chartFrame.displayDrawing()
 

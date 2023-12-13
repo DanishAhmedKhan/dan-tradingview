@@ -2,7 +2,7 @@ import { Tool, ToolParam } from "./Tool"
 import { svg } from '../helper/svg'
 import { DrawingType } from "../drawing/drawing-type"
 import { DrawingManager } from "../drawing/drawing-manager"
-import { ChartFrame } from "../ChartFrame"
+import { ChartFrame } from '../ChartFrame'
 import { Point } from "../drawing/point"
 import { drawShortPosition } from "../helper/canvas"
 
@@ -113,6 +113,9 @@ class ShortPositionTool extends Tool {
         }
 
         htmlElement.onmouseup = (event) => {
+            htmlElement.onmousemove = null
+            htmlElement.onmouseup = null
+
             let pointObj: any = []
             point.forEach(p => {
                 pointObj.push({

@@ -94,10 +94,13 @@ class Datafeed {
             let left = this.filenameEdge[tk][timeUnit].left
             let right = this.filenameEdge[tk][timeUnit].right
 
+            let str = ''
             for (let i = left; i <= right; i++) {
                 let filename = this.dateFilename[i]
+                str += filename + ' '
                 data = this.data[tk][filename][tf].concat(data)
             }
+            // console.log('dates', str)
         } else {
             throw Error("Data with given ticker and timeframe not found")
         }
@@ -157,7 +160,7 @@ class Datafeed {
         for (let i = index; i >= 0; i--) {
             let filename = this.dateFilename[i]
             if (!this.loadedFilename[ticker][timeUnit].includes(filename)) {
-                leftEdge = i + 1
+                leftEdge = i + 1 // + 1
                 break
             }
         }
@@ -165,7 +168,7 @@ class Datafeed {
         for (let i = index; i < this.dateFilename.length; i++) {
             let filename = this.dateFilename[i]
             if (!this.loadedFilename[ticker][timeUnit].includes(filename)) {
-                rightEdge = i - 1
+                rightEdge = i - 1 // - 1
                 break
             }
         }
@@ -188,6 +191,7 @@ class Datafeed {
             if (i >= this.dateFilename.length || i < 0) continue
 
             let filename = this.dateFilename[i]
+            // console.log('bool', this.loadedFilename[tk][timeUnit].includes(filename))
             if (!this.loadedFilename[tk][timeUnit].includes(filename)) {
                 await this.loadDataTimeframe(ticker, filename, timeUnit)
                 this.loadedFilename[tk][timeUnit].push(filename)
@@ -196,9 +200,14 @@ class Datafeed {
     }
 
     async loadData(ticker: Ticker, date: string) {
-        await this.loadYearWeekFilename()
-        if (!date || date === '' || !this.dateFilename.includes(date))
+        if (this.dateFilename.length === 0) {
+            await this.loadYearWeekFilename()
+        }
+
+        if (!date || date === '' || !this.dateFilename.includes(date)) {
+            console.log('hereee')
             date = this.dateFilename[0]
+        }
 
         let tk = ticker.getTicker()
         let firstLoad = false
@@ -219,6 +228,8 @@ class Datafeed {
             await this.loadDataTimeframe(ticker, dayFilename, TimeframeUnit.DAY)
             this.loadedFilename[tk].D.push(dayFilename)
         }
+
+        // console.log('data length in darafeed', this.data[tk])
 
         this.calculateFileEdge(tk, date, TimeframeUnit.MINUTE)
         this.calculateFileEdge(tk, date, TimeframeUnit.HOUR)

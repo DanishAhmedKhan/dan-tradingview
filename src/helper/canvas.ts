@@ -130,15 +130,15 @@ export function drawText(ctx: any, text: string, pointX: number, pointY: number,
     ctx.fill()
     ctx.restore()
 
-    ctx.font = options.textSize + ' Arial';
-    ctx.fillStyle = options.textColor;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+    ctx.font = options.textSize + ' Arial'
+    ctx.fillStyle = options.textColor
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
 
     let textX = pointX + width / 2;
-    let textY = pointY + height / 2 + 1;
+    let textY = pointY + height / 2 + 1
 
-    ctx.fillText(text, textX, textY);
+    ctx.fillText(text, textX, textY)
 }
 
 export function drawPNLText(ctx: any, text: string, point: Point, pnlWidth: number, boxWidth: number, options: any, shiftDown: boolean = true) {
