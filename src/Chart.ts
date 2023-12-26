@@ -25,6 +25,12 @@ type ChartThemeOption = {
     wickDownColor: string,
 }
 
+type Indicator = {
+    renderer: SeriesRenderer,
+    series: Series,
+    chartSeries: any,
+}
+
 class Chart {
     private lightweightChartHtmlElement: HTMLElement
 
@@ -39,7 +45,7 @@ class Chart {
     private chartHeight: number
     private chartGridColor: string
 
-    private indicatorSeries: Array<any> = []
+    private indicator: Array<Indicator> = []
 
     constructor(
         lightweightChartHtmlElement: HTMLElement,
@@ -97,6 +103,9 @@ class Chart {
                 timeVisible: true,
                 secondsVisible: true,
             },
+            // priceScale: {
+            //     autoScale: false,
+            // },
             leftPriceScale: {
                 borderColor: '#ff0000'
             },
@@ -137,18 +146,21 @@ class Chart {
 
         this.candleSeries.applyOptions(this.candleSeriesOption)
 
-        let mentStructureSeries = new Series(new MentStructure(this.lightweightChart))
-        this.addIndicatorSeries(mentStructureSeries)
+        let mentStrustureRenderer = new MentStructure(this.lightweightChart, this.chartFrame)
+        let mentStructureSeries = new Series(mentStrustureRenderer)
+        this.addIndicatorSeries(mentStrustureRenderer, mentStructureSeries)
 
         this.lightweightChart.timeScale().applyOptions({ shiftVisibleRangeOnNewBar: false })
         this.addChartScrollListener()
     }
 
-    public addIndicatorSeries(indicatorSeries: Series): void {
-        let series = this.lightweightChart.addCustomSeries(indicatorSeries, {})
-        this.indicatorSeries.push({
-            indicator: indicatorSeries,
-            chartSeries: series,
+    public addIndicatorSeries(renderer: SeriesRenderer, series: Series): void {
+        let chartSeries = this.lightweightChart.addCustomSeries(series, {})
+
+        this.indicator.push({
+            renderer,
+            series,
+            chartSeries,
         })
     }
 
@@ -164,6 +176,10 @@ class Chart {
         return this.candleSeries
     }
 
+    public getIndicator(): Array<Indicator> {
+        return this.indicator
+    }
+
     public setCandleSeriesOption(option: object) {
         this.candleSeries.applyOptions(option)
     }
@@ -176,9 +192,26 @@ class Chart {
 
     public addDataToCandleSeries(data: any) {
         this.candleSeries.setData(data)
+    }
 
-        this.indicatorSeries.forEach(series => {
-            series.chartSeries.setData(series.indicator.getData(data))
+    public addIndicatorToChart(data: any): void {
+        if (!data) return
+
+        this.indicator.forEach(indicator => {
+            indicator.renderer.processData(data)
+            indicator.chartSeries.setData(indicator.renderer.getData())
+        })
+    }
+
+    public processIndicator(data: any) {
+        this.indicator.forEach(inidcator => {
+            inidcator.renderer.processData(data)
+        })
+    }
+
+    public setIndicatorReplayIndex(time: number): void {
+        this.indicator.forEach(inidcator => {
+            inidcator.renderer.setReplayIndex(time)
         })
     }
 

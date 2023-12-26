@@ -2,7 +2,7 @@ import { Ticker } from "./Ticker"
 import { Timeframe } from "./Timeframe"
 
 class CHartHUD {
-    
+
     private hudHtmlElement: HTMLElement | null = null
 
     constructor(htmlElement: HTMLElement) {
@@ -64,6 +64,8 @@ class CHartHUD {
     }
 
     public setOHLC(value: any): void {
+        if (!value || !value.low || value.high || value.low || value.close) return
+
         let openHtmlElement = this.hudHtmlElement?.querySelector('.hud_open')!
         let highHtmlElement = this.hudHtmlElement?.querySelector('.hud_high')!
         let lowHtmlElement = this.hudHtmlElement?.querySelector('.hud_low')!
@@ -71,6 +73,7 @@ class CHartHUD {
         let changeHtmlElement = this.hudHtmlElement?.querySelector('.hud_change')!
         let percentHtmlElement = this.hudHtmlElement?.querySelector('.hud_percent')!
 
+        console.log('calk', value)
         openHtmlElement.innerHTML = value.open.toFixed(5)
         highHtmlElement.innerHTML = value.high.toFixed(5)
         lowHtmlElement.innerHTML = value.low.toFixed(5)

@@ -31,10 +31,10 @@ class CandleReplay {
             {
                 name: 'forward',
                 svg: svg.forward,
-                callback: () => {
-                    const SKIP_COUNT = 5
+                callback: async () => {
+                    const SKIP_COUNT = 30
                     for (let i = 0; i < SKIP_COUNT; i++) {
-                        this.showNextCandle()
+                        await this.showNextCandle()
                     }
                 }
             },
@@ -79,16 +79,16 @@ class CandleReplay {
         this.toolbar.show()
     }
 
-    public addNextCandleKeyListener(): void {
-        document.onkeydown = (event: any) => {
+    public addNextCandleKeyListener() {
+        document.onkeydown = async (event: any) => {
             if (event.keyCode && event.keyCode === 39) {
-                this.showNextCandle()
+                await this.showNextCandle()
             }
         }
     }
 
-    public showNextCandle(): void {
-        this.chartFrameManager.getActiveChartFrame().displayNextCandle(this.candleIndex++)
+    public async showNextCandle() {
+        await this.chartFrameManager.getActiveChartFrame().displayNextCandle(this.candleIndex++)
     }
 
 }

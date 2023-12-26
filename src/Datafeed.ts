@@ -97,10 +97,11 @@ class Datafeed {
             let str = ''
             for (let i = left; i <= right; i++) {
                 let filename = this.dateFilename[i]
-                str += filename + ' '
+                str = filename + ' ' + str
                 data = this.data[tk][filename][tf].concat(data)
             }
             // console.log('dates', str)
+            // console.log(new Date(data[0].time * 1000), new Date(data[data.length - 1].time * 1000))
         } else {
             throw Error("Data with given ticker and timeframe not found")
         }
@@ -118,6 +119,8 @@ class Datafeed {
                 f.replace(/(\r\n|\n|\r)/gm, "")
             )
             this.dateFilename.reverse()
+
+            // console.log('date filename', this.dateFilename)
         } catch (e) {
             throw Error('dates.csv not found in data folder')
         }
@@ -135,20 +138,30 @@ class Datafeed {
         let index = this.dateFilename.indexOf(date)
         if (index < 0) throw Error('date not valid')
 
-        if (index + 1 >= this.dateFilename.length)
+        // if (index + 1 >= this.dateFilename.length)
+        //     return date
+
+        // return this.dateFilename[index + 1]
+
+        if (index - 1 < 0)
             return date
 
-        return this.dateFilename[index + 1]
+        return this.dateFilename[index - 1]
     }
 
     public getPreviousDateFilename(date: string): string {
         let index = this.dateFilename.indexOf(date)
         if (index < 0) throw Error('date not valid')
 
-        if (index - 1 < 0)
+        // if (index - 1 < 0)
+        //     return date
+
+        // return this.dateFilename[index - 1]
+
+        if (index + 1 >= this.dateFilename.length)
             return date
 
-        return this.dateFilename[index - 1]
+        return this.dateFilename[index + 1]
     }
 
     private calculateFileEdge(ticker: string, date: string, timeUnit: TimeframeUnit): void {

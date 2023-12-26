@@ -1,13 +1,29 @@
+import { ChartFrame } from "../ChartFrame"
 import { CandleData } from "../datafeed"
 import { SeriesRenderer } from "./series-renderer"
 
 class MentStructure extends SeriesRenderer {
 
-    constructor(lightweightChart: any) {
-        super(lightweightChart)
+    constructor(lightweightChart: any, chartFrame: ChartFrame) {
+        super(lightweightChart, chartFrame)
     }
 
-    public getData(candleData: Array<CandleData>): any {
+    public setReplayIndex(time: number): void {
+        for (let i = 0; i < this.data.length; i++) {
+            let data = this.data[i]
+
+            if (
+                i !== this.data.length &&
+                time > data.time &&
+                time < this.data[i + 1].time
+            ) {
+                this.replayIndex = i
+                break
+            }
+        }
+    }
+
+    public processData(candleData: Array<CandleData>): void {
         let mentStructureData: any = []
 
         const BREAK_UP = 1
@@ -304,15 +320,7 @@ class MentStructure extends SeriesRenderer {
             }
         }
 
-        if (mentStructureData[index - 1].time !== candleData[candleData.length - 1].time) {
-            mentStructureData[index++] = {
-                time: candleData[candleData.length - 1].time,
-                current_time: candleData[candleData.length - 1].time,
-                type: 'end',
-            }
-        }
-
-        return mentStructureData
+        this.data = mentStructureData
     }
 
     public drawSeries(ctx: any, priceToCoordinate: any): void {
@@ -334,6 +342,7 @@ class MentStructure extends SeriesRenderer {
         let visibleCandle = []
         for (let i = visibleRangeFrom; i < visibleRange.to; i++) {
             const bar = bars[i]
+            if (this.visibleTimeLimit && bar.time > this.visibleTimeLimit!) break
             visibleCandle.push(bar)
 
             if (bar) {
@@ -452,6 +461,7 @@ class MentStructure extends SeriesRenderer {
                 }
 
                 if (timeTo && bar.type !== 'bos_phl') {
+                    if (this.visibleTimeLimit && timeTo >= this.visibleTimeLimit) timeTo = this.visibleTimeLimit
                     let x2 = this.lightweightChart.timeScale().timeToNearestCoordinate(timeTo)
 
                     let startBarX = isNaN(bar.x) || bar.x == null || bar.x < 0 ? 0 : bar.x
@@ -465,7 +475,7 @@ class MentStructure extends SeriesRenderer {
                     let nextBar
 
                     let protection = bar.protected
-                    if (i < bars.length - 3 && bars[i + 1].type === 'bos' &&
+                    if (i <= bars.length - 3 && bars[i + 1].type === 'bos' &&
                         bars[i + 2].type === 'phl' && bars[i + 2].protected === protection) {
                         nextBar = bars[i + 2]
                     }
@@ -491,6 +501,9 @@ class MentStructure extends SeriesRenderer {
 
                     if (nextBar) {
                         let nextBarTime = nextBar.time
+                        if (this.visibleTimeLimit && nextBarTime >= this.visibleTimeLimit) {
+                            nextBarTime = this.visibleTimeLimit
+                        }
                         let nextBarX = this.lightweightChart.timeScale().timeToNearestCoordinate(nextBarTime)
 
                         let nextBarY
@@ -510,14 +523,16 @@ class MentStructure extends SeriesRenderer {
                         ctx.lineTo(nextBarX, bar.y)
                         ctx.stroke()
 
-                        ctx.beginPath()
-                        ctx.moveTo(nextBarX, bar.y)
-                        if (nextBarY) {
-                            ctx.lineTo(nextBarX, nextBarY)
-                        } else {
-                            ctx.lineTo(nextBarX, nextBar.y)
+                        if (!(this.visibleTimeLimit && nextBarTime >= this.visibleTimeLimit)) {
+                            ctx.beginPath()
+                            ctx.moveTo(nextBarX, bar.y)
+                            if (nextBarY) {
+                                ctx.lineTo(nextBarX, nextBarY)
+                            } else {
+                                ctx.lineTo(nextBarX, nextBar.y)
+                            }
+                            ctx.stroke()
                         }
-                        ctx.stroke()
                     } else {
                         ctx.beginPath()
                         ctx.moveTo(bar.x, bar.y)
@@ -525,6 +540,52 @@ class MentStructure extends SeriesRenderer {
                         ctx.stroke()
                     }
                 }
+            }
+
+            if (i >= visibleRange.from && i <= visibleRange.to && false) {
+                let candleData = this.chartFrame.getVisibleData()
+
+                // ctx.strokeStyle = '#f00'
+                let timeScale = this.lightweightChart.timeScale()
+                let lastCandle = candleData[candleData.length - 1]
+                let lastCandleX = timeScale.timeToNearestCoordinate(lastCandle.time)
+
+                let lastBarOriginal = this.seriesData.bars[this.seriesData.bars.length - 1].originalData
+                let lastBar = bars[bars.length - 1]
+                ctx.beginPath()
+                ctx.moveTo(lastBar.x, lastBar.y)
+                ctx.lineTo(lastCandleX, lastBar.y)
+                ctx.stroke()
+
+                let highestCandle = candleData[lastBarOriginal.index]
+                let lowestCandle = candleData[lastBarOriginal.index]
+
+                for (let i = lastBarOriginal.index + 1; i < candleData.length; i++) {
+                    let candle = candleData[i]
+                    if (candle.high >= highestCandle.high) highestCandle = candle
+                    if (candle.low <= lowestCandle.low) lowestCandle = candle
+                }
+
+                let highestCandleX = timeScale.timeToNearestCoordinate(highestCandle.time)
+                let highestCandleY = priceToCoordinate(highestCandle.high)
+
+                let lowestCandleX = timeScale.timeToNearestCoordinate(lowestCandle.time)
+                let lowsatCandleY = priceToCoordinate(lowestCandle.low)
+
+                if (lastBar.y != highestCandleY) {
+                    ctx.beginPath()
+                    ctx.moveTo(highestCandleX, highestCandleY)
+                    ctx.lineTo(lastCandleX, highestCandleY)
+                    ctx.stroke()
+                }
+
+                if (lastBar.y != lowsatCandleY) {
+                    ctx.beginPath()
+                    ctx.moveTo(lowestCandleX, lowsatCandleY)
+                    ctx.lineTo(lastCandleX, lowsatCandleY)
+                    ctx.stroke()
+                }
+
             }
         }
     }

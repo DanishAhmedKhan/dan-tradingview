@@ -21222,7 +21222,8 @@
         // ALGORIMTHM
 
         console.log('length', dataValue.length)
-        // dataValue = dataValue.slice(0, 800)
+        dataValue = dataValue.slice(0, 1100)
+        // console.log(dataValue[dataValue.length - 1])
         // dataValue = dataValue.slice(0, 190)
         // dataValue = dataValue.slice(0, 100)
         candleSeries.setData(dataValue)
@@ -21231,6 +21232,8 @@
 
         const BREAK_UP = 1
         const BREAK_DOWN = 0
+
+        let visibleTimeLimit = 1696350600
 
         let state = 0
         let temp_low = dataValue[0].low
@@ -21536,13 +21539,24 @@
             }
         }
 
-        if (series_data[index - 1].time !== dataValue[dataValue.length - 1].time) {
-            series_data[index++] = {
-                time: dataValue[dataValue.length - 1].time,
-                current_time: dataValue[dataValue.length - 1].time,
-                type: 'end',
-            }
-        }
+        // if (temp_break === BREAK_UP) {
+        //     series_data[index++] = {
+        //         time: dataValue[bos_index].time,
+        //         current_time: dataValue[bos_index].time,
+        //         type: 'bos',
+        //         inddex: bos_index,
+        //         price: dataValue[bos_index].high,
+        //         time_to: dataValue[dataValue.length - 1].time,
+        //     }
+        // }
+
+        // if (series_data[index - 1].time !== dataValue[dataValue.length - 1].time) {
+        //     series_data[index++] = {
+        //         time: dataValue[dataValue.length - 1].time,
+        //         current_time: dataValue[dataValue.length - 1].time,
+        //         type: 'end',
+        //     }
+        // }
 
         console.log(series_data)
 
@@ -21595,6 +21609,9 @@
                 let visibleCandle = []
                 for (let i = visibleRangeFrom; i < visibleRange.to; i++) {
                     const bar = bars[i]
+
+                    if (bar.time > visibleTimeLimit) break
+
                     visibleCandle.push(bar)
 
                     if (bar) {
@@ -21613,7 +21630,7 @@
                         let timeTo = this._data.bars[i].originalData.time_to
 
                         if (bar.type === 'phl_bos') {
-                            console.log('phlk_bissss', this._data.bars[i].originalData)
+                            // console.log('phlk_bissss', this._data.bars[i].originalData)
                             let y1 = priceToCoordinate(this._data.bars[i].originalData.price_bos)
                             let y2 = priceToCoordinate(this._data.bars[i].originalData.price_phl)
 
@@ -21625,9 +21642,9 @@
                             } else if (i < bars.length - 3) {
                                 // console.log(this._data.bars[i + 2].originalData)
                                 phlTimeToX = timeScale.timeToNearestCoordinate(this._data.bars[i + 2].originalData.current_time)
-                            } else {
-
                             }
+
+
 
                             ctx.beginPath()
                             ctx.moveTo(bar.x, y1)
@@ -21652,7 +21669,7 @@
 
                             let y1 = priceToCoordinate(this._data.bars[i].originalData.price_bos)
                             let y2 = priceToCoordinate(this._data.bars[i].originalData.price_phl)
-                            console.log(this._data.bars[i].originalData)
+                            // console.log(this._data.bars[i].originalData)
 
                             if (timeTo) {
                                 // let x2 = lightweightChart.timeScale().timeToNearestCoordinate(timeTo)
@@ -21661,7 +21678,7 @@
                                 // console.log('x2', x2)
                                 ctx.strokeStyle = '#f00'
 
-                                console.log(bar.x, 'to', x2)
+                                // console.log(bar.x, 'to', x2)
                                 ctx.beginPath()
                                 ctx.moveTo(bar.x, y1)
                                 ctx.lineTo(x2, y1)
@@ -21728,6 +21745,7 @@
                         }
 
                         if (timeTo && bar.type !== 'bos_phl') {
+                            if (visibleTimeLimit && timeTo >= visibleTimeLimit) timeTo = visibleTimeLimit
                             let x2 = lightweightChart.timeScale().timeToNearestCoordinate(timeTo)
 
                             let startBarX = isNaN(bar.x) || bar.x == null || bar.x < 0 ? 0 : bar.x
@@ -21737,11 +21755,10 @@
                             ctx.lineTo(x2, bar.y)
                             ctx.stroke()
                         } else if (bar.type == 'phl' || bar.type === 'bos_phl') {
-
                             let nextBar
 
                             let protection = bar.protected
-                            if (i < bars.length - 3 && bars[i + 1].type === 'bos' &&
+                            if (i <= bars.length - 3 && bars[i + 1].type === 'bos' &&
                                 bars[i + 2].type === 'phl' && bars[i + 2].protected === protection) {
                                 nextBar = bars[i + 2]
                             }
@@ -21753,9 +21770,6 @@
                                 nextBar = bars[i + 2]
                             }
 
-                            // if (bars[i + 1].type === 'phl_bos') {
-                            //     console.log(bars[i + 1].protected, protection)
-                            // }
                             if (i < bars.length - 2 && (bars[i + 1].type === 'bos_phl') &&
                                 bars[i + 1].protected === protection) {
                                 nextBar = bars[i + 1]
@@ -21770,6 +21784,10 @@
 
                             if (nextBar) {
                                 let nextBarTime = nextBar.time
+                                if (visibleTimeLimit && nextBarTime >= visibleTimeLimit) {
+                                    console.log('ssdasdasdasas')
+                                    nextBarTime = visibleTimeLimit
+                                }
                                 let nextBarX = lightweightChart.timeScale().timeToNearestCoordinate(nextBarTime)
 
                                 let nextBarY
@@ -21789,14 +21807,16 @@
                                 ctx.lineTo(nextBarX, bar.y)
                                 ctx.stroke()
 
-                                ctx.beginPath()
-                                ctx.moveTo(nextBarX, bar.y)
-                                if (nextBarY) {
-                                    ctx.lineTo(nextBarX, nextBarY)
-                                } else {
-                                    ctx.lineTo(nextBarX, nextBar.y)
+                                if (!(visibleTimeLimit && nextBarTime >= visibleTimeLimit)) {
+                                    ctx.beginPath()
+                                    ctx.moveTo(nextBarX, bar.y)
+                                    if (nextBarY) {
+                                        ctx.lineTo(nextBarX, nextBarY)
+                                    } else {
+                                        ctx.lineTo(nextBarX, nextBar.y)
+                                    }
+                                    ctx.stroke()
                                 }
-                                ctx.stroke()
                             } else {
                                 ctx.beginPath()
                                 ctx.moveTo(bar.x, bar.y)
@@ -21804,6 +21824,61 @@
                                 ctx.stroke()
                             }
                         }
+                    }
+
+                    if (i >= visibleRange.from && i <= visibleRange.to) {
+                        // console.log('last in visible range')
+
+                        ctx.strokeStyle = '#f00'
+                        let timeScale = lightweightChart.timeScale()
+                        let lastCandle = dataValue[dataValue.length - 1]
+                        // console.log('lastcandle', lastCandle)
+                        let lastCandleX = timeScale.timeToNearestCoordinate(lastCandle.time)
+                        // console.log('last candle x', lastCandleX)
+
+                        let lastBarOriginal = this._data.bars[this._data.bars.length - 1].originalData
+                        let lastBar = bars[bars.length - 1]
+                        ctx.beginPath()
+                        ctx.moveTo(lastBar.x, lastBar.y)
+                        ctx.lineTo(lastCandleX, lastBar.y)
+                        ctx.stroke()
+
+                        let protecttion = lastBar.protected
+                        let highestCandle = dataValue[lastBarOriginal.index]
+                        let lowestCandle = dataValue[lastBarOriginal.index]
+
+                        for (let i = lastBarOriginal.index + 1; i < dataValue.length; i++) {
+                            let candle = dataValue[i]
+                            if (candle.high >= highestCandle.high) highestCandle = candle
+                            if (candle.low <= lowestCandle.low) lowestCandle = candle
+                        }
+
+                        ctx.strokeStyle = '#00f'
+
+                        let highestCandleX = timeScale.timeToNearestCoordinate(highestCandle.time)
+                        let highestCandleY = priceToCoordinate(highestCandle.high)
+
+                        let lowestCandleX = timeScale.timeToNearestCoordinate(lowestCandle.time)
+                        let lowsatCandleY = priceToCoordinate(lowestCandle.low)
+
+
+                        if (lastBar.y != highestCandleY) {
+                            ctx.beginPath()
+                            ctx.moveTo(highestCandleX, highestCandleY)
+                            ctx.lineTo(lastCandleX, highestCandleY)
+                            ctx.stroke()
+                        }
+
+
+                        ctx.strokeStyle = '#0f0'
+
+                        if (lastBar.y != lowsatCandleY) {
+                            ctx.beginPath()
+                            ctx.moveTo(lowestCandleX, lowsatCandleY)
+                            ctx.lineTo(lastCandleX, lowsatCandleY)
+                            ctx.stroke()
+                        }
+
                     }
                 }
             }
@@ -21861,7 +21936,6 @@
         const myCustomSeries = lightweightChart.addCustomSeries(customSeriesInstance, {
             customOption: 10,
         })
-        console.log(dataValue.length)
         myCustomSeries.setData(series_data)
 
 

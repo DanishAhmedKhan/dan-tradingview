@@ -35,10 +35,6 @@ class Series {
     public defaultOptions(): any {
         return {}
     }
-
-    public getData(data: Array<CandleData>): any {
-        return this.seriesRenderer!.getData(data)
-    }
 }
 
 export { Series, SeriesData }
