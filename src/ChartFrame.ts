@@ -364,15 +364,13 @@ class ChartFrame {
             return candle.time === this.hoverCandleData.time
         })
 
-        // this.chart.setIndicatorReplayIndex(this.hoverCandleData.time)
         indicator.forEach(indicator => {
-            indicator.renderer.setVisibleTimeLimit(this.hoverCandleData.time)
+            indicator.renderer.setVisibleLimit(this.hoverCandleData.time, index)
         })
 
         let dataCopy = [...this.data]
         let newCandleData = this.data.splice(0, index)
         this.data = [...dataCopy]
-        // this.visibleData = [...newCandleData]
 
         let timeScale = this.chart.getLightweightChart().timeScale()
         let logicalRange = timeScale.getVisibleLogicalRange()
@@ -425,7 +423,7 @@ class ChartFrame {
 
             console.log(candle.time)
             this.chart.getIndicator().forEach(indicator => {
-                indicator.renderer.setVisibleTimeLimit(candle.time)
+                indicator.renderer.setVisibleLimit(candle.time, index)
             })
         }
     }

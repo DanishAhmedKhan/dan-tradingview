@@ -14,6 +14,7 @@ abstract class SeriesRenderer {
     protected lightweightChart: any
 
     protected visibleTimeLimit: number | null = null
+    protected visibleTimeIndex: number | null = null
 
     constructor(lightweightChart: any, chartFrame: ChartFrame) {
         this.lightweightChart = lightweightChart
@@ -22,6 +23,11 @@ abstract class SeriesRenderer {
 
     public getReplayIndex(): number {
         return this.replayIndex
+    }
+
+    public setVisibleLimit(timeLimit: number, timeIndex: number): void {
+        this.visibleTimeLimit = timeLimit
+        this.visibleTimeIndex = timeIndex
     }
 
     public setVisibleTimeLimit(timeLimit: number): void {

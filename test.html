@@ -21224,7 +21224,7 @@
         console.log('length', dataValue.length)
         dataValue = dataValue.slice(0, 1100)
         // console.log(dataValue[dataValue.length - 1])
-        // dataValue = dataValue.slice(0, 190)
+        // dataValue = dataValue.slice(0, 1010)
         // dataValue = dataValue.slice(0, 100)
         candleSeries.setData(dataValue)
 
@@ -21233,7 +21233,9 @@
         const BREAK_UP = 1
         const BREAK_DOWN = 0
 
-        let visibleTimeLimit = 1696350600
+        let visibleTimeIndex = 980
+        // let visibleTimeLimit = 1696350600
+        let visibleTimeLimit = dataValue[visibleTimeIndex].time
 
         let state = 0
         let temp_low = dataValue[0].low
@@ -21590,9 +21592,22 @@
                     verticalPixelRatio,
                 } = scope
 
-                // console.log(this._data.bars)
-                const bars = this._data.bars.map(bar => {
+                let lastVisibleIndex = -1
+
+                const bars = this._data.bars.map((bar, index) => {
                     const valueY = priceToCoordinate(bar.originalData.price) ?? 0
+
+                    let barData = bar.originalData
+                    // console.log(barData, index)
+
+                    if (lastVisibleIndex < 0 &&
+                        index < this._data.bars.length - 2 &&
+                        visibleTimeLimit &&
+                        barData.current_time <= visibleTimeLimit &&
+                        this._data.bars[index + 1].originalData.current_time > visibleTimeLimit) {
+                        // console.log('index', index)
+                        lastVisibleIndex = index
+                    }
 
                     return {
                         time: bar.originalData.current_time,
@@ -21607,7 +21622,8 @@
                 let visibleRangeFrom = visibleRange.from - 2 < 0 ? 0 : visibleRange.from - 2
 
                 let visibleCandle = []
-                for (let i = visibleRangeFrom; i < visibleRange.to; i++) {
+                let i
+                for (i = visibleRangeFrom; i < visibleRange.to; i++) {
                     const bar = bars[i]
 
                     if (bar.time > visibleTimeLimit) break
@@ -21630,27 +21646,32 @@
                         let timeTo = this._data.bars[i].originalData.time_to
 
                         if (bar.type === 'phl_bos') {
-                            // console.log('phlk_bissss', this._data.bars[i].originalData)
                             let y1 = priceToCoordinate(this._data.bars[i].originalData.price_bos)
                             let y2 = priceToCoordinate(this._data.bars[i].originalData.price_phl)
 
                             let timeScale = lightweightChart.timeScale()
-                            let bosTimeToX = timeScale.timeToNearestCoordinate(this._data.bars[i].originalData.bos_time_to)
+                            let bosTimeTo = this._data.bars[i].originalData.bos_time_to
+                            if (visibleTimeLimit && bosTimeTo > visibleTimeLimit) bosTimeTo = visibleTimeLimit
+                            let bosTimeToX = timeScale.timeToNearestCoordinate(bosTimeTo)
+
                             let phlTimeToX
                             if (this._data.bars[i].originalData.phl_time_to) {
-                                phlTimeToX = timeScale.timeToNearestCoordinate(this._data.bars[i].originalData.phl_time_to)
+                                let phlTimeTo = this._data.bars[i].originalData.phl_time_to
+                                if (visibleTimeLimit && phlTimeTo > visibleTimeLimit) phlTimeTo = visibleTimeLimit
+                                phlTimeToX = timeScale.timeToNearestCoordinate(phlTimeTo)
                             } else if (i < bars.length - 3) {
-                                // console.log(this._data.bars[i + 2].originalData)
-                                phlTimeToX = timeScale.timeToNearestCoordinate(this._data.bars[i + 2].originalData.current_time)
+                                let phlTimeTo = this._data.bars[i + 2].originalData.current_time
+                                if (visibleTimeLimit && phlTimeTo > visibleTimeLimit) phlTimeTo = visibleTimeLimit
+                                phlTimeToX = timeScale.timeToNearestCoordinate(phlTimeTo)
                             }
 
-
-
+                            // ctx.strokeStyle = '#f80'
                             ctx.beginPath()
                             ctx.moveTo(bar.x, y1)
                             ctx.lineTo(bosTimeToX, y1)
                             ctx.stroke()
 
+                            // ctx.strokeStyle = '#08f'
                             ctx.beginPath()
                             ctx.moveTo(bar.x, y2)
                             ctx.lineTo(phlTimeToX, y2)
@@ -21785,7 +21806,6 @@
                             if (nextBar) {
                                 let nextBarTime = nextBar.time
                                 if (visibleTimeLimit && nextBarTime >= visibleTimeLimit) {
-                                    console.log('ssdasdasdasas')
                                     nextBarTime = visibleTimeLimit
                                 }
                                 let nextBarX = lightweightChart.timeScale().timeToNearestCoordinate(nextBarTime)
@@ -21826,7 +21846,7 @@
                         }
                     }
 
-                    if (i >= visibleRange.from && i <= visibleRange.to) {
+                    if (i >= visibleRange.from && i <= visibleRange.to && false) {
                         // console.log('last in visible range')
 
                         ctx.strokeStyle = '#f00'
@@ -21838,6 +21858,8 @@
 
                         let lastBarOriginal = this._data.bars[this._data.bars.length - 1].originalData
                         let lastBar = bars[bars.length - 1]
+                        // let lastBarOriginal = this._data.bars[i - 1].originalData
+                        // let lastBar = bars[i - 1]
                         ctx.beginPath()
                         ctx.moveTo(lastBar.x, lastBar.y)
                         ctx.lineTo(lastCandleX, lastBar.y)
@@ -21881,6 +21903,66 @@
 
                     }
                 }
+
+
+
+                let timeScale = lightweightChart.timeScale()
+                let lastCandleX = timeScale.timeToNearestCoordinate(visibleTimeLimit)
+
+                console.log(this._data.bars.length)
+                console.log(lastVisibleIndex)
+                console.log('aa', this._data.bars[lastVisibleIndex])
+                let lastBarOriginal = this._data.bars[lastVisibleIndex].originalData
+                let lastBar = bars[lastVisibleIndex]
+
+                if (lastCandleX >= 0 && lastBar.x <= ctx.canvas.clientWidth) {
+                    ctx.strokeStyle = '#f0f'
+
+                    ctx.beginPath()
+                    ctx.moveTo(lastBar.x, lastBar.y)
+                    ctx.lineTo(lastCandleX, lastBar.y)
+                    ctx.stroke()
+
+                    console.log('index', dataValue[lastBarOriginal.index])
+                    let protecttion = lastBar.protected
+                    let highestCandle = dataValue[lastBarOriginal.index]
+                    let lowestCandle = dataValue[lastBarOriginal.index]
+
+                    for (let i = lastBarOriginal.index + 1; i <= visibleTimeIndex; i++) {
+                        let candle = dataValue[i]
+                        if (candle.high >= highestCandle.high) highestCandle = candle
+                        if (candle.low <= lowestCandle.low) lowestCandle = candle
+                    }
+
+                    ctx.strokeStyle = '#00f'
+
+                    let highestCandleX = timeScale.timeToNearestCoordinate(highestCandle.time)
+                    let highestCandleY = priceToCoordinate(highestCandle.high)
+
+                    let lowestCandleX = timeScale.timeToNearestCoordinate(lowestCandle.time)
+                    let lowsatCandleY = priceToCoordinate(lowestCandle.low)
+
+
+                    if (lastBar.y != highestCandleY && (lastBar.type === 'phl' || lastBar.type === 'phl_bos') && lastBar.protected === 'low') {
+                        ctx.beginPath()
+                        ctx.moveTo(highestCandleX, highestCandleY)
+                        ctx.lineTo(lastCandleX, highestCandleY)
+                        ctx.stroke()
+                    }
+
+
+                    ctx.strokeStyle = '#f0f'
+
+                    if (lastBar.y != lowsatCandleY && (lastBar.type === 'phl' || lastBar.type === 'phl_bos') && lastBar.protected === 'high') {
+                        // console.log(lowestCandleX)
+
+                        ctx.beginPath()
+                        ctx.moveTo(lowestCandleX, lowsatCandleY)
+                        ctx.lineTo(lastCandleX, lowsatCandleY)
+                        ctx.stroke()
+                    }
+                }
+
             }
         }
 

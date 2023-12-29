@@ -324,8 +324,20 @@ class MentStructure extends SeriesRenderer {
     }
 
     public drawSeries(ctx: any, priceToCoordinate: any): void {
-        const bars = this.seriesData.bars.map((bar: any) => {
+        let lastVisibleIndex = -1
+
+        const bars = this.seriesData.bars.map((bar: any, index: number) => {
             const valueY = priceToCoordinate(bar.originalData.price) ?? 0
+
+            let barData = bar.originalData
+
+            if (lastVisibleIndex < 0 &&
+                index < this.seriesData.bars.length - 2 &&
+                this.visibleTimeLimit &&
+                barData.current_time <= this.visibleTimeLimit &&
+                this.seriesData.bars[index + 1].originalData.current_time > this.visibleTimeLimit) {
+                lastVisibleIndex = index
+            }
 
             return {
                 time: bar.originalData.current_time,
@@ -365,13 +377,20 @@ class MentStructure extends SeriesRenderer {
                     let y2 = priceToCoordinate(this.seriesData.bars[i].originalData.price_phl)
 
                     let timeScale = this.lightweightChart.timeScale()
-                    let bosTimeToX = timeScale.timeToNearestCoordinate(this.seriesData.bars[i].originalData.bos_time_to)
+                    let bosTimeTo = this.seriesData.bars[i].originalData.bos_time_to
+                    if (this.visibleTimeLimit && bosTimeTo > this.visibleTimeLimit) bosTimeTo = this.visibleTimeLimit
+                    let bosTimeToX = timeScale.timeToNearestCoordinate(bosTimeTo)
+
                     let phlTimeToX
                     if (this.seriesData.bars[i].originalData.phl_time_to) {
-                        phlTimeToX = timeScale.timeToNearestCoordinate(this.seriesData.bars[i].originalData.phl_time_to)
+                        let phlTimeTo = this.seriesData.bars[i].originalData.phl_time_to
+                        if (this.visibleTimeLimit && phlTimeTo > this.visibleTimeLimit) phlTimeTo = this.visibleTimeLimit
+                        phlTimeToX = timeScale.timeToNearestCoordinate(phlTimeTo)
                     } else if (i < bars.length - 3) {
-                        phlTimeToX = timeScale.timeToNearestCoordinate(this.seriesData.bars[i + 2].originalData.current_time)
-                    } else { }
+                        let phlTimeTo = this.seriesData.bars[i + 2].originalData.current_time
+                        if (this.visibleTimeLimit && phlTimeTo > this.visibleTimeLimit) phlTimeTo = this.visibleTimeLimit
+                        phlTimeToX = timeScale.timeToNearestCoordinate(phlTimeTo)
+                    }
 
                     ctx.beginPath()
                     ctx.moveTo(bar.x, y1)
@@ -541,17 +560,19 @@ class MentStructure extends SeriesRenderer {
                     }
                 }
             }
+        }
 
-            if (i >= visibleRange.from && i <= visibleRange.to && false) {
+
+        if (this.visibleTimeLimit && this.visibleTimeIndex) {
+            let timeScale = this.lightweightChart.timeScale()
+            let lastCandleX = timeScale.timeToNearestCoordinate(this.visibleTimeLimit)
+
+            let lastBarOriginal = this.seriesData.bars[lastVisibleIndex].originalData
+            let lastBar = bars[lastVisibleIndex]
+
+            if (lastCandleX >= 0 && lastBar.x <= ctx.canvas.clientWidth) {
                 let candleData = this.chartFrame.getVisibleData()
 
-                // ctx.strokeStyle = '#f00'
-                let timeScale = this.lightweightChart.timeScale()
-                let lastCandle = candleData[candleData.length - 1]
-                let lastCandleX = timeScale.timeToNearestCoordinate(lastCandle.time)
-
-                let lastBarOriginal = this.seriesData.bars[this.seriesData.bars.length - 1].originalData
-                let lastBar = bars[bars.length - 1]
                 ctx.beginPath()
                 ctx.moveTo(lastBar.x, lastBar.y)
                 ctx.lineTo(lastCandleX, lastBar.y)
@@ -560,7 +581,7 @@ class MentStructure extends SeriesRenderer {
                 let highestCandle = candleData[lastBarOriginal.index]
                 let lowestCandle = candleData[lastBarOriginal.index]
 
-                for (let i = lastBarOriginal.index + 1; i < candleData.length; i++) {
+                for (let i = lastBarOriginal.index + 1; i <= this.visibleTimeIndex!; i++) {
                     let candle = candleData[i]
                     if (candle.high >= highestCandle.high) highestCandle = candle
                     if (candle.low <= lowestCandle.low) lowestCandle = candle
@@ -572,20 +593,19 @@ class MentStructure extends SeriesRenderer {
                 let lowestCandleX = timeScale.timeToNearestCoordinate(lowestCandle.time)
                 let lowsatCandleY = priceToCoordinate(lowestCandle.low)
 
-                if (lastBar.y != highestCandleY) {
+                if (lastBar.y != highestCandleY && (lastBar.type === 'phl' || lastBar.type === 'phl_bos') && lastBar.protected === 'low') {
                     ctx.beginPath()
                     ctx.moveTo(highestCandleX, highestCandleY)
                     ctx.lineTo(lastCandleX, highestCandleY)
                     ctx.stroke()
                 }
 
-                if (lastBar.y != lowsatCandleY) {
+                if (lastBar.y != lowsatCandleY && (lastBar.type === 'phl' || lastBar.type === 'phl_bos') && lastBar.protected === 'high') {
                     ctx.beginPath()
                     ctx.moveTo(lowestCandleX, lowsatCandleY)
                     ctx.lineTo(lastCandleX, lowsatCandleY)
                     ctx.stroke()
                 }
-
             }
         }
     }
