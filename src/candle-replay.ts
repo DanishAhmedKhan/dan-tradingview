@@ -64,6 +64,14 @@ class CandleReplay {
         this.candleReplayHtmlElement = this.parentHtmlElement.querySelector('.candle_replay_main')
     }
 
+    public getCandleIndex(): number {
+        return this.candleIndex
+    }
+
+    public setCandleIndex(index: number): void {
+        this.candleIndex = index
+    }
+
     public addClickListener(): void {
         this.candleReplayHtmlElement?.addEventListener('click', (event) => {
             this.isReplayPressed = true

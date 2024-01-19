@@ -18,7 +18,7 @@ class ChartMain {
 
     private chartMainHtmlElement: HTMLElement
 
-    private calendar: Calendar | null = null
+    public static calendar: Calendar | null = null
     public static candleReplay: CandleReplay | null = null
 
     constructor(chartMainHtmlElement: HTMLElement | string) {
@@ -55,9 +55,9 @@ class ChartMain {
         this.chartFrameManager.setToolManager(this.toolManager)
 
         let headerRightHtmlElement = this.chartMainHtmlElement.querySelector('.header_right')! as HTMLElement
-        this.calendar = new Calendar(headerRightHtmlElement, this.chartFrameManager)
+        ChartMain.calendar = new Calendar(headerRightHtmlElement, this.chartFrameManager)
 
-        this.chartFrameManager.addChartFrame(this.calendar!)
+        this.chartFrameManager.addChartFrame(ChartMain.calendar!)
 
         this.addChartMainHeaderHtml()
     }

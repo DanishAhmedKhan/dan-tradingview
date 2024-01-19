@@ -15,3 +15,17 @@ export function getId(length: number = 24): string {
 
     return id
 }
+
+export function getDate(timestamp: number): string {
+    let date = new Date(timestamp * 1000)
+    let year = date.getFullYear()
+    let month = date.getMonth() + 1
+    let day = date.getDate()
+
+    let monthStr = month < 10 ? '0' + month : month + ''
+    let dayStr = day < 10 ? '0' + day : day + ''
+
+    let dateValue = year + '-' + monthStr + '-' + dayStr
+
+    return dateValue
+}

@@ -8,6 +8,8 @@ class Calendar {
 
     private chartFrameManager: ChartFrameManager
 
+    private currentDate: string = ''
+
     constructor(htmlElement: HTMLElement, chartFrameManager: ChartFrameManager) {
         this.addGoToDateCalendarHtml(htmlElement)
         this.addGoToDateCalendarListener()
@@ -45,14 +47,23 @@ class Calendar {
         }
     }
 
+    public setCalendarDate(ticker: string, date: string): void {
+        localStorage.setItem(`date-${ticker}`, date)
+    }
+
+    public getCalendarDate(ticker: string): string {
+        let date = localStorage.getItem(`date-${ticker}`) || ''
+        return date
+    }
+
     public addGoToDateCalendarListener(): void {
         this.calendarLogoHtmlElement!.onclick = (event) => {
             this.calendarHTMLInputElement!.click()
-
         }
 
         this.calendarHTMLInputElement!.onchange = (event) => {
             let dateValue = this.calendarHTMLInputElement!.value
+            console.log('dv', dateValue)
 
             let ticker = this.chartFrameManager.getActiveChartFrame().getTicker().getTicker()
             localStorage.setItem(`date-${ticker}`, dateValue)
@@ -65,6 +76,11 @@ class Calendar {
         if (!dateValue) {
             let ticker = this.chartFrameManager.getActiveChartFrame().getTicker().getTicker()
             dateValue = localStorage.getItem(`date-${ticker}`) || ''
+            console.log('datevalue', dateValue)
+
+            if (dateValue.includes('+')) {
+                dateValue = dateValue.substring(0, dateValue.indexOf('+'))
+            }
             this.calendarHTMLInputElement!.value = dateValue
         }
 
@@ -84,6 +100,7 @@ class Calendar {
         let days = Math.floor((+date - +year) / (24 * 60 * 60 * 1000))
         let week = Math.ceil((date.getDay() + 1 + days) / 7)
         let filename = date.getFullYear() + '-' + week
+        console.log('filename', filename)
 
         let activeChartFrame = this.chartFrameManager.getActiveChartFrame()
         activeChartFrame.setIsDataLoaded(false)
@@ -91,7 +108,7 @@ class Calendar {
         if (isTimestamp) {
             activeChartFrame.displayChart(timestamp)
         } else {
-            activeChartFrame.displayChart()
+            activeChartFrame.displayChart(timestamp)
         }
 
     }

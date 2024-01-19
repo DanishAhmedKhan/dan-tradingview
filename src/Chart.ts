@@ -3,6 +3,7 @@ import ChartMain from './ChartMain';
 import { MentStructure } from './series/ment-structure';
 import { Series } from './series/series';
 import { SeriesRenderer } from './series/series-renderer';
+import { SimpleMovingAverage } from './series/simple-moving-average';
 
 declare global {
     interface Window {
@@ -94,6 +95,8 @@ class Chart {
         this.chartOption = {
             // shiftVisibleRangeOnNewBar: false,
             autoSize: true,
+            // width: screen.width - 200,
+            // height: screen.height - 200,
 
             grid: {
                 vertLines: { color: this.chartGridColor },
@@ -103,9 +106,9 @@ class Chart {
                 timeVisible: true,
                 secondsVisible: true,
             },
-            // priceScale: {
-            //     autoScale: false,
-            // },
+            priceScale: {
+                autoScale: false,
+            },
             leftPriceScale: {
                 borderColor: '#ff0000'
             },
@@ -142,19 +145,28 @@ class Chart {
                 precision: 5,
                 minMove: 0.00001,
             },
+            // autoscaleInfoProvider: () => ({
+            //     priceRange: {
+            //         minValue: 0,
+            //         maxValue: 100,
+            //     },
+            // }),
         }
 
         this.candleSeries.applyOptions(this.candleSeriesOption)
 
         let mentStrustureRenderer = new MentStructure(this.lightweightChart, this.chartFrame)
-        let mentStructureSeries = new Series(mentStrustureRenderer)
-        this.addIndicatorSeries(mentStrustureRenderer, mentStructureSeries)
+        let simpleMovingAverageRenderer = new SimpleMovingAverage(this.lightweightChart, this.chartFrame)
+
+        this.addIndicatorSeries(mentStrustureRenderer)
+        // this.addIndicatorSeries(simpleMovingAverageRenderer)
 
         this.lightweightChart.timeScale().applyOptions({ shiftVisibleRangeOnNewBar: false })
         this.addChartScrollListener()
     }
 
-    public addIndicatorSeries(renderer: SeriesRenderer, series: Series): void {
+    public addIndicatorSeries(renderer: SeriesRenderer): void {
+        let series = new Series(renderer)
         let chartSeries = this.lightweightChart.addCustomSeries(series, {})
 
         this.indicator.push({
@@ -195,12 +207,20 @@ class Chart {
     }
 
     public addIndicatorToChart(data: any): void {
+        // return
         if (!data) return
+
+        this.resetChartScale()
 
         this.indicator.forEach(indicator => {
             indicator.renderer.processData(data)
             indicator.chartSeries.setData(indicator.renderer.getData())
         })
+
+        setTimeout(() => {
+
+            this.resetChartScale()
+        }, 2000)
     }
 
     public processIndicator(data: any) {
@@ -246,9 +266,12 @@ class Chart {
             .subscribeVisibleLogicalRangeChange(onVisibleLogicalRangeChanged)
 
         this.lightweightChart.subscribeCrosshairMove((data: any) => {
+            // console.log(data)
             if (data.seriesData != null && data.seriesData.size === 1) {
                 let value = data.seriesData.values().next().value
                 this.chartFrame.handleCrosshairMove(value)
+
+                this.chartFrame.setCalendarDate()
             }
         })
 

@@ -80,6 +80,14 @@ class Datafeed {
         return this.data
     }
 
+    public isDateInFilename(date: string): boolean {
+        return this.dateFilename.length > 0 && this.dateFilename.includes(date)
+    }
+
+    public getDefaultDateFilename(): string {
+        return this.dateFilename[0]
+    }
+
     public getTickerTimeframeData(ticker: Ticker, timeframe: Timeframe, date: string): Array<CandleData> {
         let timeUnit = timeframe.getUnit() as TimeframeUnit
         let tf = timeframe.getTimeframeString()
@@ -103,9 +111,11 @@ class Datafeed {
             // console.log('dates', str)
             // console.log(new Date(data[0].time * 1000), new Date(data[data.length - 1].time * 1000))
         } else {
+            console.log('data', this.data)
             throw Error("Data with given ticker and timeframe not found")
         }
 
+        // console.log('data.length', data.length)
         return data
     }
 
@@ -218,7 +228,6 @@ class Datafeed {
         }
 
         if (!date || date === '' || !this.dateFilename.includes(date)) {
-            console.log('hereee')
             date = this.dateFilename[0]
         }
 

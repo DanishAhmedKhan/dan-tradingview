@@ -7,7 +7,7 @@ import { DrawingManager } from './drawing/drawing-manager'
 import { ToolbarManager } from './drawing/toolbar-manager'
 import { CHartHUD } from './chart-hud'
 import ChartMain from './ChartMain'
-import { ChartFrameManager } from './ChartFrameManager'
+import { getDate } from './helper/util'
 
 type ChartFrameData = {
     ticker: string,
@@ -154,21 +154,40 @@ class ChartFrame {
     }
 
     public setDate(date: string): void {
-        this.date = date
+        if (this.datafeed.isDateInFilename(date)) {
+            this.date = date
+        } else {
+            this.date = this.datafeed.getDefaultDateFilename()
+        }
     }
 
     public getVisibleData(): Array<CandleData> {
         return this.visibleData
     }
 
+    public getData() {
+        return this.data
+    }
+
     public nextDate(): void {
         this.date = this.datafeed.getNextDateFilename(this.date)
-        // console.log('next', this.date)
     }
 
     public previousDate(): void {
         this.date = this.datafeed.getPreviousDateFilename(this.date)
-        // console.log('prev', this.date)
+    }
+
+    public setCalendarDate(): void {
+        let timeScale = this.chart.getLightweightChart().timeScale()
+        let logicalRange = timeScale.getVisibleLogicalRange()
+
+        let middleCandleIndex = Math.floor((logicalRange.from + logicalRange.to) / 2)
+
+        if (middleCandleIndex < this.data.length - 1 && this.data[middleCandleIndex]) {
+            let middleCandleTime = this.data[middleCandleIndex].time
+            let dateValue = getDate(middleCandleTime)
+            ChartMain.calendar?.setCalendarDate(this.ticker.getTicker(), dateValue)
+        }
     }
 
     public setTimeframe(timeframe: Timeframe): void {
@@ -181,9 +200,13 @@ class ChartFrame {
         this.chartFrameData.timeframe = timeframe.getTimeframe()
         this.saveChartFrameData()
 
+
         let shouldDisplayChart: boolean = this.timeframe.getTimeframeString() !== timeframe.getTimeframeString()
         this.timeframe = timeframe
-        if (shouldDisplayChart) this.displayChart(timestamp)
+        this.isDataLoaded = false
+        if (shouldDisplayChart) {
+            this.displayChart(timestamp)
+        }
 
         this.chartHUD.setTimeframe(timeframe)
     }
@@ -225,33 +248,36 @@ class ChartFrame {
 
     public findCandleWithTimestamp(timestamp: number) {
         let candle = this.data.find(d => d.time === timestamp)
-        // console.log(candle)
         return candle
     }
 
     public handleScroll(barsInfo: any): void {
+        // return
         if (barsInfo == null || !this.getIsDataLoaded() || ChartMain.candleReplay?.isReplayMode) return
-
-        // console.log('scrolll')
 
         const CANDLE_THRESHOLD = 100
         let { barsBefore, barsAfter } = barsInfo
 
-        if (barsBefore < CANDLE_THRESHOLD ||
-            barsAfter < CANDLE_THRESHOLD
-        ) {
+        if (barsBefore < CANDLE_THRESHOLD || barsAfter < CANDLE_THRESHOLD) {
+            // console.log('scroll', this.getIsDataLoaded(), barsAfter, barsBefore)
             if (this.getIsDataLoaded()) {
-                // console.log('scroll', barsInfo)
                 this.fromTimestamp = barsInfo.from
                 this.toTimestamp = barsInfo.to
+
+                // console.log(barsAfter < CANDLE_THRESHOLD, barsBefore < CANDLE_THRESHOLD)
+
                 if (barsAfter < CANDLE_THRESHOLD) {
+                    // console.log('danish ahmed khan is aasassa', this.date)
                     if (this.datafeed.isFirstDate(this.date)) return
                     // this.previousDate()
                     this.nextDate()
 
-                } else if (barsBefore < CANDLE_THRESHOLD) {
+                }
+                if (barsBefore < CANDLE_THRESHOLD) {
+                    // console.log('rera')
                     if (this.datafeed.isLasttDate(this.date)) return
                     // this.nextDate()
+                    // console.log('prev')
                     this.previousDate()
                 }
                 this.setIsDataLoaded(false)
@@ -263,79 +289,61 @@ class ChartFrame {
     public async displayChart(time?: number) {
         if (this.isDataLoaded) return
 
+        let replayLastTime
+        if (ChartMain.candleReplay?.isReplayMode) {
+            replayLastTime = this.data[ChartMain.candleReplay?.getCandleIndex()].time
+            console.log('replayLastTime', replayLastTime, new Date(replayLastTime * 1000))
+        }
+
         let date = await this.datafeed.loadData(this.ticker, this.date)
         if (date != null) this.date = date as string
 
         let timeScale = this.chart.getLightweightChart().timeScale()
-        // timeScale.applyOptions({ shiftVisibleRangeOnNewBar: false })
         let logicalRange: any = timeScale.getVisibleLogicalRange()
-        // if (time) {
-        //     console.log('timestamp')
-        //     logicalRange = timeScale.getVisibleLogicalRange()
-        // }
 
         let data = this.datafeed.getTickerTimeframeData(this.ticker, this.timeframe, this.date)
-        // console.log('data length', data.length)
-        // console.log(data)
-        timeScale.applyOptions({
-            shiftVisibleRangeOnNewBar: false,
-        })
-        this.chart.addDataToCandleSeries(data)
-        this.chart.addIndicatorToChart(data)
-        // timeScale.applyOptions({ shiftVisibleRangeOnNewBar: false })
         this.data = data
-        this.visibleData = data
-        // console.log(data)
+        // console.log('data', data)
 
-        if (time && logicalRange) {
-            // console.log('timee')
-            let closestTime = -1
-            let minDiff = Math.abs(data[0].time - time!)
-            data.forEach(d => {
-                let diff = Math.abs(d.time - time!)
-                if (diff < minDiff) {
-                    closestTime = d.time
-                    minDiff = diff
-                }
-            })
+        timeScale.applyOptions({ shiftVisibleRangeOnNewBar: false })
 
-            let position = timeScale.timeToCoordinate(closestTime)
-            let logical = timeScale.coordinateToLogical(position)
-
-            let semirange = (logicalRange.to - logicalRange.from) / 2
-            timeScale.setVisibleLogicalRange({
-                from: logical - semirange,
-                to: logical + semirange
-            })
-
-            this.chart.resetChartScale()
+        if (ChartMain.candleReplay?.isReplayMode && replayLastTime) {
+            this.setReplayMode(replayLastTime)
         } else {
+            this.chart.addDataToCandleSeries(data)
+            this.chart.addIndicatorToChart(data)
+            this.visibleData = data
 
-            // logicalRange = timeScale.getVisibleLogicalRange()
-            // if (ChartFrameManager.isChartLoaded && this.fromTimestamp > 0 && this.toTimestamp > 0) {
+            if (time && logicalRange) {
+                let closestTime = -1
+                let minDiff = Math.abs(data[0].time - time!)
+                data.forEach(d => {
+                    let diff = Math.abs(d.time - time!)
+                    if (diff < minDiff) {
+                        closestTime = d.time
+                        minDiff = diff
+                    }
+                })
 
-            //     console.log('elsee')
+                let position = timeScale.timeToCoordinate(closestTime)
+                let logical = timeScale.coordinateToLogical(position)
 
-            //     let positionFrom = timeScale.timeToCoordinate(this.fromTimestamp)
-            //     let logicalFrom = timeScale.coordinateToLogical(positionFrom)
+                let semirange = (logicalRange.to - logicalRange.from) / 2
+                timeScale.setVisibleLogicalRange({
+                    from: logical - semirange,
+                    to: logical + semirange
+                })
 
-            //     let positionTo = timeScale.timeToCoordinate(this.toTimestamp)
-            //     let logicalTo = timeScale.coordinateToLogical(positionTo)
+                this.chart.resetChartScale()
+            }
 
-            //     console.log(this.fromTimestamp, positionFrom, logicalFrom)
-            //     console.log(this.toTimestamp, positionTo, logicalTo)
+            this.removeDrawing()
+            this.displayDrawing()
 
-            //     timeScale.setVisibleLogicalRange({
-            //         from: logicalFrom,
-            //         to: logicalTo,
-            //     })
-            // }
+            this.setIsDataLoaded(true)
         }
 
-        this.removeDrawing()
-        this.displayDrawing()
 
-        this.setIsDataLoaded(true)
     }
 
     public static getChartFrame(chartframes: Array<ChartFrame>, index: number): ChartFrame {
@@ -357,71 +365,78 @@ class ChartFrame {
         this.toolManager.getAllTool().forEach(tool => tool.removeAllFromChart(this.drawingManager))
     }
 
-    public setReplayMode(): number {
+    public setReplayMode(time?: number): number {
         let indicator = this.chart.getIndicator()
 
-        let index = this.data.findIndex((candle) => {
-            return candle.time === this.hoverCandleData.time
+        let index = this.data.findIndex((candle, i) => {
+            if (time) {
+                if (i !== this.data.length) return candle.time < time && this.data[i + 1].time >= time
+            } else {
+                return candle.time === this.hoverCandleData.time
+            }
         })
 
-        indicator.forEach(indicator => {
-            indicator.renderer.setVisibleLimit(this.hoverCandleData.time, index)
-        })
+        console.log('time', this.hoverCandleData.time, this.data[index].time, this.data[index].close)
+
+        if (time) {
+            // console.log('TIME', this.data[index].time)
+            // index = index + 1
+            indicator.forEach(indicator => {
+                indicator.renderer.setVisibleLimit(time, index)
+            })
+        } else {
+            indicator.forEach(indicator => {
+                indicator.renderer.setVisibleLimit(this.hoverCandleData.time, index)
+            })
+        }
+
 
         let dataCopy = [...this.data]
         let newCandleData = this.data.splice(0, index)
         this.data = [...dataCopy]
 
+        console.log('NEW DATA TIME', newCandleData[newCandleData.length - 1].time, new Date(newCandleData[newCandleData.length - 1].time * 1000))
+
         let timeScale = this.chart.getLightweightChart().timeScale()
         let logicalRange = timeScale.getVisibleLogicalRange()
 
         this.chart.addDataToCandleSeries(newCandleData)
-        timeScale.setVisibleLogicalRange({
-            from: logicalRange.from,
-            to: logicalRange.to,
-        })
-
-        // indicator.forEach(indicator => {
-        //     indicator.renderer.setVisibleTimeLimit(this.hoverCandleData.time)
-        // })
-
-
-        // this.chart.getIndicator().forEach(inidcator => {
-        //     let data = inidcator.renderer.getData()
-        //     // console.log('data', data)
-        //     let replayIndex = inidcator.renderer.getReplayIndex()
-        //     // console.log('replatIndex', replayIndex)
-
-        //     let newData = data.splice(0, replayIndex)
-        //     // newData.push({
-        //     //     type: 'end',
-        //     //     time: newCandleData[newCandleData.length - 1].time,
-        //     //     current_time: newCandleData[newCandleData.length - 1].time,
-        //     // })
-        //     // console.log(newData)
-
-        //     inidcator.chartSeries.setData(newData)
-        // })
+        if (time) {
+            this.chart.addIndicatorToChart(this.data)
+            timeScale.setVisibleLogicalRange({
+                from: newCandleData.length - 100,
+                to: newCandleData.length + 100,
+            })
+        } else {
+            timeScale.setVisibleLogicalRange({
+                from: logicalRange.from,
+                to: logicalRange.to,
+            })
+        }
 
         return index
     }
 
     public async displayNextCandle(index: number) {
-        if (this.data.length - index < 50) {
+        if (this.data.length - index < 300) {
+
             this.date = this.datafeed.getNextDateFilename(this.date)
             let date = await this.datafeed.loadData(this.ticker, this.date)
             if (date != null) this.date = date as string
             this.data = this.datafeed.getTickerTimeframeData(this.ticker, this.timeframe, this.date)
 
-            // this.chart.processIndicator(this.data)
             this.chart.addIndicatorToChart(this.data)
         }
 
         let candle = this.data[index]
+
+        let dateValue = getDate(candle.time)
+        dateValue = dateValue + '+' + candle.time
+        ChartMain.calendar?.setCalendarDate(this.ticker.getTicker(), dateValue)
+
         if (candle != null) {
             this.chart.updateCandle(candle)
 
-            console.log(candle.time)
             this.chart.getIndicator().forEach(indicator => {
                 indicator.renderer.setVisibleLimit(candle.time, index)
             })

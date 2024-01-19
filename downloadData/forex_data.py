@@ -37,7 +37,7 @@ def save_data(tempdata, type, ticker, outname):
 
     if type == 'D' or not os.path.isfile(fullname):
         outdir.mkdir(parents=True, exist_ok=True)
-        tempdata.to_csv(fullname, header=False, index=True)
+        tempdata.to_csv(fullname, header=False, index=False)
 
 
 def save_data_MH(tempdata, type, ticker, year, week):
