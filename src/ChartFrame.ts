@@ -195,7 +195,8 @@ class ChartFrame {
         let logicalRange = timeScale.getVisibleLogicalRange()
         let centerCandleIndex = +((logicalRange.from + logicalRange.to) / 2).toFixed(0)
         let candle = this.data[centerCandleIndex]
-        let timestamp = candle.time
+        let timestamp
+        if (candle) timestamp = candle.time
 
         this.chartFrameData.timeframe = timeframe.getTimeframe()
         this.saveChartFrameData()
@@ -252,33 +253,27 @@ class ChartFrame {
     }
 
     public handleScroll(barsInfo: any): void {
-        // return
         if (barsInfo == null || !this.getIsDataLoaded() || ChartMain.candleReplay?.isReplayMode) return
 
         const CANDLE_THRESHOLD = 100
         let { barsBefore, barsAfter } = barsInfo
 
         if (barsBefore < CANDLE_THRESHOLD || barsAfter < CANDLE_THRESHOLD) {
-            // console.log('scroll', this.getIsDataLoaded(), barsAfter, barsBefore)
             if (this.getIsDataLoaded()) {
                 this.fromTimestamp = barsInfo.from
                 this.toTimestamp = barsInfo.to
 
-                // console.log(barsAfter < CANDLE_THRESHOLD, barsBefore < CANDLE_THRESHOLD)
-
                 if (barsAfter < CANDLE_THRESHOLD) {
-                    // console.log('danish ahmed khan is aasassa', this.date)
-                    if (this.datafeed.isFirstDate(this.date)) return
-                    // this.previousDate()
-                    this.nextDate()
-
+                    if (!this.datafeed.isFirstDate(this.date)) {
+                        // console.log('after', barsAfter)
+                        this.nextDate()
+                    }
                 }
                 if (barsBefore < CANDLE_THRESHOLD) {
-                    // console.log('rera')
-                    if (this.datafeed.isLasttDate(this.date)) return
-                    // this.nextDate()
-                    // console.log('prev')
-                    this.previousDate()
+                    if (!this.datafeed.isLasttDate(this.date)) {
+                        // console.log('before', barsBefore)
+                        this.previousDate()
+                    }
                 }
                 this.setIsDataLoaded(false)
                 this.displayChart()
@@ -297,20 +292,42 @@ class ChartFrame {
 
         let date = await this.datafeed.loadData(this.ticker, this.date)
         if (date != null) this.date = date as string
+        console.log('date', date)
 
         let timeScale = this.chart.getLightweightChart().timeScale()
         let logicalRange: any = timeScale.getVisibleLogicalRange()
 
         let data = this.datafeed.getTickerTimeframeData(this.ticker, this.timeframe, this.date)
         this.data = data
-        // console.log('data', data)
+        // console.log('data length', this.data.length)
+
+
+        let lastTimefrane = this.data[this.data.length - 1].time
+        let emptyData = []
+        let EMPTY_DATA_COUNT = 1000
+
+        let timeframeInteval = 0
+        if (this.timeframe.getUnit() === 'M') {
+            timeframeInteval = 60
+        } else if (this.timeframe.getUnit() === 'H') {
+            timeframeInteval = 3600
+        }
+
+        for (let i = 1; i < EMPTY_DATA_COUNT; i++) {
+            let newTimeframe = lastTimefrane + timeframeInteval * this.timeframe.getValue() * i;
+            emptyData.push({ time: newTimeframe })
+        }
+
+        if (this.timeframe.getUnit() !== 'D') {
+            this.data = this.data.concat(emptyData)
+        }
 
         timeScale.applyOptions({ shiftVisibleRangeOnNewBar: false })
 
         if (ChartMain.candleReplay?.isReplayMode && replayLastTime) {
             this.setReplayMode(replayLastTime)
         } else {
-            this.chart.addDataToCandleSeries(data)
+            this.chart.addDataToCandleSeries(this.data)
             this.chart.addIndicatorToChart(data)
             this.visibleData = data
 
@@ -342,8 +359,6 @@ class ChartFrame {
 
             this.setIsDataLoaded(true)
         }
-
-
     }
 
     public static getChartFrame(chartframes: Array<ChartFrame>, index: number): ChartFrame {
@@ -353,6 +368,8 @@ class ChartFrame {
 
         throw Error('ChartFrame with the index not found')
     }
+
+    // https://github.com/tradingview/lightweight-charts/issues/1498
 
     public displayDrawing(): void {
         this.toolManager.getAllTool().forEach(tool => tool.addAllToChart(this.drawingManager))

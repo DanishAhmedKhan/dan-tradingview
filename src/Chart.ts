@@ -107,7 +107,7 @@ class Chart {
                 secondsVisible: true,
             },
             priceScale: {
-                autoScale: false,
+                autoScale: true,
             },
             leftPriceScale: {
                 borderColor: '#ff0000'
@@ -210,17 +210,17 @@ class Chart {
         // return
         if (!data) return
 
-        this.resetChartScale()
+        // this.resetChartScale()
 
         this.indicator.forEach(indicator => {
             indicator.renderer.processData(data)
             indicator.chartSeries.setData(indicator.renderer.getData())
         })
 
-        setTimeout(() => {
+        // setTimeout(() => {
 
-            this.resetChartScale()
-        }, 2000)
+        //     this.resetChartScale()
+        // }, 2000)
     }
 
     public processIndicator(data: any) {

@@ -3,11 +3,11 @@ import { Timeframe, TimeframeUnit } from './Timeframe'
 
 type CandleData = {
     time: number,
-    open: number,
-    high: number,
-    low: number,
-    close: number,
-    meta: {
+    open?: number,
+    high?: number,
+    low?: number,
+    close?: number,
+    meta?: {
         datetime: string,
         month: number,
         day: number,
@@ -53,7 +53,7 @@ class Datafeed {
 
     private readonly offset = {
         M: 1,
-        H: 1,
+        H: 2,
         D: 1,
     }
 
@@ -208,18 +208,25 @@ class Datafeed {
     async loadFileFromInterval(ticker: Ticker, date: string, timeUnit: TimeframeUnit) {
         let offset = this.offset[timeUnit]
         let index = this.dateFilename.indexOf(date)
+        // console.log('index', index)
         let tk = ticker.getTicker()
+        let str = ''
 
         for (let i = index - offset; i <= index + offset; i++) {
             if (i >= this.dateFilename.length || i < 0) continue
 
             let filename = this.dateFilename[i]
+            str += filename + ' '
+            // console.log('')
             // console.log('bool', this.loadedFilename[tk][timeUnit].includes(filename))
             if (!this.loadedFilename[tk][timeUnit].includes(filename)) {
                 await this.loadDataTimeframe(ticker, filename, timeUnit)
                 this.loadedFilename[tk][timeUnit].push(filename)
+                // str += filename + ' '
             }
+            // console.log('filena', str)
         }
+        console.log('filename', str)
     }
 
     async loadData(ticker: Ticker, date: string) {
@@ -365,8 +372,8 @@ class Datafeed {
         let low = 999999
 
         data.forEach((d) => {
-            if (d.high > high) high = d.high
-            if (d.low < low) low = d.low
+            if (d.high! > high) high = d.high!
+            if (d.low! < low) low = d.low!
         })
 
         return {

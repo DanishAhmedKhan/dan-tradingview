@@ -1,7 +1,7 @@
 import { Drawing, Options } from "./drawing"
 import { Point } from "./point"
 import { DrawingManager } from "./drawing-manager"
-import { drawCirularHandle, fillPolyon } from "../helper/canvas"
+import { drawBoxHandle, drawCirularHandle, fillPolyon } from "../helper/canvas"
 import { Tool } from "../tool/Tool"
 
 type RectangleOptions = Options & {
@@ -43,11 +43,6 @@ class Rectangle extends Drawing<RectangleOptions> {
     }
 
     public paint(ctx: any, bitmapSize: any): void {
-        // strokePolyon(ctx, this.point, {...this.options, 
-        //     color: this.options.borderColor,
-        //     opacity: this.options.borderOpacity,
-        //     lineWidth: this.options.borderWidth,
-        // })
         fillPolyon(ctx, this.point, {
             ...this.options,
             color: this.options.fillColor,
@@ -59,6 +54,10 @@ class Rectangle extends Drawing<RectangleOptions> {
         for (let i = 0; i < this.point.length; ++i) {
             drawCirularHandle(ctx, this.point[i], this.hoverOption)
         }
+        // let midX = (this.point[0].getX()! + this.point[1].getX()!) / 2
+        // let midY = (this.point[1].getY()! + this.point[2].getY()!) / 2
+        // let poin1 = new Point(midX, this.point[0].getY())
+        // drawBoxHandle(ctx, )
     }
 
     public override isHover(x: number, y: number): boolean {

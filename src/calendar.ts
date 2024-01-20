@@ -63,7 +63,6 @@ class Calendar {
 
         this.calendarHTMLInputElement!.onchange = (event) => {
             let dateValue = this.calendarHTMLInputElement!.value
-            console.log('dv', dateValue)
 
             let ticker = this.chartFrameManager.getActiveChartFrame().getTicker().getTicker()
             localStorage.setItem(`date-${ticker}`, dateValue)
@@ -76,7 +75,6 @@ class Calendar {
         if (!dateValue) {
             let ticker = this.chartFrameManager.getActiveChartFrame().getTicker().getTicker()
             dateValue = localStorage.getItem(`date-${ticker}`) || ''
-            console.log('datevalue', dateValue)
 
             if (dateValue.includes('+')) {
                 dateValue = dateValue.substring(0, dateValue.indexOf('+'))
@@ -100,7 +98,6 @@ class Calendar {
         let days = Math.floor((+date - +year) / (24 * 60 * 60 * 1000))
         let week = Math.ceil((date.getDay() + 1 + days) / 7)
         let filename = date.getFullYear() + '-' + week
-        console.log('filename', filename)
 
         let activeChartFrame = this.chartFrameManager.getActiveChartFrame()
         activeChartFrame.setIsDataLoaded(false)
