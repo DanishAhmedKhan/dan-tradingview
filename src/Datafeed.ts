@@ -129,8 +129,6 @@ class Datafeed {
                 f.replace(/(\r\n|\n|\r)/gm, "")
             )
             this.dateFilename.reverse()
-
-            // console.log('date filename', this.dateFilename)
         } catch (e) {
             throw Error('dates.csv not found in data folder')
         }
@@ -148,11 +146,6 @@ class Datafeed {
         let index = this.dateFilename.indexOf(date)
         if (index < 0) throw Error('date not valid')
 
-        // if (index + 1 >= this.dateFilename.length)
-        //     return date
-
-        // return this.dateFilename[index + 1]
-
         if (index - 1 < 0)
             return date
 
@@ -162,11 +155,6 @@ class Datafeed {
     public getPreviousDateFilename(date: string): string {
         let index = this.dateFilename.indexOf(date)
         if (index < 0) throw Error('date not valid')
-
-        // if (index - 1 < 0)
-        //     return date
-
-        // return this.dateFilename[index - 1]
 
         if (index + 1 >= this.dateFilename.length)
             return date
@@ -208,25 +196,17 @@ class Datafeed {
     async loadFileFromInterval(ticker: Ticker, date: string, timeUnit: TimeframeUnit) {
         let offset = this.offset[timeUnit]
         let index = this.dateFilename.indexOf(date)
-        // console.log('index', index)
         let tk = ticker.getTicker()
-        let str = ''
 
         for (let i = index - offset; i <= index + offset; i++) {
             if (i >= this.dateFilename.length || i < 0) continue
 
             let filename = this.dateFilename[i]
-            str += filename + ' '
-            // console.log('')
-            // console.log('bool', this.loadedFilename[tk][timeUnit].includes(filename))
             if (!this.loadedFilename[tk][timeUnit].includes(filename)) {
                 await this.loadDataTimeframe(ticker, filename, timeUnit)
                 this.loadedFilename[tk][timeUnit].push(filename)
-                // str += filename + ' '
             }
-            // console.log('filena', str)
         }
-        console.log('filename', str)
     }
 
     async loadData(ticker: Ticker, date: string) {
