@@ -427,6 +427,7 @@ class MentStructure extends SeriesRenderer {
                     if (!(this.visibleTimeLimit && bosTimeTo >= this.visibleTimeLimit) && !this.seriesData.bars[i].originalData.phl_time_to) {
                         ctx.beginPath()
                         ctx.moveTo(phlTimeToX, y2)
+                        // TODO: this resulted in a bug; check it later
                         ctx.lineTo(phlTimeToX, bars[i + 2].y)
                         ctx.stroke()
                     }

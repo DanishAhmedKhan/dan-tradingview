@@ -81,11 +81,22 @@ class Datafeed {
     }
 
     public isDateInFilename(date: string): boolean {
-        return this.dateFilename.length > 0 && this.dateFilename.includes(date)
+        return this.dateFilename.length === 0 ||
+            (this.dateFilename.length > 0 && this.dateFilename.includes(date))
     }
 
     public getDefaultDateFilename(): string {
         return this.dateFilename[0]
+    }
+
+    public getTickerTimeFrameCurrentDate(ticker: Ticker, timeframe: Timeframe, date: string): Array<CandleData> {
+        let tk = ticker.getTicker()
+
+        if (this.data.hasOwnProperty(tk) && this.data[tk].hasOwnProperty(date)) {
+            return this.data[tk][date][timeframe.getTimeframeString()]
+        } else {
+            throw Error("Data with given ticker and timeframe not found")
+        }
     }
 
     public getTickerTimeframeData(ticker: Ticker, timeframe: Timeframe, date: string): Array<CandleData> {
@@ -207,6 +218,16 @@ class Datafeed {
                 this.loadedFilename[tk][timeUnit].push(filename)
             }
         }
+    }
+
+    async getDataFromDate(ticker: Ticker, timeframe: Timeframe, date: string) {
+        let tk = ticker.getTicker()
+
+        if (!this.data.hasOwnProperty(tk) || !this.data[tk].hasOwnProperty(date)) {
+            await this.loadData(ticker, date)
+        }
+
+        return this.data[tk][date][timeframe.getTimeframeString()]
     }
 
     async loadData(ticker: Ticker, date: string) {

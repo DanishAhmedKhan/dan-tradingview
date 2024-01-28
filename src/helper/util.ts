@@ -29,3 +29,14 @@ export function getDate(timestamp: number): string {
 
     return dateValue
 }
+
+export function getYearWeek(timestamp: number) {
+    let date = new Date(timestamp * 1000)
+
+    let year = new Date(date.getFullYear(), 0, 1)
+    let days = Math.floor((+date - +year) / (24 * 60 * 60 * 1000))
+    let week = Math.ceil((date.getDay() + 1 + days) / 7)
+    let yearWeek = date.getFullYear() + '-' + week
+
+    return yearWeek
+}
