@@ -387,8 +387,6 @@ class ChartFrame {
         throw Error('ChartFrame with the index not found')
     }
 
-    // https://github.com/tradingview/lightweight-charts/issues/1498
-
     public displayDrawing(): void {
         this.toolManager.getAllTool().forEach(tool => tool.addAllToChart(this.drawingManager))
         setTimeout(() => {
@@ -406,11 +404,6 @@ class ChartFrame {
 
     public async setReplayMode(time?: number) {
         let timestamp = time ? time : this.hoverCandleData.time
-        // await this.loadReplayData(timestamp)
-
-        console.log(new Date(timestamp * 1000))
-
-
         let yearWeek = getYearWeek(timestamp)
         let yearWeekCopy = yearWeek
 
@@ -420,7 +413,6 @@ class ChartFrame {
 
         while (data.length < REPLAY_CANLD_THRESHHOLD) {
             let prevData = await this.datafeed.getDataFromDate(this.ticker, this.timeframe, yearWeek)
-            console.log(yearWeek, prevData)
             data = prevData.concat(data)
             dataFileLoaded.push(yearWeek)
             yearWeek = this.datafeed.getPreviousDateFilename(yearWeek)
@@ -460,7 +452,6 @@ class ChartFrame {
 
         let lastCandle
         if (index < 0 || (i1 >= 0 && i2 >= 0 && i2 > i1)) {
-            console.log('inn')
             for (let i = 0; i < data.length - 1; i++) {
                 if (data[i].time <= timestamp && data[i + 1].time > timestamp) {
                     index = i
@@ -470,9 +461,6 @@ class ChartFrame {
 
             let startTime = data[index].time
             let stopTime = timestamp
-
-            console.log(new Date(startTime * 1000))
-            console.log(new Date(stopTime * 1000))
 
             let startIndex = -1
             let stopIndex = -1
@@ -518,8 +506,8 @@ class ChartFrame {
 
         this.data = [...data].slice(startIndex, data.length)
         this.replayData = [...data].slice(startIndex, index)
+
         if (lastCandle) {
-            console.log('candle', this.replayData[this.replayData.length - 1].time, lastCandle.time)
             this.replayData.push(lastCandle)
             startIndex = index < 1000 ? index : 1000
             this.subTimeframeCandle = this.data[startIndex]
@@ -531,19 +519,18 @@ class ChartFrame {
         ChartMain.candleReplay?.setCandleIndex(startIndex + 1)
 
 
-
-
-
         let timeScale = this.chart.getLightweightChart().timeScale()
+        let logicalRange = timeScale.getVisibleLogicalRange()
+
+        let rangeGap = logicalRange.to - logicalRange.from
+        let rangeGapMid = rangeGap / 2
 
         timeScale.setVisibleLogicalRange({
-            from: 900,
-            to: 1100,
+            from: 1000 - rangeGapMid,
+            to: 1000 + rangeGapMid,
         })
 
-        if (time) {
-            this.chart.addIndicatorToChart(this.replayData)
-        }
+        this.chart.addIndicatorToChart(this.data)
     }
 
     public async displayNextCandle(index: number) {

@@ -231,7 +231,6 @@ class Datafeed {
             await this.loadFileFromInterval(ticker, date, <TimeframeUnit>timeframe.getUnit())
         }
 
-        console.log(this.data)
         return this.data[tk][date][timeframe.getTimeframeString()]
     }
 

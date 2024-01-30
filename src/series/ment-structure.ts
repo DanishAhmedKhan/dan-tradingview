@@ -45,16 +45,16 @@ class MentStructure extends SeriesRenderer {
             let candle = candleData[i]
 
             if (state === 0) {
-                if (candle.close < temp_low) {
+                if (candle.close! < temp_low!) {
                     temp_break = BREAK_DOWN
                     state = 1
 
-                    bos = candle.low
+                    bos = candle.low!
                     bos_index = i
                     bear_phl = bos
                     bear_phl_index = i
 
-                    prev_phl = temp_high
+                    prev_phl = temp_high!
                     prev_phl_index = temp_high_index
 
                     mentStructureData[index++] = {
@@ -64,16 +64,16 @@ class MentStructure extends SeriesRenderer {
                         index: prev_phl_index,
                         price: prev_phl,
                     }
-                } else if (candle.close > temp_high) {
+                } else if (candle.close! > temp_high!) {
                     temp_break = BREAK_UP
                     state = 1
 
-                    bos = candle.high
+                    bos = candle.high!
                     bos_index = i
                     bull_phl = bos
                     bull_phl_index = i
 
-                    prev_phl = temp_low
+                    prev_phl = temp_low!
                     prev_phl_index = temp_low_index
 
                     mentStructureData[index++] = {
@@ -85,11 +85,11 @@ class MentStructure extends SeriesRenderer {
                         price: prev_phl,
                     }
                 } else {
-                    if (candle.high > temp_high) {
+                    if (candle.high! > temp_high!) {
                         temp_high = candle.high
                         temp_high_index = i
                     }
-                    if (candle.low < temp_low) {
+                    if (candle.low! < temp_low!) {
                         temp_low = candle.low
                         temp_low_index = i
                     }
@@ -99,31 +99,31 @@ class MentStructure extends SeriesRenderer {
 
                 if (temp_break === BREAK_DOWN) {
                     if (!pullback) {
-                        if (bos && candle.low < bos) {
-                            bos = candle.low
+                        if (bos && candle.low! < bos) {
+                            bos = candle.low!
                             bear_phl = bos
                             bos_index = i
                             bear_phl_index = i
                         }
                     }
 
-                    if (candle.close < prev_candle.low) {
-                        bear_phl = candle.low
+                    if (candle.close! < prev_candle.low!) {
+                        bear_phl = candle.low!
                         bear_phl_index = i
                     }
-                    if (candle.low < bear_phl) {
-                        bear_phl = candle.low
+                    if (candle.low! < bear_phl) {
+                        bear_phl = candle.low!
                         bear_phl_index = i
                     }
 
-                    if (candle.close > prev_candle.high ||
-                        (pullback && candle.high > bull_phl)) {
+                    if (candle.close! > prev_candle.high! ||
+                        (pullback && candle.high! > bull_phl)) {
                         pullback = true
-                        bull_phl = candle.high
+                        bull_phl = candle.high!
                         bull_phl_index = i
                     }
 
-                    if (pullback && candle.close < bos) {
+                    if (pullback && candle.close! < bos) {
                         if (bos_index === bull_phl_index) {
                             mentStructureData[index++] = {
                                 time: candleData[bos_index].time,
@@ -169,11 +169,11 @@ class MentStructure extends SeriesRenderer {
                         prev_phl = bull_phl
                         prev_phl_index = bull_phl_index
 
-                        bos = candle.low
+                        bos = candle.low!
                         bos_index = i
                         bear_phl = bos
                         bear_phl_index = i
-                    } else if (candle.close > prev_phl) {
+                    } else if (candle.close! > prev_phl) {
                         if (mentStructureData[index - 1].type === 'phl_bos') {
                             mentStructureData[index - 1].phl_time_to = candleData[i].time
                         } else {
@@ -211,38 +211,38 @@ class MentStructure extends SeriesRenderer {
                         pullback = false
                         prev_phl = bear_phl
                         prev_phl_index = bear_phl_index
-                        bos = candle.high
+                        bos = candle.high!
                         bos_index = i
                         bull_phl = bos
                         bull_phl_index = i
                     }
                 } else if (temp_break === BREAK_UP) {
                     if (!pullback) {
-                        if (bos && candle.high > bos) {
-                            bos = candle.high
+                        if (bos && candle.high! > bos) {
+                            bos = candle.high!
                             bos_index = i
                             bull_phl = bos
                             bull_phl_index = i
                         }
                     }
 
-                    if (candle.close > prev_candle.high) {
-                        bull_phl = candle.high
+                    if (candle.close! > prev_candle.high!) {
+                        bull_phl = candle.high!
                         bull_phl_index = i
                     }
-                    if (candle.high > bull_phl) {
-                        bull_phl = candle.high
+                    if (candle.high! > bull_phl) {
+                        bull_phl = candle.high!
                         bull_phl_index = i
                     }
 
-                    if (candle.close < prev_candle.low ||
-                        (pullback && candle.low < bear_phl)) {
+                    if (candle.close! < prev_candle.low! ||
+                        (pullback && candle.low! < bear_phl)) {
                         pullback = true
-                        bear_phl = candle.low
+                        bear_phl = candle.low!
                         bear_phl_index = i
                     }
 
-                    if (pullback && candle.close > bos) {
+                    if (pullback && candle.close! > bos) {
                         if (bos_index === bear_phl_index) {
                             mentStructureData[index++] = {
                                 time: candleData[bos_index].time,
@@ -288,11 +288,11 @@ class MentStructure extends SeriesRenderer {
                         prev_phl = bear_phl
                         prev_phl_index = bear_phl_index
 
-                        bos = candle.high
+                        bos = candle.high!
                         bos_index = i
                         bull_phl = bos
                         bull_phl_index = i
-                    } else if (candle.close < prev_phl) {
+                    } else if (candle.close! < prev_phl) {
                         if (mentStructureData[index - 1].type === 'phl_bos') {
                             mentStructureData[index - 1].phl_time_to = candleData[i].time
                         } else {
@@ -330,7 +330,7 @@ class MentStructure extends SeriesRenderer {
                         pullback = false
                         prev_phl = bull_phl
                         prev_phl_index = bull_phl_index
-                        bos = candle.low
+                        bos = candle.low!
                         bos_index = i
                         bear_phl = bos
                         bear_phl_index = i
@@ -384,6 +384,8 @@ class MentStructure extends SeriesRenderer {
         let visibleCandle = []
         let i
 
+        // console.log('bars length', bars.length)
+        // console.log('lastVisibleIndex', lastVisibleIndex)
         for (i = visibleRangeFrom; i < visibleRange.to; i++) {
             const bar = bars[i]
             if (lastVisibleIndex >= 0 && i > lastVisibleIndex) break
