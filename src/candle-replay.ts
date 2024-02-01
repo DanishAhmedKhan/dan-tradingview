@@ -82,7 +82,6 @@ class CandleReplay {
         this.isReplayPressed = false
         this.isReplayMode = true
 
-        // this.candleIndex = this.chartFrameManager.getActiveChartFrame().setReplayMode()
         this.chartFrameManager.getActiveChartFrame().setReplayMode()
 
         this.addNextCandleKeyListener()

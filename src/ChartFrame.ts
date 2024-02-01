@@ -89,6 +89,8 @@ class ChartFrame {
             }
         }
 
+        this.lastTimeframeString = this.timeframe.getTimeframeString()
+
         this.isDataLoaded = false
 
         let chartFrameWrapperHtmlElement: HTMLElement =
@@ -199,6 +201,7 @@ class ChartFrame {
 
     public setTimeframe(timeframe: Timeframe): void {
         this.lastTimeframeString = this.timeframe.getTimeframeString()
+        console.log('ttt', this.lastTimeframeString)
 
         let timeScale = this.chart.getLightweightChart().timeScale()
         let logicalRange = timeScale.getVisibleLogicalRange()
@@ -212,6 +215,11 @@ class ChartFrame {
 
         let shouldDisplayChart: boolean = this.timeframe.getTimeframeString() !== timeframe.getTimeframeString()
         this.timeframe = timeframe
+
+        if (!ChartMain.candleReplay?.isReplayMode) {
+            this.lastTimeframeString = this.timeframe.getTimeframeString()
+        }
+
         this.isDataLoaded = false
         if (shouldDisplayChart) {
             this.displayChart(timestamp)
@@ -313,13 +321,17 @@ class ChartFrame {
         return emptyData
     }
 
+    private compareTimeframe() {
+
+    }
+
     public async displayChart(time?: number) {
         if (this.isDataLoaded) return
 
         let replayLastTime
         if (ChartMain.candleReplay?.isReplayMode) {
             replayLastTime = this.data[ChartMain.candleReplay?.getCandleIndex() - 1].time
-            this.replayTimeframe[this.lastTimeframeString!] = replayLastTime
+            // this.replayTimeframe[this.lastTimeframeString!] = replayLastTime
             this.setReplayMode(replayLastTime)
             return
         }
@@ -332,7 +344,6 @@ class ChartFrame {
 
         let data = this.datafeed.getTickerTimeframeData(this.ticker, this.timeframe, this.date)
         this.data = data
-        // console.log(data)
 
         let newData = [...this.data]
         if (this.timeframe.getUnit() !== 'D') {
@@ -398,12 +409,31 @@ class ChartFrame {
         this.toolManager.getAllTool().forEach(tool => tool.removeAllFromChart(this.drawingManager))
     }
 
-    public async loadReplayData(timestamp: number) {
-
-    }
-
     public async setReplayMode(time?: number) {
         let timestamp = time ? time : this.hoverCandleData.time
+
+        let tfm = ['M1', 'M2', 'M3', 'M5', 'M10', 'M15', 'M30']
+        let tfh = ['H1', 'H2', 'H4', 'H6']
+        let tf = tfm.concat(tfh)
+        let tf1 = tfm.concat(['H1'])
+        let tf2 = tfh.concat(['D1'])
+
+        let i1 = tf.findIndex(tf => tf === this.lastTimeframeString)
+        let i2 = tf.findIndex(tf => tf === this.timeframe.getTimeframeString())
+
+        if (time) {
+            // if (i1 >= 0 && i2 >= 0 && i1 > i2) {
+            //     timestamp = this.data[ChartMain.candleReplay?.getCandleIndex()!].time
+            // }
+            console.log('change', this.lastTimeframeString)
+            timestamp = this.replayTimeframe[this.lastTimeframeString!]
+        } else {
+            timestamp = this.hoverCandleData.time
+            this.replayTimeframe[this.timeframe.getTimeframeString()] = timestamp
+        }
+        // console.log('replayTimeframe', this.replayTimeframe)
+        console.log('timestamp', timestamp, new Date(timestamp * 1000))
+
         let yearWeek = getYearWeek(timestamp)
         let yearWeekCopy = yearWeek
 
@@ -444,14 +474,15 @@ class ChartFrame {
 
         index = data.findIndex(candle => candle.time === timestamp)
 
-        let tf1 = ['M1', 'M2', 'M3', 'M5', 'M10', 'M15', 'M30']
-        let tf2 = tf1.concat('H1')
-
-        let i1 = tf1.findIndex(tf => tf === this.lastTimeframeString)
-        let i2 = tf2.findIndex(tf => tf === this.timeframe.getTimeframeString())
+        i1 = tfh.findIndex(tf => tf === this.lastTimeframeString)
+        i2 = tf2.findIndex(tf => tf === this.timeframe.getTimeframeString())
+        let i3 = tfm.findIndex(tf => tf === this.lastTimeframeString)
+        let i4 = tf1.findIndex(tf => tf === this.timeframe.getTimeframeString())
 
         let lastCandle
-        if (index < 0 || (i1 >= 0 && i2 >= 0 && i2 > i1)) {
+        if (index < 0 || (i3 >= 0 && i4 >= 0 && i4 > i2) || (i1 >= 0 && i2 >= 0 && i2 > i1)) {
+            console.log('nani')
+
             for (let i = 0; i < data.length - 1; i++) {
                 if (data[i].time <= timestamp && data[i + 1].time > timestamp) {
                     index = i
@@ -465,17 +496,27 @@ class ChartFrame {
             let startIndex = -1
             let stopIndex = -1
 
+            let subTimeframe = Timeframe.ALL_TIMEFRAME[0]
+            if (this.lastTimeframeString?.includes('M')) {
+                subTimeframe = Timeframe.ALL_TIMEFRAME[0]
+            } else if (this.lastTimeframeString?.includes('H') && (this.timeframe.getUnit() === 'H' || this.timeframe.getUnit() === 'D')) {
+                subTimeframe = Timeframe.ALL_TIMEFRAME[8]
+            }
+
             let minuteData: Array<CandleData> = []
 
             for (let i = 0; i < dataFileLoaded.length; i++) {
                 let filename = dataFileLoaded[i]
 
-                minuteData = await this.datafeed.getDataFromDate(this.ticker, Timeframe.ALL_TIMEFRAME[0], filename)
+                minuteData = await this.datafeed.getDataFromDate(this.ticker, subTimeframe, filename)
                 startIndex = minuteData.findIndex(candle => candle.time === startTime)
                 stopIndex = minuteData.findIndex(candle => candle.time === stopTime)
 
                 if (startIndex >= 0 && stopIndex >= 0) break
             }
+
+            console.log('startTune', new Date(startTime * 1000))
+            console.log('stopTune', new Date(stopTime * 1000))
 
             if (startIndex >= 0 && stopIndex >= 0) {
                 let candleOpen = minuteData[startIndex].open
@@ -484,8 +525,11 @@ class ChartFrame {
                 let candleHigh = minuteData[startIndex].high!
                 let candleLow = minuteData[startIndex].low!
 
+                console.log('index', startIndex, stopIndex)
+
                 for (let i = startIndex; i <= stopIndex; i++) {
                     let d = minuteData[i]
+                    console.log(new Date(d.time * 1000))
                     if (minuteData[i].high! > candleHigh) candleHigh = minuteData[i].high!
                     if (minuteData[i].low! < candleLow) candleLow = minuteData[i].low!
                 }
@@ -514,10 +558,26 @@ class ChartFrame {
         }
 
         startIndex = index < 1000 ? index : 1000
-        this.date = yearWeekCopy
-        this.displayNextCandle(startIndex)
-        ChartMain.candleReplay?.setCandleIndex(startIndex + 1)
 
+        if (i1 >= 0 && i2 >= 0 && i1 > i2) {
+            console.log('pop')
+            this.replayData.pop()
+            startIndex = startIndex - 1
+        }
+
+        this.date = yearWeekCopy
+
+        // this.displayNextCandle(startIndex)
+        let emptyData = this.getEmptyData(startIndex)
+        let newCandleData = [...this.replayData].concat(emptyData)
+        this.chart.addDataToCandleSeries(newCandleData)
+
+        if (time) startIndex = startIndex + 1
+        ChartMain.candleReplay?.setCandleIndex(startIndex)
+
+        this.chart.getIndicator().forEach(indicator => {
+            indicator.renderer.setVisibleLimit(this.replayData[this.replayData.length - 1].time, startIndex)
+        })
 
         let timeScale = this.chart.getLightweightChart().timeScale()
         let logicalRange = timeScale.getVisibleLogicalRange()
@@ -544,30 +604,44 @@ class ChartFrame {
         }
 
         let candle = this.data[index]
-
         if (candle != null) {
+            this.replayTimeframe = {}
+            this.replayTimeframe[this.lastTimeframeString!] = candle.time
+            console.log(this.replayTimeframe)
+
             let emptyData = this.getEmptyData(index)
 
-            if (index >= this.replayData.length) {
-                if (
-                    JSON.stringify(this.subTimeframeCandle) !== JSON.stringify({}) &&
-                    this.subTimeframeCandle.meta.final
-                ) {
-                    this.replayData.pop()
-                    this.replayData.push(this.subTimeframeCandle)
-                    this.subTimeframeCandle = {}
-                    ChartMain.candleReplay?.setCandleIndex(index)
-                } else {
-                    this.replayData.push(candle)
-                }
+            // if (index >= this.replayData.length) {
+            //     if (
+            //         JSON.stringify(this.subTimeframeCandle) !== JSON.stringify({}) &&
+            //         this.subTimeframeCandle.meta.final
+            //     ) {
+            //         this.replayData.pop()
+            //         this.replayData.push(this.subTimeframeCandle)
+            //         this.subTimeframeCandle = {}
+            //         ChartMain.candleReplay?.setCandleIndex(index)
+            //     } else {
+            //         this.replayData.push(candle)
+            //     }
+            // }
+
+            if (JSON.stringify(this.subTimeframeCandle) !== JSON.stringify({})) {
+                this.replayData.pop()
+                this.replayData.push(this.subTimeframeCandle)
+                this.subTimeframeCandle = {}
+                ChartMain.candleReplay?.setCandleIndex(index)
+            } else {
+                this.replayData.push(candle)
             }
 
-            if (
-                JSON.stringify(this.subTimeframeCandle) !== JSON.stringify({}) &&
-                !this.subTimeframeCandle.meta.final
-            ) {
-                this.subTimeframeCandle.meta.final = true
-            }
+            // this.replayData.push(candle)
+
+            // if (
+            //     JSON.stringify(this.subTimeframeCandle) !== JSON.stringify({}) &&
+            //     !this.subTimeframeCandle.meta.final
+            // ) {
+            //     this.subTimeframeCandle.meta.final = true
+            // }
 
             if (this.replayData[this.replayData.length - 1].time === emptyData[0].time) {
                 emptyData.shift()
