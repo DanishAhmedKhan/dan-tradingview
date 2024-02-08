@@ -40,3 +40,14 @@ export function getYearWeek(timestamp: number) {
 
     return yearWeek
 }
+
+export function displayDate(timestamp: number, prefix: string = '') {
+    timestamp = timestamp - (330 * 60)
+    timestamp = timestamp * 1000
+
+    let date = new Date(timestamp) + ''
+    let index = date.indexOf('GMT')
+    date = date.substring(0, index)
+
+    console.log(prefix, date)
+}

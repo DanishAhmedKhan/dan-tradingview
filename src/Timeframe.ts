@@ -13,7 +13,7 @@ class Timeframe {
         new Timeframe(TimeframeUnit.MINUTE, 5),
         new Timeframe(TimeframeUnit.MINUTE, 10),
         new Timeframe(TimeframeUnit.MINUTE, 15),
-        new Timeframe(TimeframeUnit.MINUTE, 20),
+        // new Timeframe(TimeframeUnit.MINUTE, 20),
         new Timeframe(TimeframeUnit.MINUTE, 30),
         new Timeframe(TimeframeUnit.HOUR, 1),
         new Timeframe(TimeframeUnit.HOUR, 2),
@@ -58,7 +58,7 @@ class Timeframe {
     public getReadableTimeframe(): string {
         let unit = this.unit == TimeframeUnit.MINUTE ? '' :
             this.unit.toLowerCase()
-        
+
         return this.value + unit
     }
 
