@@ -84,11 +84,11 @@ class ShortPosition extends Drawing<ShortPositionOptions> {
             ...options,
             boxColor: '#333',
         }, false)
-        drawPNLText(ctx, `Risk: ${target} (${targetPip})`, this.point[2], width, 140, {
+        drawPNLText(ctx, `Risk: ${risk} (${riskPip})`, this.point[2], width, 140, {
             ...options,
             boxColor: '#F23645',
         }, false)
-        drawPNLText(ctx, `Target: ${risk} (${riskPip})`, this.point[4], width, 140, {
+        drawPNLText(ctx, `Target: ${target} (${targetPip})`, this.point[4], width, 140, {
             ...options,
             boxColor: '#089981',
         }, true)

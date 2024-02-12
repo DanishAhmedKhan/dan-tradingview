@@ -459,7 +459,7 @@ class ChartFrame {
 
         let index = data.findIndex(candle => candle.time === timestamp)
 
-        if (index > 0 && index < 1000) {
+        if (index > 0 && index < REPLAY_CANLD_THRESHHOLD) {
             let prevData = await this.datafeed.getDataFromDate(this.ticker, this.timeframe, yearWeek)
             data = prevData.concat(data)
         }
@@ -553,7 +553,7 @@ class ChartFrame {
             }
         }
 
-        let startIndex = index < 0 ? 1000 : index
+        let startIndex = index < 0 ? REPLAY_CANLD_THRESHHOLD : index
         startIndex = index - REPLAY_CANLD_THRESHHOLD
         startIndex = startIndex < 0 ? 0 : startIndex
 
@@ -563,11 +563,11 @@ class ChartFrame {
 
         if (lastCandle) {
             this.replayData.push(lastCandle)
-            startIndex = index < 1000 ? index : 1000
+            startIndex = index < REPLAY_CANLD_THRESHHOLD ? index : REPLAY_CANLD_THRESHHOLD
             this.subTimeframeCandle = this.data[startIndex]
         }
 
-        startIndex = index < 1000 ? index : 1000
+        startIndex = index < REPLAY_CANLD_THRESHHOLD ? index : REPLAY_CANLD_THRESHHOLD
         this.date = yearWeekCopy
         let emptyData = this.getEmptyData(startIndex)
         let newCandleData = [...this.replayData].concat(emptyData)
@@ -584,8 +584,8 @@ class ChartFrame {
         let rangeGapMid = rangeGap / 2
 
         timeScale.setVisibleLogicalRange({
-            from: 1000 - rangeGapMid,
-            to: 1000 + rangeGapMid,
+            from: REPLAY_CANLD_THRESHHOLD - rangeGapMid,
+            to: REPLAY_CANLD_THRESHHOLD + rangeGapMid,
         })
 
         this.chart.addIndicatorToChart(this.data)
