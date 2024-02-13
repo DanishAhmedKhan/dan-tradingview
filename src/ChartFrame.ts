@@ -442,12 +442,11 @@ class ChartFrame {
             }
         }
 
-
         let yearWeek = getYearWeek(timestamp)
         let yearWeekCopy = yearWeek
 
         let data: Array<CandleData> = []
-        const REPLAY_CANLD_THRESHHOLD = 1000
+        const REPLAY_CANLD_THRESHHOLD = 1500
         let dataFileLoaded = []
 
         while (data.length < REPLAY_CANLD_THRESHHOLD) {
@@ -456,6 +455,8 @@ class ChartFrame {
             dataFileLoaded.push(yearWeek)
             yearWeek = this.datafeed.getPreviousDateFilename(yearWeek)
         }
+        let prevData = await this.datafeed.getDataFromDate(this.ticker, this.timeframe, yearWeek)
+        data = prevData.concat(data)
 
         let index = data.findIndex(candle => candle.time === timestamp)
 

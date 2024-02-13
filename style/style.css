@@ -394,4 +394,23 @@ body {
 .indicator_popup_wrapper .indicator_popup .main .main_left {
   width: 200px;
   border-right: 1px solid rgb(230, 230, 230);
+}
+.header_right .header_right_item {
+  margin-right: 20px;
+  cursor: pointer;
+}
+.header_right .header_right_item .container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.header_right .header_right_item .container .icon svg {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+.header_right .header_right_item .container .text {
+  margin-left: 2px;
+  font-size: 14px;
+  text-align: center;
 }/*# sourceMappingURL=style.css.map */

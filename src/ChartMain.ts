@@ -7,6 +7,7 @@ import { ToolbarManager } from './drawing/toolbar-manager'
 import { Calendar } from './calendar'
 import { CandleReplay } from './candle-replay'
 import { IndicatorHtml } from './html/indicator-html'
+import { Snapshot } from './snapshot'
 
 class ChartMain {
 
@@ -20,6 +21,7 @@ class ChartMain {
 
     public static calendar: Calendar | null = null
     public static candleReplay: CandleReplay | null = null
+    public static snapshot: Snapshot | null = null
 
     constructor(chartMainHtmlElement: HTMLElement | string) {
         this.datafeed = new Datafeed()
@@ -85,6 +87,7 @@ class ChartMain {
         indicatorHtml.addHtml(headerRightHtmlElement)
 
         ChartMain.candleReplay = new CandleReplay(headerRightHtmlElement, this.chartFrameManager)
+        ChartMain.snapshot = new Snapshot(headerRightHtmlElement)
     }
 
     private getChartFrameSelectHtml(): string {
