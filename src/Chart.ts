@@ -254,8 +254,7 @@ class Chart {
             .subscribeVisibleLogicalRangeChange(onVisibleLogicalRangeChanged)
 
         this.lightweightChart.subscribeCrosshairMove((data: any) => {
-            // console.log(data)
-            if (data.seriesData != null && data.seriesData.size === 1) {
+            if (data.seriesData != null) {
                 let value = data.seriesData.values().next().value
                 this.chartFrame.handleCrosshairMove(value)
 

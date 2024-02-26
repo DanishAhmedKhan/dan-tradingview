@@ -38,9 +38,19 @@ class SimpleMovingAverage extends SeriesRenderer {
     }
 
     public drawSeries(ctx: any, priceToCoordinate: any): void {
+        let lastVisibleIndex = -1
+
         const bars = this.seriesData.bars.map((bar: any, index: number) => {
             const valueY = priceToCoordinate(bar.originalData.price) ?? 0
             let barData = bar.originalData
+
+            if (
+                index < this.seriesData.bars.length - 1 &&
+                this.visibleTimeLimit &&
+                barData.current_time < this.visibleTimeLimit
+            ) {
+                lastVisibleIndex = index + 1
+            }
 
             return {
                 time: bar.originalData.current_time,
@@ -49,20 +59,15 @@ class SimpleMovingAverage extends SeriesRenderer {
             }
         })
 
-        let timeScale = this.lightweightChart.timeScale()
-
         ctx.strokeStyle = this.seriesOptions.color || '#f00'
 
         let visibleRange = this.seriesData.visibleRange
 
+        console.log('lastVisibleIndex', lastVisibleIndex)
+
         for (let i = visibleRange.from; i < visibleRange.to; i++) {
+            if (lastVisibleIndex >= 0 && i > lastVisibleIndex) break
             if (i - 1 < 0) continue
-
-            let x1 = timeScale.timeToNearestCoordinate(this.seriesData.bars[i - 1].originalData.current_time)
-            let y1 = priceToCoordinate(this.seriesData.bars[i - 1].originalData.value)
-
-            let x2 = timeScale.timeToNearestCoordinate(this.seriesData.bars[i].originalData.current_time)
-            let y2 = priceToCoordinate(this.seriesData.bars[i].originalData.value)
 
             ctx.beginPath()
             ctx.moveTo(bars[i].x, bars[i].y)

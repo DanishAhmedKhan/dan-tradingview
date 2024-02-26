@@ -384,8 +384,6 @@ class MentStructure extends SeriesRenderer {
         let visibleCandle = []
         let i
 
-        // console.log('bars length', bars.length)
-        // console.log('lastVisibleIndex', lastVisibleIndex)
         for (i = visibleRangeFrom; i < visibleRange.to; i++) {
             const bar = bars[i]
             if (lastVisibleIndex >= 0 && i > lastVisibleIndex) break
