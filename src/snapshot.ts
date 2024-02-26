@@ -15,7 +15,6 @@ class Snapshot {
         this.parentHtmlElement = parentHtmlElement
         this.addHtml()
         this.addClickListener()
-        console.log(';ssss')
     }
 
     public addHtml() {
@@ -35,7 +34,6 @@ class Snapshot {
     public addClickListener() {
         this.snapshotHtmlElement?.addEventListener('click', event => {
             window.html2canvas(document.body).then((canvas: any) => {
-                console.log('canvas', canvas)
 
                 canvas.toBlob(async function (blob: any) {
                     const formData = new FormData()
@@ -49,8 +47,6 @@ class Snapshot {
                     })
 
                     let cloudData = await res.json()
-                    console.log(cloudData)
-
                     navigator.clipboard.writeText(cloudData.url)
                 })
             })

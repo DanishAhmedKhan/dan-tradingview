@@ -19,6 +19,7 @@ class Timeframe {
         new Timeframe(TimeframeUnit.HOUR, 2),
         new Timeframe(TimeframeUnit.HOUR, 4),
         new Timeframe(TimeframeUnit.HOUR, 6),
+        new Timeframe(TimeframeUnit.HOUR, 24),
         new Timeframe(TimeframeUnit.DAY, 1),
     ]
 

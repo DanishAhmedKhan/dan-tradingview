@@ -8,7 +8,6 @@ import { ToolbarManager } from './drawing/toolbar-manager'
 import { CHartHUD } from './chart-hud'
 import ChartMain from './ChartMain'
 import { displayDate, getDate, getYearWeek } from './helper/util'
-import { CandleReplay } from './candle-replay'
 
 type ChartFrameData = {
     ticker: string,
@@ -449,14 +448,18 @@ class ChartFrame {
         const REPLAY_CANLD_THRESHHOLD = 1500
         let dataFileLoaded = []
 
-        while (data.length < REPLAY_CANLD_THRESHHOLD) {
+        if (this.timeframe.getUnit() === 'D') {
+            data = await this.datafeed.getDataFromDate(this.ticker, this.timeframe, yearWeek)
+        } else {
+            while (data.length < REPLAY_CANLD_THRESHHOLD) {
+                let prevData = await this.datafeed.getDataFromDate(this.ticker, this.timeframe, yearWeek)
+                data = prevData.concat(data)
+                dataFileLoaded.push(yearWeek)
+                yearWeek = this.datafeed.getPreviousDateFilename(yearWeek)
+            }
             let prevData = await this.datafeed.getDataFromDate(this.ticker, this.timeframe, yearWeek)
             data = prevData.concat(data)
-            dataFileLoaded.push(yearWeek)
-            yearWeek = this.datafeed.getPreviousDateFilename(yearWeek)
         }
-        let prevData = await this.datafeed.getDataFromDate(this.ticker, this.timeframe, yearWeek)
-        data = prevData.concat(data)
 
         let index = data.findIndex(candle => candle.time === timestamp)
 
@@ -487,6 +490,8 @@ class ChartFrame {
         let lastCandle
         let lastCandleIndex = 0
         if (time && (index < 0 || (i1 >= 0 && i2 >= 0 && i2 > i1) && Object.keys(this.replayTimeframe)[0] !== this.timeframe.getTimeframeString())) {
+            console.log('nani')
+
             for (let i = 0; i < data.length - 1; i++) {
                 if (data[i].time <= timestamp && data[i + 1].time > timestamp) {
                     index = i
@@ -512,7 +517,7 @@ class ChartFrame {
             if (this.lastTimeframeString?.includes('M') || isMinuteInReplayTimeframe) {
                 subTimeframe = Timeframe.ALL_TIMEFRAME[0]
             } else if (this.lastTimeframeString?.includes('H') && (this.timeframe.getUnit() === 'H' || this.timeframe.getUnit() === 'D')) {
-                subTimeframe = Timeframe.ALL_TIMEFRAME[8]
+                subTimeframe = Timeframe.ALL_TIMEFRAME[7]
             }
 
             let minuteData: Array<CandleData> = []

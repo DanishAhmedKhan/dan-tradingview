@@ -4,8 +4,8 @@ import { SeriesRenderer } from "./series-renderer"
 
 class MentStructure extends SeriesRenderer {
 
-    constructor(lightweightChart: any, chartFrame: ChartFrame) {
-        super(lightweightChart, chartFrame)
+    constructor(lightweightChart: any, chartFrame: ChartFrame, option: any) {
+        super(lightweightChart, chartFrame, option)
     }
 
     public setReplayIndex(time: number): void {
@@ -661,6 +661,10 @@ class MentStructure extends SeriesRenderer {
                 }
             }
         }
+    }
+
+    public priceBuilder(plotRow: any): Array<number> {
+        return [plotRow.price]
     }
 }
 

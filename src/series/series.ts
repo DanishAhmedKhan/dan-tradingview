@@ -21,11 +21,7 @@ class Series {
     }
 
     public priceValueBuilder(plotRow: any) {
-        let data = []
-        for (const [key, value] of Object.entries(plotRow)) {
-            data.push(value)
-        }
-        return data
+        return this.seriesRenderer!.priceBuilder(plotRow)
     }
 
     public isWhitespace(data: SeriesData): boolean {

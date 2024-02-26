@@ -5,7 +5,7 @@ token = [
     'EURJPY', 'EURUSD', 'GBPCHF', 'GBPJPY', 'GBPNZD', 'GBPUSD', 'GBPCHF', 'GBPJPY',
     'GBPNZD', 'NZDCAD', 'NZDCHF', 'NZDJPY', 'NZDUSD', 'USDCAD', 'USDCHF', 'USDJPY',
 ]
-token = ['GBPUSD']
+token = ['EURUSD']
 
 start_year = 2020
 

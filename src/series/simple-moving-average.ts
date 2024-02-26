@@ -1,31 +1,28 @@
-import { ChartFrame } from "../ChartFrame";
-import { CandleData } from "../datafeed";
-import { SeriesRenderer } from "./series-renderer";
+import { ChartFrame } from "../ChartFrame"
+import { CandleData } from "../datafeed"
+import { SeriesRenderer } from "./series-renderer"
 
 class SimpleMovingAverage extends SeriesRenderer {
 
-    constructor(lightweightChart: any, chartFrame: ChartFrame) {
-        super(lightweightChart, chartFrame)
+    constructor(lightweightChart: any, chartFrame: ChartFrame, option: any) {
+        super(lightweightChart, chartFrame, option)
     }
 
     public setReplayIndex(time: number): void {
-        // console.log('setReplayIndex')
     }
 
     public processData(candleData: Array<CandleData>): void {
         let smaData = []
-        const SMA_INTERVAL = 20
+        const SMA_INTERVAL = this.seriesOptions.interval || 20
 
-        console.log(candleData)
 
         for (let i = SMA_INTERVAL; i < candleData.length; i++) {
             let closeValueSum = 0
 
             for (let j = i - SMA_INTERVAL; j < i; j++) {
-                closeValueSum += candleData[j].close
+                closeValueSum += candleData[j].close!
             }
 
-            // console.log(closeValueSum)
             let average = closeValueSum / SMA_INTERVAL
             average = +(parseFloat(average + '').toPrecision(6))
 
@@ -33,21 +30,11 @@ class SimpleMovingAverage extends SeriesRenderer {
                 time: candleData[i].time,
                 current_time: candleData[i].time,
                 price: average,
-                // value: 50000
             })
         }
 
-        console.log('smaData', smaData)
-        this.data = [
+        this.data = smaData
 
-            { time: 1690803000, current_time: 1690803000, price: 1.28549 },
-
-
-            { time: 1690806600, current_time: 1690806600, price: 1.28549 },
-
-
-            { time: 1690810200, current_time: 1690810200, price: 1.28541 },
-        ]
     }
 
     public drawSeries(ctx: any, priceToCoordinate: any): void {
@@ -61,8 +48,6 @@ class SimpleMovingAverage extends SeriesRenderer {
                 y: valueY,
             }
         })
-
-        // console.log('bars', bars)
 
         let timeScale = this.lightweightChart.timeScale()
 
@@ -79,13 +64,15 @@ class SimpleMovingAverage extends SeriesRenderer {
             let x2 = timeScale.timeToNearestCoordinate(this.seriesData.bars[i].originalData.current_time)
             let y2 = priceToCoordinate(this.seriesData.bars[i].originalData.value)
 
-            console.log(this.seriesData.bars[i - 1].originalData.value > 10, this.seriesData.bars[i].originalData.value > 10)
-
             ctx.beginPath()
             ctx.moveTo(bars[i].x, bars[i].y)
             ctx.lineTo(bars[i - 1].x, bars[i - 1].y)
             ctx.stroke()
         }
+    }
+
+    public priceBuilder(plotRow: any): Array<number> {
+        return [plotRow.price]
     }
 
 }

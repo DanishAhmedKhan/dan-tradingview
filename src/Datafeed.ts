@@ -227,11 +227,12 @@ class Datafeed {
             await this.loadData(ticker, date)
         }
 
-        if (!this.data[tk][date][timeframe.getTimeframeString()]) {
+        if (!this.data[tk][date][timeframe.getTimeframeString()] && timeframe.getUnit() !== 'D') {
             await this.loadFileFromInterval(ticker, date, <TimeframeUnit>timeframe.getUnit())
         }
 
-        return this.data[tk][date][timeframe.getTimeframeString()]
+        return timeframe.getUnit() === 'D' ?
+            this.data[tk]['ALL']['D1'] : this.data[tk][date][timeframe.getTimeframeString()]
     }
 
     async loadData(ticker: Ticker, date: string) {

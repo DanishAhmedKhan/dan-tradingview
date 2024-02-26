@@ -145,21 +145,17 @@ class Chart {
                 precision: 5,
                 minMove: 0.00001,
             },
-            // autoscaleInfoProvider: () => ({
-            //     priceRange: {
-            //         minValue: 0,
-            //         maxValue: 100,
-            //     },
-            // }),
         }
 
         this.candleSeries.applyOptions(this.candleSeriesOption)
 
-        let mentStrustureRenderer = new MentStructure(this.lightweightChart, this.chartFrame)
-        let simpleMovingAverageRenderer = new SimpleMovingAverage(this.lightweightChart, this.chartFrame)
+        let mentStrustureRenderer = new MentStructure(this.lightweightChart, this.chartFrame, { color: '#aaa' })
+        let simpleMovingAverageRenderer1 = new SimpleMovingAverage(this.lightweightChart, this.chartFrame, { color: '#e3665d', interval: 20 })
+        let simpleMovingAverageRenderer2 = new SimpleMovingAverage(this.lightweightChart, this.chartFrame, { color: '#5377ed', interval: 50 })
 
         this.addIndicatorSeries(mentStrustureRenderer)
-        // this.addIndicatorSeries(simpleMovingAverageRenderer)
+        this.addIndicatorSeries(simpleMovingAverageRenderer1)
+        this.addIndicatorSeries(simpleMovingAverageRenderer2)
 
         this.lightweightChart.timeScale().applyOptions({ shiftVisibleRangeOnNewBar: false })
         this.addChartScrollListener()
@@ -167,7 +163,7 @@ class Chart {
 
     public addIndicatorSeries(renderer: SeriesRenderer): void {
         let series = new Series(renderer)
-        let chartSeries = this.lightweightChart.addCustomSeries(series, {})
+        let chartSeries = this.lightweightChart.addCustomSeries(series)
 
         this.indicator.push({
             renderer,
@@ -207,20 +203,12 @@ class Chart {
     }
 
     public addIndicatorToChart(data: any): void {
-        // return
         if (!data) return
-
-        // this.resetChartScale()
 
         this.indicator.forEach(indicator => {
             indicator.renderer.processData(data)
             indicator.chartSeries.setData(indicator.renderer.getData())
         })
-
-        // setTimeout(() => {
-
-        //     this.resetChartScale()
-        // }, 2000)
     }
 
     public processIndicator(data: any) {

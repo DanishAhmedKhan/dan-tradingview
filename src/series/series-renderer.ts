@@ -16,9 +16,10 @@ abstract class SeriesRenderer {
     protected visibleTimeLimit: number | null = null
     protected visibleTimeIndex: number | null = null
 
-    constructor(lightweightChart: any, chartFrame: ChartFrame) {
+    constructor(lightweightChart: any, chartFrame: ChartFrame, option: any) {
         this.lightweightChart = lightweightChart
         this.chartFrame = chartFrame
+        this.seriesOptions = option
     }
 
     public getReplayIndex(): number {
@@ -59,7 +60,11 @@ abstract class SeriesRenderer {
 
     public update(seriesData: any, seriesOptions: any): void {
         this.seriesData = seriesData
-        this.seriesOptions = seriesOptions
+        // this.seriesOptions = seriesOptions
+    }
+
+    public setOption(option: any): void {
+        this.seriesOptions = option
     }
 
     public getData(): Array<any> {
@@ -71,6 +76,8 @@ abstract class SeriesRenderer {
     public abstract processData(data: Array<CandleData>): void
 
     public abstract drawSeries(ctx: any, priceConverter: any): void
+
+    public abstract priceBuilder(plotRow: any): Array<number>
 }
 
 export { SeriesRenderer }
