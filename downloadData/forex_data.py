@@ -9,6 +9,9 @@ fxcm_data_url_suffix = '.csv.gz'
 storage_options = {'User-Agent': 'Mozilla/5.0'}
 tradingview = TvDatafeed()
 
+
+# https://candledata.fxcorporate.com/m1/EURUSD/2022/39.csv.gz
+
 tickers = ['USDJPY']
 # AUDCAD,AUDCHF,AUDJPY, AUDNZD,CADCHF,EURAUD,EURCHF,EURGBP
 # EURJPY,EURUSD,GBPCHF,GBPJPY,GBPNZD,GBPUSD,GBPCHF,GBPJPY

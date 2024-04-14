@@ -190,13 +190,14 @@ class ChartFrame {
     public setCalendarDate(): void {
         let timeScale = this.chart.getLightweightChart().timeScale()
         let logicalRange = timeScale.getVisibleLogicalRange()
+        if (logicalRange) {
+            let middleCandleIndex = Math.floor((logicalRange.from + logicalRange.to) / 2)
 
-        let middleCandleIndex = Math.floor((logicalRange.from + logicalRange.to) / 2)
-
-        if (middleCandleIndex < this.data.length - 1 && this.data[middleCandleIndex]) {
-            let middleCandleTime = this.data[middleCandleIndex].time
-            let dateValue = getDate(middleCandleTime)
-            ChartMain.calendar?.setCalendarDate(this.ticker.getTicker(), dateValue)
+            if (middleCandleIndex < this.data.length - 1 && this.data[middleCandleIndex]) {
+                let middleCandleTime = this.data[middleCandleIndex].time
+                let dateValue = getDate(middleCandleTime)
+                ChartMain.calendar?.setCalendarDate(this.ticker.getTicker(), dateValue)
+            }
         }
     }
 
@@ -409,6 +410,7 @@ class ChartFrame {
     public async setReplayMode(time?: number) {
         this.hasMovedToNextCandle = false
         let timestamp = time ? time : this.hoverCandleData.time
+        displayDate(timestamp, 'date')
 
         let tfm = ['M1', 'M2', 'M3', 'M5', 'M10', 'M15', 'M30']
         let tfh = ['H1', 'H2', 'H4', 'H6']
@@ -573,9 +575,11 @@ class ChartFrame {
             this.subTimeframeCandle = this.data[startIndex]
         }
 
+        // displayDate(this.replayData[this.replayData.length - 1].time, 'replayData last time')
         startIndex = index < REPLAY_CANLD_THRESHHOLD ? index : REPLAY_CANLD_THRESHHOLD
         this.date = yearWeekCopy
         let emptyData = this.getEmptyData(startIndex)
+        // displayDate(emptyData[0].time, 'emptyData last time')
         let newCandleData = [...this.replayData].concat(emptyData)
         this.chart.addDataToCandleSeries(newCandleData)
         ChartMain.candleReplay?.setCandleIndex(startIndex)
@@ -637,6 +641,7 @@ class ChartFrame {
                 emptyData.shift()
             }
 
+            console.log('nesttttt')
             let newCandleData = [...this.replayData].concat(emptyData)
             this.chart.addDataToCandleSeries(newCandleData)
             this.chart.getIndicator().forEach(indicator => {

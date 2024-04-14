@@ -72,10 +72,16 @@ class LongPosition extends Drawing<LongPositionOptions> {
             textSize: '11px',
         }
 
+        let price = this.point[0].getPrice()!
+        let factor = 10000
+        // if (price < 10) factor = 10000
+        // if (price < 100) factor = 1000
+        // if (price < 1000) factor = 100
+
         let target = +(this.point[2].getPrice()! - this.point[0].getPrice()!).toFixed(5)
         let risk = +(this.point[0].getPrice()! - this.point[4].getPrice()!).toFixed(5)
-        let targetPip = (target * 10000).toFixed(2)
-        let riskPip = (risk * 10000).toFixed(2)
+        let targetPip = (target * factor).toFixed(2)
+        let riskPip = (risk * factor).toFixed(2)
         let rr = (target / risk).toFixed(2)
 
         let width = this.point[1].getX()! - this.point[0].getX()!

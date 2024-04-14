@@ -4,6 +4,7 @@ class Ticker {
         // "AUDCHF",
         // "AUDJPY",
         // "AUDNZD",
+        "AUDUSD",
         // "CADCHF",
         // "EURAUD",
         // "EURCHF",

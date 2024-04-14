@@ -2,7 +2,7 @@ import { ChartFrame } from "../ChartFrame"
 import { CandleData } from "../datafeed"
 import { SeriesRenderer } from "./series-renderer"
 
-class SimpleMovingAverage extends SeriesRenderer {
+class ExponentialMovingAverage extends SeriesRenderer {
 
     constructor(lightweightChart: any, chartFrame: ChartFrame, option: any) {
         super(lightweightChart, chartFrame, option)
@@ -12,30 +12,34 @@ class SimpleMovingAverage extends SeriesRenderer {
     }
 
     public processData(candleData: Array<CandleData>): void {
-        console.log('simple moving average')
+        let emaData = []
+        const EMA_INTERVAL = this.seriesOptions.interval || 20
+        let priceSum = 0
 
-        let smaData = []
-        const SMA_INTERVAL = this.seriesOptions.interval || 20
+        for (let i = 0; i < EMA_INTERVAL; i++) {
+            priceSum += candleData[i].close!
+        }
 
+        let ema = priceSum / EMA_INTERVAL
+        let multiplier = 2.0 / (EMA_INTERVAL + 1)
 
-        for (let i = SMA_INTERVAL; i < candleData.length; i++) {
-            let closeValueSum = 0
+        emaData.push({
+            time: candleData[EMA_INTERVAL - 1].time,
+            current_time: candleData[EMA_INTERVAL - 1].time,
+            price: ema,
+        })
 
-            for (let j = i - SMA_INTERVAL; j < i; j++) {
-                closeValueSum += candleData[j].close!
-            }
+        for (let i = EMA_INTERVAL; i < candleData.length; i++) {
+            ema = candleData[i].close! * multiplier + ema * (1 - multiplier)
 
-            let average = closeValueSum / SMA_INTERVAL
-            average = +(parseFloat(average + '').toPrecision(6))
-
-            smaData.push({
+            emaData.push({
                 time: candleData[i].time,
                 current_time: candleData[i].time,
-                price: average,
+                price: ema,
             })
         }
 
-        this.data = smaData
+        this.data = emaData
     }
 
     public drawSeries(ctx: any, priceToCoordinate: any): void {
@@ -81,4 +85,4 @@ class SimpleMovingAverage extends SeriesRenderer {
 
 }
 
-export { SimpleMovingAverage }
+export { ExponentialMovingAverage }
