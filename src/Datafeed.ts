@@ -108,6 +108,7 @@ class Datafeed {
             return this.data[tk].ALL[tf]
         }
 
+        console.log('DATA', this.data)
         let data: Array<CandleData> = []
         if (this.data.hasOwnProperty(tk) && this.data[tk].hasOwnProperty(date)) {
             let left = this.filenameEdge[tk][timeUnit].left
@@ -119,14 +120,10 @@ class Datafeed {
                 str = filename + ' ' + str
                 data = this.data[tk][filename][tf].concat(data)
             }
-            // console.log('dates', str)
-            // console.log(new Date(data[0].time * 1000), new Date(data[data.length - 1].time * 1000))
         } else {
-            console.log('data', this.data)
             throw Error("Data with given ticker and timeframe not found")
         }
 
-        // console.log('data.length', data.length)
         return data
     }
 
@@ -240,8 +237,26 @@ class Datafeed {
             await this.loadYearWeekFilename()
         }
 
-        if (!date || date === '' || !this.dateFilename.includes(date)) {
+        let dateY = date.substring(0, date.indexOf('-'))
+        let dateW = +date.substring(date.indexOf('-') + 1)
+
+        let prevDate = dateY + '-' + (dateW - 1)
+        let nextDate = dateY + '-' + (dateW + 1)
+
+        if (
+            !date || date === '' ||
+            (
+                !this.dateFilename.includes(date) &&
+                !this.dateFilename.includes(prevDate) &&
+                !this.dateFilename.includes(nextDate)
+            )
+        ) {
             date = this.dateFilename[0]
+        }
+
+        if (!this.dateFilename.includes(date)) {
+            if (this.dateFilename.includes(prevDate)) date = prevDate
+            if (this.dateFilename.includes(nextDate)) date = nextDate
         }
 
         let tk = ticker.getTicker()
@@ -270,7 +285,7 @@ class Datafeed {
         this.calculateFileEdge(tk, date, TimeframeUnit.HOUR)
         this.calculateFileEdge(tk, date, TimeframeUnit.DAY)
 
-        return firstLoad ? date : null
+        return date
     }
 
     async loadDataTimeframe(ticker: Ticker, filename: string, timeUnit: TimeframeUnit,) {

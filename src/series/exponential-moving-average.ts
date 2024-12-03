@@ -43,6 +43,8 @@ class ExponentialMovingAverage extends SeriesRenderer {
     }
 
     public drawSeries(ctx: any, priceToCoordinate: any): void {
+        if (!this.seriesOptions?.visible) return
+
         let lastVisibleIndex = -1
 
         const bars = this.seriesData.bars.map((bar: any, index: number) => {

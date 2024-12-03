@@ -2,6 +2,7 @@ import { ChartFrame } from './ChartFrame';
 import ChartMain from './ChartMain';
 import { AverageTrueRange } from './series/average-true-range';
 import { ExponentialMovingAverage } from './series/exponential-moving-average';
+import { MentMovingAverage } from './series/ment-moving-average';
 import { MentStructure } from './series/ment-structure';
 import { Series } from './series/series';
 import { SeriesRenderer } from './series/series-renderer';
@@ -153,20 +154,25 @@ class Chart {
 
         let mentStrustureRenderer = new MentStructure(this.lightweightChart, this.chartFrame, { color: '#aaa' })
 
-        let simpleMovingAverageRenderer1 = new SimpleMovingAverage(this.lightweightChart, this.chartFrame, { color: '#e3665d', interval: 20 })
-        let simpleMovingAverageRenderer2 = new SimpleMovingAverage(this.lightweightChart, this.chartFrame, { color: '#5377ed', interval: 50 })
-        let simpleMovingAverageRenderer3 = new SimpleMovingAverage(this.lightweightChart, this.chartFrame, { color: '#6bf054', interval: 10 })
-        // let simpleMovingAverageRenderer3 = new SimpleMovingAverage(this.lightweightChart, this.chartFrame, { color: '#6aed64', interval: 5 })
-        // let emponentialMovingAverageRenderer1 = new ExponentialMovingAverage(this.lightweightChart, this.chartFrame, { color: '#f25cde', interval: 5 })
+        let simpleMovingAverageRenderer1 = new SimpleMovingAverage(this.lightweightChart, this.chartFrame, { color: '#e63c4d', interval: 20, visible: true })
+        let simpleMovingAverageRenderer2 = new SimpleMovingAverage(this.lightweightChart, this.chartFrame, { color: '#5377ed', interval: 50, visible: true })
+        let simpleMovingAverageRenderer3 = new SimpleMovingAverage(this.lightweightChart, this.chartFrame, { color: '#6bf054', interval: 50, visible: true })
+        let exponentialMovingAverageRenderer1 = new ExponentialMovingAverage(this.lightweightChart, this.chartFrame, { color: '#e63c4d', interval: 10, visible: true })
+        let exponentialMovingAverageRenderer2 = new ExponentialMovingAverage(this.lightweightChart, this.chartFrame, { color: '#5377ed', interval: 20, visible: true })
+        let exponentialMovingAverageRenderer3 = new ExponentialMovingAverage(this.lightweightChart, this.chartFrame, { color: '#6bf054', interval: 10, visible: true })
         let averageTrueRangeRenderer = new AverageTrueRange(this.lightweightChart, this.chartFrame, { color: 'red', interval: 14 })
 
         this.addIndicatorSeries(mentStrustureRenderer)
         // this.addIndicatorSeries(simpleMovingAverageRenderer1)
         // this.addIndicatorSeries(simpleMovingAverageRenderer2)
-        this.addIndicatorSeries(simpleMovingAverageRenderer1)
-        this.addIndicatorSeries(simpleMovingAverageRenderer2)
         this.addIndicatorSeries(simpleMovingAverageRenderer3)
+        this.addIndicatorSeries(exponentialMovingAverageRenderer1)
+        this.addIndicatorSeries(exponentialMovingAverageRenderer2)
+        // this.addIndicatorSeries(exponentialMovingAverageRenderer3)
         this.addIndicatorSeries(averageTrueRangeRenderer)
+
+        // let mentMovingAverage = new MentMovingAverage(this.lightweightChart, this.chartFrame, { indicator: this.indicator })
+        // this.addIndicatorSeries(mentMovingAverage)
 
         this.lightweightChart.timeScale().applyOptions({ shiftVisibleRangeOnNewBar: false })
         this.addChartScrollListener()

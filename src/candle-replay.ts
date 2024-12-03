@@ -32,7 +32,7 @@ class CandleReplay {
                 name: 'forward',
                 svg: svg.forward,
                 callback: async () => {
-                    const SKIP_COUNT = 30
+                    const SKIP_COUNT = 10
                     for (let i = 0; i < SKIP_COUNT; i++) {
                         await this.showNextCandle()
                     }

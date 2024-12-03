@@ -63,6 +63,10 @@ abstract class SeriesRenderer {
         // this.seriesOptions = seriesOptions
     }
 
+    public getOption(): any {
+        return this.seriesOptions
+    }
+
     public setOption(option: any): void {
         this.seriesOptions = option
     }

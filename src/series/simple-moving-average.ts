@@ -12,8 +12,6 @@ class SimpleMovingAverage extends SeriesRenderer {
     }
 
     public processData(candleData: Array<CandleData>): void {
-        console.log('simple moving average')
-
         let smaData = []
         const SMA_INTERVAL = this.seriesOptions.interval || 20
 
@@ -39,6 +37,10 @@ class SimpleMovingAverage extends SeriesRenderer {
     }
 
     public drawSeries(ctx: any, priceToCoordinate: any): void {
+        console.log('asa', this.seriesOptions?.visible)
+        if (!this.seriesOptions?.visible) return
+        console.log('tetea')
+
         let lastVisibleIndex = -1
 
         const bars = this.seriesData.bars.map((bar: any, index: number) => {

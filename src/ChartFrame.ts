@@ -334,8 +334,9 @@ class ChartFrame {
             return
         }
 
+        let dateCopy = this.date
         let date = await this.datafeed.loadData(this.ticker, this.date)
-        if (date != null) this.date = date as string
+        this.date = (date != null) ? date as string : dateCopy
 
         let timeScale = this.chart.getLightweightChart().timeScale()
         let logicalRange: any = timeScale.getVisibleLogicalRange()
@@ -492,7 +493,6 @@ class ChartFrame {
         let lastCandle
         let lastCandleIndex = 0
         if (time && (index < 0 || (i1 >= 0 && i2 >= 0 && i2 > i1) && Object.keys(this.replayTimeframe)[0] !== this.timeframe.getTimeframeString())) {
-            console.log('nani')
 
             for (let i = 0; i < data.length - 1; i++) {
                 if (data[i].time <= timestamp && data[i + 1].time > timestamp) {
@@ -641,7 +641,6 @@ class ChartFrame {
                 emptyData.shift()
             }
 
-            console.log('nesttttt')
             let newCandleData = [...this.replayData].concat(emptyData)
             this.chart.addDataToCandleSeries(newCandleData)
             this.chart.getIndicator().forEach(indicator => {

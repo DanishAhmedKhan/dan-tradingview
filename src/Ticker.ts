@@ -1,6 +1,6 @@
 class Ticker {
     public static readonly ALL_TICKERS: Array<string> = [
-        // "AUDCAD",
+        "AUDCAD",
         // "AUDCHF",
         // "AUDJPY",
         // "AUDNZD",
@@ -8,11 +8,11 @@ class Ticker {
         // "CADCHF",
         // "EURAUD",
         // "EURCHF",
-        // "EURGBP",
-        // "EURJPY",
+        "EURGBP",
+        "EURJPY",
         "EURUSD",
         // "GBPCHF",
-        // "GBPJPY",
+        "GBPJPY",
         // "GBPNZD",
         "GBPUSD",
         // "NZDCAD",
