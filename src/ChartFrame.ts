@@ -221,10 +221,21 @@ class ChartFrame {
             this.lastTimeframeString = this.timeframe.getTimeframeString()
         }
 
+        let range = this.chart.getLightweightChart().timeScale().getVisibleLogicalRange()
+        console.log('range', range)
+
         this.isDataLoaded = false
         if (shouldDisplayChart) {
             this.displayChart(timestamp)
         }
+
+        console.log('danish')
+        setTimeout(() => {
+            // this.chart.getLightweightChart().timeScale().scrollToPosition(1, false)
+            // this.chart.getLightweightChart().timeScale().setVisibleLogicalRange({ from: range.from, to: range.to })
+            this.chart.getLightweightChart().timeScale().scrollToRealTime()
+
+        })
 
         this.chartHUD.setTimeframe(timeframe)
     }
@@ -286,7 +297,7 @@ class ChartFrame {
                     }
                 }
                 if (barsBefore < CANDLE_THRESHOLD) {
-                    if (!this.datafeed.isLasttDate(this.date)) {
+                    if (!this.datafeed.isLastDate(this.date)) {
                         this.previousDate()
                     }
                 }
@@ -451,6 +462,8 @@ class ChartFrame {
         const REPLAY_CANLD_THRESHHOLD = 1500
         let dataFileLoaded = []
 
+        let hasLastYearWeekReached = false
+
         if (this.timeframe.getUnit() === 'D') {
             data = await this.datafeed.getDataFromDate(this.ticker, this.timeframe, yearWeek)
         } else {
@@ -458,15 +471,21 @@ class ChartFrame {
                 let prevData = await this.datafeed.getDataFromDate(this.ticker, this.timeframe, yearWeek)
                 data = prevData.concat(data)
                 dataFileLoaded.push(yearWeek)
+                if (this.datafeed.isLastDate(yearWeek)) {
+                    hasLastYearWeekReached = true
+                    break
+                }
                 yearWeek = this.datafeed.getPreviousDateFilename(yearWeek)
             }
-            let prevData = await this.datafeed.getDataFromDate(this.ticker, this.timeframe, yearWeek)
-            data = prevData.concat(data)
+            if (!hasLastYearWeekReached) {
+                let prevData = await this.datafeed.getDataFromDate(this.ticker, this.timeframe, yearWeek)
+                data = prevData.concat(data)
+            }
         }
 
         let index = data.findIndex(candle => candle.time === timestamp)
 
-        if (index > 0 && index < REPLAY_CANLD_THRESHHOLD) {
+        if ((index > 0 && index < REPLAY_CANLD_THRESHHOLD) && !hasLastYearWeekReached) {
             let prevData = await this.datafeed.getDataFromDate(this.ticker, this.timeframe, yearWeek)
             data = prevData.concat(data)
         }

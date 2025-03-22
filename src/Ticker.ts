@@ -22,6 +22,7 @@ class Ticker {
         // "USDCAD",
         // "USDCHF",
         "USDJPY",
+        "GER40",
     ]
 
     public static readonly DEFAULT_TICKER_STRING = "EURUSD"

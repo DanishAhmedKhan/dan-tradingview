@@ -108,7 +108,6 @@ class Datafeed {
             return this.data[tk].ALL[tf]
         }
 
-        console.log('DATA', this.data)
         let data: Array<CandleData> = []
         if (this.data.hasOwnProperty(tk) && this.data[tk].hasOwnProperty(date)) {
             let left = this.filenameEdge[tk][timeUnit].left
@@ -127,26 +126,34 @@ class Datafeed {
         return data
     }
 
-    public async loadYearWeekFilename() {
-        let filepath = this.BASE_FILEPATH + `/dates.csv`
+    public async loadYearWeekFilename(ticker: Ticker) {
+        let filepath = this.BASE_FILEPATH + '/' + ticker.getTicker() + '/dates.csv'
+        let fallbackFilepath = this.BASE_FILEPATH + '/dates.csv'
+        let text = ''
+
         try {
-            let file = await fetch(filepath)
-            let text = await file.text()
-            this.dateFilename = text.split("\n")
-            this.dateFilename = this.dateFilename.map((f) =>
-                f.replace(/(\r\n|\n|\r)/gm, "")
-            )
-            this.dateFilename.reverse()
+            let response = await fetch(filepath)
+            if (!response.ok) {
+                response = await fetch(fallbackFilepath)
+            }
+            text = await response.text()
         } catch (e) {
-            throw Error('dates.csv not found in data folder')
+            console.log('File not found', e)
         }
+
+        this.dateFilename = text.split("\n")
+        this.dateFilename = this.dateFilename.map((f) =>
+            f.replace(/(\r\n|\n|\r)/gm, "")
+        )
+        this.dateFilename.reverse()
+        this.dateFilename = this.dateFilename.filter(item => item !== '')
     }
 
     public isFirstDate(date: string): boolean {
         return date === this.dateFilename[0]
     }
 
-    public isLasttDate(date: string): boolean {
+    public isLastDate(date: string): boolean {
         return date === this.dateFilename[this.dateFilename.length - 1]
     }
 
@@ -234,7 +241,7 @@ class Datafeed {
 
     async loadData(ticker: Ticker, date: string) {
         if (this.dateFilename.length === 0) {
-            await this.loadYearWeekFilename()
+            await this.loadYearWeekFilename(ticker)
         }
 
         let dateY = date.substring(0, date.indexOf('-'))
@@ -278,8 +285,6 @@ class Datafeed {
             await this.loadDataTimeframe(ticker, dayFilename, TimeframeUnit.DAY)
             this.loadedFilename[tk].D.push(dayFilename)
         }
-
-        // console.log('data length in darafeed', this.data[tk])
 
         this.calculateFileEdge(tk, date, TimeframeUnit.MINUTE)
         this.calculateFileEdge(tk, date, TimeframeUnit.HOUR)

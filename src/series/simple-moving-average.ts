@@ -37,9 +37,7 @@ class SimpleMovingAverage extends SeriesRenderer {
     }
 
     public drawSeries(ctx: any, priceToCoordinate: any): void {
-        console.log('asa', this.seriesOptions?.visible)
         if (!this.seriesOptions?.visible) return
-        console.log('tetea')
 
         let lastVisibleIndex = -1
 

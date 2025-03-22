@@ -49,5 +49,5 @@ export function displayDate(timestamp: number, prefix: string = '') {
     let index = date.indexOf('GMT')
     date = date.substring(0, index)
 
-    console.log(prefix, date)
+    console.log(date)
 }

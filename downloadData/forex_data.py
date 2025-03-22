@@ -100,6 +100,7 @@ def download_from_fxcm(ticker):
     for y in range(start_year, year + 1):
         for w in range(1, 54):
             if not (y == year and w > week_num):
+                print(start_year, w)
                 download_data(ticker, y, w)
 
     save_valid_filenames(ticker)
