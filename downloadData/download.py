@@ -5,8 +5,8 @@ token = [
     'EURJPY', 'EURUSD', 'GBPCHF', 'GBPJPY', 'GBPNZD', 'GBPUSD', 'GBPCHF', 'GBPJPY',
     'GBPNZD', 'NZDCAD', 'NZDCHF', 'NZDJPY', 'NZDUSD', 'USDCAD', 'USDCHF', 'USDJPY',
 ]
-token = ['EURUSD']
+token = ['USDJPY']
 
 start_year = 2022
 
-(token, start_year)
+download_forex(token, start_year)

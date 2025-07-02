@@ -32,24 +32,21 @@ class Snapshot {
     }
 
     public addClickListener() {
-        this.snapshotHtmlElement?.addEventListener('click', event => {
-            window.html2canvas(document.body).then((canvas: any) => {
+        this.snapshotHtmlElement?.addEventListener('click', async (event) => {
+            const div = document.querySelector(".chart_frame_main_wrapper")
 
-                canvas.toBlob(async function (blob: any) {
-                    const formData = new FormData()
-                    formData.append('file', blob, 'trading.png')
-                    formData.append('upload_preset', 'danish_trading')
-                    formData.append('cloud_name', 'dp0kx2htu')
+            const canvas = await html2canvas(div, { backgroundColor: null })
 
-                    const res = await fetch('https://api.cloudinary.com/v1_1/dp0kx2htu/image/upload', {
-                        method: 'POST',
-                        body: formData
-                    })
-
-                    let cloudData = await res.json()
-                    navigator.clipboard.writeText(cloudData.url)
-                })
-            })
+            canvas.toBlob(async function (blob: any) {
+                try {
+                    await navigator.clipboard.write([
+                        new ClipboardItem({ "image/png": blob })
+                    ])
+                } catch (err) {
+                    console.error("Clipboard write failed:", err)
+                    alert("Failed to copy image. Make sure you're in a secure context (HTTPS) and using a supported browser.")
+                }
+            }, "image/png")
         })
     }
 

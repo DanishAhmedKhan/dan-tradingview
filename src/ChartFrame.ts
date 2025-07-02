@@ -222,20 +222,11 @@ class ChartFrame {
         }
 
         let range = this.chart.getLightweightChart().timeScale().getVisibleLogicalRange()
-        console.log('range', range)
 
         this.isDataLoaded = false
         if (shouldDisplayChart) {
             this.displayChart(timestamp)
         }
-
-        console.log('danish')
-        setTimeout(() => {
-            // this.chart.getLightweightChart().timeScale().scrollToPosition(1, false)
-            // this.chart.getLightweightChart().timeScale().setVisibleLogicalRange({ from: range.from, to: range.to })
-            this.chart.getLightweightChart().timeScale().scrollToRealTime()
-
-        })
 
         this.chartHUD.setTimeframe(timeframe)
     }
@@ -301,6 +292,7 @@ class ChartFrame {
                         this.previousDate()
                     }
                 }
+                console.log(this.date)
                 this.setIsDataLoaded(false)
                 this.displayChart()
             }
@@ -611,11 +603,11 @@ class ChartFrame {
 
         let rangeGap = logicalRange.to - logicalRange.from
         let rangeGapMid = rangeGap / 2
+        let isBeyondRplayCandleThreshold = logicalRange.from > REPLAY_CANLD_THRESHHOLD
+        let replayReangeFrom = isBeyondRplayCandleThreshold ? REPLAY_CANLD_THRESHHOLD - rangeGapMid : logicalRange.from
+        let replayRangeTo = isBeyondRplayCandleThreshold ? REPLAY_CANLD_THRESHHOLD + rangeGapMid : logicalRange.to
 
-        timeScale.setVisibleLogicalRange({
-            from: REPLAY_CANLD_THRESHHOLD - rangeGapMid,
-            to: REPLAY_CANLD_THRESHHOLD + rangeGapMid,
-        })
+        timeScale.setVisibleLogicalRange({ from: replayReangeFrom, to: replayRangeTo })
 
         this.chart.addIndicatorToChart(this.data)
     }
